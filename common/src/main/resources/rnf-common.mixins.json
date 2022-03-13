@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "com.rocketnotfound.rnf.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "access.BlockEntityTypeAccess",
+    "access.BlockEntityTypeBuilderAccess",
+    "access.BlockStateProviderAccess",
+    "access.SimpleParticleTypeAccess"
+  ],
+  "client": [
+    "client.MixinParticleEngine"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

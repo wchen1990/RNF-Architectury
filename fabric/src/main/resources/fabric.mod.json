@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "rnf",
+  "version": "${version}",
+  "name": "RNF",
+  "description": "This is a mod for RNF",
+  "authors": [
+    "Bob Dole"
+  ],
+  "contact": {
+    "homepage": "https://mc.rocketnotfound.com/",
+    "sources": ""
+  },
+  "license": "GNU GPL",
+  "icon": "assets/rnf/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.rocketnotfound.rnf.fabric.RNFabric"
+    ]
+  },
+  "mixins": [
+    "rnf.mixins.json",
+    "rnf-common.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.18.2",
+    "architectury": ">=4.0.29"
+  }
+}
