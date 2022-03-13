@@ -22,6 +22,6 @@ public class MixinParticleEngine {
 
     @Inject(method = ("registerProviders"), at = @At("RETURN"))
     private void registerRNFProviders(CallbackInfo ci) {
-        register(RNFParticleTypes.ENCHANT_NG, EnchantNGParticle.Provider::new);
+        register(RNFParticleTypes.ENCHANT_NG.get(), EnchantNGParticle.Provider::new);
     }
 }

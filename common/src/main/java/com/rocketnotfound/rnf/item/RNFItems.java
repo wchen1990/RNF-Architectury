@@ -17,39 +17,8 @@ import net.minecraft.world.level.block.Block;
 public class RNFItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(RNF.MOD_ID, Registry.ITEM_REGISTRY);
     public static final CreativeModeTab CREATIVE_TAB = CreativeTabRegistry.create(new ResourceLocation(RNF.MOD_ID, "rnf_tab"), () ->
-            new ItemStack(RNFItems.MOONSTONE));
+            new ItemStack(RNFItems.MOONSTONE.get()));
 
-    public static final Item MOONSTONE = createItem(RNFBlocks.MOONSTONE);
-    public static final Item DEEP_MOONSTONE = createItem(RNFBlocks.DEEP_MOONSTONE);
-
-    public static BlockItem createItem(Block block) {
-        return createItem(new BlockItem(block, new Item.Properties().tab(CREATIVE_TAB)), block);
-    }
-
-    public static <T extends Item> T createItem(T item, Block block) {
-        ResourceLocation id = Registry.BLOCK.getKey(block);
-        if (id == null || id.equals(new ResourceLocation("minecraft:air"))) {
-            boolean recovered = false;
-            for (RegistrySupplier<Block> blockRegistryObject : RNFBlocks.BLOCKS) {
-                if (blockRegistryObject.getOrNull() == block) {
-                    recovered = true;
-                    id = RNF.createLocation(blockRegistryObject.getId().toString());
-                    break;
-                }
-            }
-            if (recovered) {
-                RNF.LOG.error(String.format("Block \"%s\" was null in the block registry. Using value from RNF's tracked registered blocks...", id.toString()));
-            } else {
-                throw new IllegalArgumentException("Could not construct item from block using RNF's tracked block list! This should not be possible...");
-            }
-        }
-
-        return createItem(item, id.getPath());
-    }
-
-    public static <T extends Item> T createItem(T item, String id) {
-        ITEMS.register(id, () -> item);
-        return item;
-    }
-
+    public static final RegistrySupplier<Item> MOONSTONE = ITEMS.register("moonstone", () -> new BlockItem(RNFBlocks.MOONSTONE.get(), new Item.Properties().tab(CREATIVE_TAB)));
+    public static final RegistrySupplier<Item> DEEP_MOONSTONE = ITEMS.register("deep_moonstone", () -> new BlockItem(RNFBlocks.DEEP_MOONSTONE.get(), new Item.Properties().tab(CREATIVE_TAB)));
 }

@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 public class RNFBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(RNF.MOD_ID, Registry.BLOCK_ENTITY_TYPE_REGISTRY);
 
-    public static final BlockEntityType<RitualStandBlockEntity> RITUAL_STAND  = register("ritual_stand", BlockEntityType.Builder.of(RitualStandBlockEntity::new, RNFBlocks.RITUAL_STAND));
+    public static final BlockEntityType<RitualStandBlockEntity> RITUAL_STAND  = register("ritual_stand", BlockEntityType.Builder.of(RitualStandBlockEntity::new, RNFBlocks.RITUAL_STAND.get()));
 
     private static <T extends BlockEntity> BlockEntityType<T> register(String key, BlockEntityType.Builder<T> builder) {
         if (((BlockEntityTypeBuilderAccess) (Object) builder).getValidBlocks().isEmpty()) {
