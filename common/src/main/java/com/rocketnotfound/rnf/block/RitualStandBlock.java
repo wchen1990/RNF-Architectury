@@ -2,37 +2,37 @@ package com.rocketnotfound.rnf.block;
 
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.blockentity.RitualStandBlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEventListener;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.event.listener.GameEventListener;
 
 import javax.annotation.Nullable;
 
-public class RitualStandBlock extends BaseEntityBlock {
-    public RitualStandBlock(Properties builder) {
+public class RitualStandBlock extends BlockWithEntity {
+    public RitualStandBlock(Settings builder) {
         super(builder);
     }
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return RNFBlockEntities.RITUAL_STAND.create(blockPos, blockState);
+    public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return RNFBlockEntities.RITUAL_STAND.get().instantiate(blockPos, blockState);
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level $$0, BlockState $$1, BlockEntityType<T> $$2) {
-        return createTickerHelper($$2, RNFBlockEntities.RITUAL_STAND, RitualStandBlockEntity::tick);
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World $$0, BlockState $$1, BlockEntityType<T> $$2) {
+        return checkType($$2, RNFBlockEntities.RITUAL_STAND.get(), RitualStandBlockEntity::tick);
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> GameEventListener getListener(Level $$0, T $$1) {
-        return super.getListener($$0, $$1);
+    public <T extends BlockEntity> GameEventListener getGameEventListener(World $$0, T $$1) {
+        return super.getGameEventListener($$0, $$1);
     }
 }

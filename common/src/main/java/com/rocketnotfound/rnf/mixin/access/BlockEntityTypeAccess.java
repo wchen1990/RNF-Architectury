@@ -1,7 +1,7 @@
 package com.rocketnotfound.rnf.mixin.access;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.block.Block;
+import net.minecraft.block.entity.BlockEntityType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -12,9 +12,9 @@ import java.util.Set;
 public interface BlockEntityTypeAccess {
 
     @Accessor
-    Set<Block> getValidBlocks();
+    Set<Block> getBlocks();
 
     @Accessor
     @Mutable
-    void setValidBlocks(Set<Block> blocks);
+    void setBlocks(Set<Block> blocks);
 }

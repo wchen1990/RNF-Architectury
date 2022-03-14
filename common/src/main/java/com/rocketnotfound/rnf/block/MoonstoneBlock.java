@@ -1,9 +1,9 @@
 package com.rocketnotfound.rnf.block;
 
-import net.minecraft.world.level.block.Block;
+import net.minecraft.block.Block;
 
 public class MoonstoneBlock extends Block {
-    public MoonstoneBlock(Properties builder) {
+    public MoonstoneBlock(Settings builder) {
         super(builder);
     }
 }

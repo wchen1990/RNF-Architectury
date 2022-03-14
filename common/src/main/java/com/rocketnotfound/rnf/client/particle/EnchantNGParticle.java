@@ -1,93 +1,90 @@
 package com.rocketnotfound.rnf.client.particle;
 
-import net.minecraft.client.multiplayer.ClientLevel;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.particle.*;
-import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.particle.DefaultParticleType;
 
-import javax.annotation.Nullable;
+public class EnchantNGParticle extends SpriteBillboardParticle {
+    private final double startX;
+    private final double startY;
+    private final double startZ;
 
-public class EnchantNGParticle extends TextureSheetParticle {
-    protected final double xStart;
-    protected final double yStart;
-    protected final double zStart;
-
-    protected EnchantNGParticle(ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-        super(world, x, y, z, xSpeed, ySpeed, zSpeed);
-        this.xd = xSpeed;
-        this.yd = ySpeed;
-        this.zd = zSpeed;
-        this.xStart = x;
-        this.yStart = y;
-        this.zStart = z;
-        this.xo = x + xSpeed;
-        this.yo = y + ySpeed;
-        this.zo = z + zSpeed;
-        this.x = this.xo;
-        this.y = this.yo;
-        this.z = this.zo;
-        this.quadSize = 0.1F * (this.random.nextFloat() * 0.5F + 0.2F);
-        float colorRand = this.random.nextFloat() * 0.6F + 0.4F;
-        this.rCol = 0.9F * colorRand;
-        this.gCol = 0.9F * colorRand;
-        this.bCol = colorRand;
-        this.hasPhysics = false;
-        this.lifetime = (int)(Math.random() * 10.0D) + 30;
+    EnchantNGParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
+        super(clientWorld, d, e, f);
+        this.velocityX = g;
+        this.velocityY = h;
+        this.velocityZ = i;
+        this.startX = d;
+        this.startY = e;
+        this.startZ = f;
+        this.prevPosX = d + g;
+        this.prevPosY = e + h;
+        this.prevPosZ = f + i;
+        this.x = this.prevPosX;
+        this.y = this.prevPosY;
+        this.z = this.prevPosZ;
+        this.scale = 0.1F * (this.random.nextFloat() * 0.5F + 0.2F);
+        float j = this.random.nextFloat() * 0.6F + 0.4F;
+        this.red = 0.9F * j;
+        this.green = 0.9F * j;
+        this.blue = j;
+        this.collidesWithWorld = false;
+        this.maxAge = (int)(Math.random() * 10.0D) + 30;
     }
 
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+    public ParticleTextureSheet getType() {
+        return ParticleTextureSheet.PARTICLE_SHEET_OPAQUE;
     }
 
-    public void move(double $$0, double $$1, double $$2) {
-        this.setBoundingBox(this.getBoundingBox().move($$0, $$1, $$2));
-        this.setLocationFromBoundingbox();
+    public void move(double dx, double dy, double dz) {
+        this.setBoundingBox(this.getBoundingBox().offset(dx, dy, dz));
+        this.repositionFromBoundingBox();
     }
 
-    public int getLightColor(float $$0) {
-        int $$1 = super.getLightColor($$0);
-        float $$2 = (float)this.age / (float)this.lifetime;
-        $$2 *= $$2;
-        $$2 *= $$2;
-        int $$3 = $$1 & 255;
-        int $$4 = $$1 >> 16 & 255;
-        $$4 += (int)($$2 * 15.0F * 16.0F);
-        if ($$4 > 240) {
-            $$4 = 240;
+    public int getBrightness(float tint) {
+        int i = super.getBrightness(tint);
+        float f = (float)this.age / (float)this.maxAge;
+        f *= f;
+        f *= f;
+        int j = i & 255;
+        int k = i >> 16 & 255;
+        k += (int)(f * 15.0F * 16.0F);
+        if (k > 240) {
+            k = 240;
         }
 
-        return $$3 | $$4 << 16;
+        return j | k << 16;
     }
 
     public void tick() {
-        this.xo = this.x;
-        this.yo = this.y;
-        this.zo = this.z;
-        if (this.age++ >= this.lifetime) {
-            this.remove();
+        this.prevPosX = this.x;
+        this.prevPosY = this.y;
+        this.prevPosZ = this.z;
+        if (this.age++ >= this.maxAge) {
+            this.markDead();
         } else {
-            float $$0 = (float)this.age / (float)this.lifetime;
-            $$0 = 1.0F - $$0;
-            this.x = this.xStart + this.xd * (double)$$0;
-            this.y = this.yStart + this.yd * (double)$$0;
-            this.z = this.zStart + this.zd * (double)$$0;
+            float f = (float)this.age / (float)this.maxAge;
+            f = 1.0F - f;
+            this.x = this.startX + this.velocityX * (double)f;
+            this.y = this.startY + this.velocityY * (double)f;
+            this.z = this.startZ + this.velocityZ * (double)f;
         }
     }
 
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
+    @Environment(EnvType.CLIENT)
+    public static class Provider implements ParticleFactory<DefaultParticleType> {
+        private final SpriteProvider spriteProvider;
 
-        private final SpriteSet sprite;
-
-        public Provider(SpriteSet sprite) {
-            this.sprite = sprite;
+        public Provider(SpriteProvider spriteProvider) {
+            this.spriteProvider = spriteProvider;
         }
 
-        @Nullable
-        @Override
-        public Particle createParticle(SimpleParticleType var1, ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            EnchantNGParticle particle = new EnchantNGParticle(world, x, y, z, xSpeed, ySpeed, zSpeed);
-            particle.pickSprite(this.sprite);
+        public Particle createParticle(DefaultParticleType defaultParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
+            EnchantNGParticle particle = new EnchantNGParticle(clientWorld, d, e, f, g, h, i);
+            particle.setSprite(this.spriteProvider);
             return particle;
         }
-
     }
 }

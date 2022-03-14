@@ -1,13 +1,13 @@
 package com.rocketnotfound.rnf.mixin.access;
 
-import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.particle.DefaultParticleType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(SimpleParticleType.class)
-public interface SimpleParticleTypeAccess {
+@Mixin(DefaultParticleType.class)
+public interface DefaultParticleTypeAccess {
     @Invoker("<init>")
-    static SimpleParticleType create(boolean glow) {
+    static DefaultParticleType create(boolean glow) {
         throw new Error("Mixin did not apply!");
     }
 }

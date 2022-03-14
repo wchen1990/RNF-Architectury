@@ -6,23 +6,23 @@ import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.mixin.access.BlockEntityTypeBuilderAccess;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
-import net.minecraft.Util;
-import net.minecraft.core.Registry;
-import net.minecraft.util.datafix.fixes.References;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.datafixer.TypeReferences;
+import net.minecraft.util.Util;
+import net.minecraft.util.registry.Registry;
 
 public class RNFBlockEntities {
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(RNF.MOD_ID, Registry.BLOCK_ENTITY_TYPE_REGISTRY);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(RNF.MOD_ID, Registry.BLOCK_ENTITY_TYPE_KEY);
 
-    public static final RegistrySupplier<BlockEntityType<RitualStandBlockEntity>> RITUAL_STAND  = BLOCK_ENTITIES.register("ritual_stand", () -> buildType("ritual_stand", BlockEntityType.Builder.of(RitualStandBlockEntity::new, RNFBlocks.RITUAL_STAND.get())));
+    public static final RegistrySupplier<BlockEntityType<RitualStandBlockEntity>> RITUAL_STAND  = BLOCK_ENTITIES.register("ritual_stand", () -> buildType("ritual_stand", BlockEntityType.Builder.create(RitualStandBlockEntity::new, RNFBlocks.RITUAL_STAND.get())));
 
     private static <T extends BlockEntity> BlockEntityType<T> buildType(String key, BlockEntityType.Builder<T> builder) {
         if (((BlockEntityTypeBuilderAccess) (Object) builder).getBlocks().isEmpty()) {
             RNF.LOG.warn("Block entity type {} requires at least one valid block to be defined!", (Object) key);
         }
 
-        Type<?> type = Util.fetchChoiceType(References.BLOCK_ENTITY, key);
+        Type<?> type = Util.getChoiceType(TypeReferences.BLOCK_ENTITY, key);
         BlockEntityType<T> blockEntityType = builder.build(type);
         return blockEntityType;
     }

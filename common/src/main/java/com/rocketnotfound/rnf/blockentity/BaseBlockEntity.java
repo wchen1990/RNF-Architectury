@@ -1,11 +1,11 @@
 package com.rocketnotfound.rnf.blockentity;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
 
@@ -17,37 +17,37 @@ public class BaseBlockEntity extends BlockEntity {
 
     @Override
     @Nullable
-    public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
+    public BlockEntityUpdateS2CPacket toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    public void writeNbt(NbtCompound tag) {
+        super.writeNbt(tag);
     }
 
     public void updateBlock(){
-        BlockState state = level.getBlockState(worldPosition);
-        level.sendBlockUpdated(worldPosition, state, state, 3);
-        setChanged();
+        BlockState state = world.getBlockState(pos);
+        world.updateListeners(pos, state, state, 3);
+        markDirty();
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        this.saveAdditional(tag);
+    public NbtCompound toInitialChunkDataNbt() {
+        NbtCompound tag = new NbtCompound();
+        this.writeNbt(tag);
         return tag;
     }
 
     public double getX(){
-        return this.worldPosition.getX();
+        return this.pos.getX();
     }
 
     public double getY(){
-        return this.worldPosition.getY();
+        return this.pos.getY();
     }
 
     public double getZ(){
-        return this.worldPosition.getZ();
+        return this.pos.getZ();
     }
 }

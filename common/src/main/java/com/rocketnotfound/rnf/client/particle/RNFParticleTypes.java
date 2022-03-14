@@ -1,21 +1,15 @@
 package com.rocketnotfound.rnf.client.particle;
 
 import com.rocketnotfound.rnf.RNF;
-import com.rocketnotfound.rnf.mixin.access.SimpleParticleTypeAccess;
-import com.rocketnotfound.rnf.util.RegistryObject;
+import com.rocketnotfound.rnf.mixin.access.DefaultParticleTypeAccess;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
-import net.minecraft.core.Registry;
-import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.particles.SimpleParticleType;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Consumer;
+import net.minecraft.particle.DefaultParticleType;
+import net.minecraft.particle.ParticleType;
+import net.minecraft.util.registry.Registry;
 
 public class RNFParticleTypes {
-    public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(RNF.MOD_ID, Registry.PARTICLE_TYPE_REGISTRY);
+    public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(RNF.MOD_ID, Registry.PARTICLE_TYPE_KEY);
 
-    public static final RegistrySupplier<SimpleParticleType> ENCHANT_NG = PARTICLES.register("enchant_ng", () -> SimpleParticleTypeAccess.create(false));
+    public static final RegistrySupplier<DefaultParticleType> ENCHANT_NG = PARTICLES.register("enchant_ng", () -> DefaultParticleTypeAccess.create(false));
 }
