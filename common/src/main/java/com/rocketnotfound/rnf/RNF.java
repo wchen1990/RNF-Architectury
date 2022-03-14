@@ -1,6 +1,7 @@
 package com.rocketnotfound.rnf;
 
 import com.rocketnotfound.rnf.block.RNFBlocks;
+import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.client.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.item.RNFItems;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +15,7 @@ public class RNF {
 
     public static void init() {
         RNFBlocks.BLOCKS.register();
+        RNFBlockEntities.BLOCK_ENTITIES.register();
         RNFItems.ITEMS.register();
         RNFParticleTypes.PARTICLES.register();
     }
