@@ -17,6 +17,9 @@
   "entrypoints": {
     "main": [
       "com.rocketnotfound.rnf.fabric.RNFabric"
+    ],
+    "client": [
+      "com.rocketnotfound.rnf.fabric.RNFabricClient"
     ]
   },
   "mixins": [

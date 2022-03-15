@@ -15,7 +15,7 @@ import net.minecraft.util.registry.Registry;
 public class RNFBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(RNF.MOD_ID, Registry.BLOCK_ENTITY_TYPE_KEY);
 
-    public static final RegistrySupplier<BlockEntityType<RitualStandBlockEntity>> RITUAL_STAND  = BLOCK_ENTITIES.register("ritual_stand", () -> buildType("ritual_stand", BlockEntityType.Builder.create(RitualStandBlockEntity::new, RNFBlocks.RITUAL_STAND.get())));
+    public static final RegistrySupplier<BlockEntityType<RitualFrameBlockEntity>> RITUAL_FRAME = BLOCK_ENTITIES.register("ritual_frame", () -> buildType("ritual_stand", BlockEntityType.Builder.create(RitualFrameBlockEntity::new, RNFBlocks.RITUAL_FRAME.get())));
 
     private static <T extends BlockEntity> BlockEntityType<T> buildType(String key, BlockEntityType.Builder<T> builder) {
         if (((BlockEntityTypeBuilderAccess) (Object) builder).getBlocks().isEmpty()) {
