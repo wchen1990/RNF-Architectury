@@ -6,7 +6,7 @@
 				"identifier": "geometry.ritual_frame",
 				"texture_width": 32,
 				"texture_height": 32,
-				"visible_bounds_width": 3,
+				"visible_bounds_width": 2,
 				"visible_bounds_height": 1.5,
 				"visible_bounds_offset": [0, 0.25, 0]
 			},
@@ -90,10 +90,10 @@
 				{
 					"name": "ne",
 					"parent": "pillar",
-					"pivot": [-5.5, 2.118, -5.5],
+					"pivot": [-5.25, 2, -5.25],
 					"cubes": [
 						{
-							"origin": [-6, 1, -6],
+							"origin": [-5.75, 1, -5.75],
 							"size": [1, 4, 1],
 							"uv": {
 								"north": {"uv": [13, 1], "uv_size": [1, 4]},
@@ -109,10 +109,10 @@
 				{
 					"name": "se",
 					"parent": "pillar",
-					"pivot": [-5.5, 3.4994, 5.5],
+					"pivot": [-5.25, 4, 5.25],
 					"cubes": [
 						{
-							"origin": [-6, 1, 5],
+							"origin": [-5.75, 1, 4.75],
 							"size": [1, 4, 1],
 							"uv": {
 								"north": {"uv": [1, 14], "uv_size": [1, 4]},
@@ -128,10 +128,10 @@
 				{
 					"name": "sw",
 					"parent": "pillar",
-					"pivot": [5.5, 3, 5.5],
+					"pivot": [5.25, 3, 5.25],
 					"cubes": [
 						{
-							"origin": [5, 1, 5],
+							"origin": [4.75, 1, 4.75],
 							"size": [1, 4, 1],
 							"uv": {
 								"north": {"uv": [11, 13], "uv_size": [1, 4]},
@@ -147,10 +147,10 @@
 				{
 					"name": "nw",
 					"parent": "pillar",
-					"pivot": [5.5, 2.2282, -5.5],
+					"pivot": [5.25, 3, -5.25],
 					"cubes": [
 						{
-							"origin": [5, 1, -6],
+							"origin": [4.75, 1, -5.75],
 							"size": [1, 4, 1],
 							"uv": {
 								"north": {"uv": [4, 14], "uv_size": [1, 4]},

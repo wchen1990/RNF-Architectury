@@ -1,4 +1,6 @@
 {
   "parent": "block/block",
-  "ambientocclusion": false
+  "textures": {
+    "particle": "rnf:block/ritual_frame"
+  }
 }
