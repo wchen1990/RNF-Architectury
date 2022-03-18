@@ -1,3 +1,4 @@
 {
-  "parent": "geckolib3:block/box"
+  "parent": "builtin/entity",
+  "model": "rnf:block/ritual_frame"
 }
