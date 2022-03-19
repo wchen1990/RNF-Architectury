@@ -7,7 +7,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -17,7 +16,6 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
@@ -51,7 +49,7 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
 
     public RitualFrameBlock(Settings builder) {
         super(builder);
-        this.setDefaultState((BlockState)((BlockState)this.getDefaultState().with(WATERLOGGED, false)).with(FACING, Direction.UP));
+        this.setDefaultState(this.getDefaultState().with(WATERLOGGED, false).with(FACING, Direction.UP));
 
     }
 
@@ -90,7 +88,7 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
 
     @Override
     public VoxelShape getOutlineShape(BlockState blockState, BlockView blockView, BlockPos blockPos, ShapeContext shapeContext) {
-        Direction direction = (Direction)blockState.get(FACING);
+        Direction direction = blockState.get(FACING);
         switch(direction) {
             case NORTH:
                 return NORTH_SHAPE;
@@ -110,18 +108,18 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
 
     @Override
     public boolean canPlaceAt(BlockState blockState, WorldView worldView, BlockPos blockPos) {
-        Direction direction = (Direction)blockState.get(FACING);
+        Direction direction = blockState.get(FACING);
         BlockPos blockPos2 = blockPos.offset(direction.getOpposite());
         return worldView.getBlockState(blockPos2).isSideSolidFullSquare(worldView, blockPos2, direction);
     }
 
     @Override
     public BlockState getStateForNeighborUpdate(BlockState blockState, Direction direction, BlockState blockState2, WorldAccess worldAccess, BlockPos blockPos, BlockPos blockPos2) {
-        if ((Boolean)blockState.get(WATERLOGGED)) {
+        if (blockState.get(WATERLOGGED)) {
             worldAccess.createAndScheduleFluidTick(blockPos, Fluids.WATER, Fluids.WATER.getTickRate(worldAccess));
         }
 
-        return direction == ((Direction)blockState.get(FACING)).getOpposite() && !blockState.canPlaceAt(worldAccess, blockPos) ? Blocks.AIR.getDefaultState() : super.getStateForNeighborUpdate(blockState, direction, blockState2, worldAccess, blockPos, blockPos2);
+        return direction == blockState.get(FACING).getOpposite() && !blockState.canPlaceAt(worldAccess, blockPos) ? Blocks.AIR.getDefaultState() : super.getStateForNeighborUpdate(blockState, direction, blockState2, worldAccess, blockPos, blockPos2);
     }
 
     @Nullable
@@ -129,26 +127,26 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
     public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
         WorldAccess worldAccess = itemPlacementContext.getWorld();
         BlockPos blockPos = itemPlacementContext.getBlockPos();
-        return (BlockState)((BlockState)this.getDefaultState().with(WATERLOGGED, worldAccess.getFluidState(blockPos).getFluid() == Fluids.WATER)).with(FACING, itemPlacementContext.getSide());
+        return this.getDefaultState().with(WATERLOGGED, worldAccess.getFluidState(blockPos).getFluid() == Fluids.WATER).with(FACING, itemPlacementContext.getSide());
     }
 
     @Override
     public BlockState rotate(BlockState blockState, BlockRotation blockRotation) {
-        return (BlockState)blockState.with(FACING, blockRotation.rotate((Direction)blockState.get(FACING)));
+        return blockState.with(FACING, blockRotation.rotate(blockState.get(FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState blockState, BlockMirror blockMirror) {
-        return blockState.rotate(blockMirror.getRotation((Direction)blockState.get(FACING)));
+        return blockState.rotate(blockMirror.getRotation(blockState.get(FACING)));
     }
 
     @Override
     public FluidState getFluidState(BlockState blockState) {
-        return (Boolean)blockState.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(blockState);
+        return blockState.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(blockState);
     }
 
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(new Property[]{WATERLOGGED, FACING});
+        builder.add(WATERLOGGED, FACING);
     }
 
     @Override

@@ -19,7 +19,7 @@ public class RNFBlockEntities {
 
     private static <T extends BlockEntity> BlockEntityType<T> buildType(String key, BlockEntityType.Builder<T> builder) {
         if (((BlockEntityTypeBuilderAccess) (Object) builder).getBlocks().isEmpty()) {
-            RNF.LOG.warn("Block entity type {} requires at least one valid block to be defined!", (Object) key);
+            RNF.LOG.warn("Block entity type {} requires at least one valid block to be defined!", key);
         }
 
         Type<?> type = Util.getChoiceType(TypeReferences.BLOCK_ENTITY, key);

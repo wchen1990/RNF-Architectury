@@ -2,21 +2,16 @@ package com.rocketnotfound.rnf.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.RedstoneTorchBlock;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -35,19 +30,22 @@ public class MoonstoneBlock extends Block {
 
     public MoonstoneBlock(Settings builder) {
         super(builder);
-        this.setDefaultState((BlockState)this.getDefaultState().with(LIT, false));
+        this.setDefaultState(this.getDefaultState().with(LIT, false));
     }
 
+    @Override
     public void onBlockBreakStart(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity) {
         light(blockState, world, blockPos);
         super.onBlockBreakStart(blockState, world, blockPos, playerEntity);
     }
 
+    @Override
     public void onSteppedOn(World world, BlockPos blockPos, BlockState blockState, Entity entity) {
         light(blockState, world, blockPos);
         super.onSteppedOn(world, blockPos, blockState, entity);
     }
 
+    @Override
     public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockHitResult blockHitResult) {
         if (world.isClient) {
             spawnParticles(world, blockPos);
@@ -62,24 +60,27 @@ public class MoonstoneBlock extends Block {
     private static void light(BlockState blockState, World world, BlockPos blockPos) {
         spawnParticles(world, blockPos);
         if (!(Boolean)blockState.get(LIT)) {
-            world.setBlockState(blockPos, (BlockState)blockState.with(LIT, true), 3);
+            world.setBlockState(blockPos, blockState.with(LIT, true), 3);
         }
 
     }
 
+    @Override
     public boolean hasRandomTicks(BlockState blockState) {
-        return (Boolean)blockState.get(LIT);
+        return blockState.get(LIT);
     }
 
+    @Override
     public void randomTick(BlockState blockState, ServerWorld serverWorld, BlockPos blockPos, Random random) {
-        if ((Boolean)blockState.get(LIT)) {
-            serverWorld.setBlockState(blockPos, (BlockState)blockState.with(LIT, false), 3);
+        if (blockState.get(LIT)) {
+            serverWorld.setBlockState(blockPos, blockState.with(LIT, false), 3);
         }
 
     }
 
+    @Override
     public void randomDisplayTick(BlockState blockState, World world, BlockPos blockPos, Random random) {
-        if ((Boolean)blockState.get(LIT)) {
+        if (blockState.get(LIT)) {
             spawnParticles(world, blockPos);
         }
 
@@ -107,7 +108,8 @@ public class MoonstoneBlock extends Block {
 
     }
 
+    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(new Property[]{LIT});
+        builder.add(LIT);
     }
 }
