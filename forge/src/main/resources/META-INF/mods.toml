@@ -11,7 +11,7 @@ authors = "Bob Dole"
 description = '''
 This is a mod for RNF
 '''
-#logoFile = ""
+logoFile = "assets/rnf/icon.png"
 
 [[dependencies.rnf]]
 modId = "forge"
