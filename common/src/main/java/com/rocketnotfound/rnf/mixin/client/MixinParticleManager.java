@@ -1,8 +1,8 @@
 package com.rocketnotfound.rnf.mixin.client;
 
-import com.rocketnotfound.rnf.client.particle.EnchantNGParticle;
-import com.rocketnotfound.rnf.client.particle.EnchantNGReverseParticle;
-import com.rocketnotfound.rnf.client.particle.RNFParticleTypes;
+import com.rocketnotfound.rnf.particle.EnchantNGParticle;
+import com.rocketnotfound.rnf.particle.EnchantNGReverseParticle;
+import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;

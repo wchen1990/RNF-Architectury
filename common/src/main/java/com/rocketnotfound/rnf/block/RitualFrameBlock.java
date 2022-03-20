@@ -2,6 +2,7 @@ package com.rocketnotfound.rnf.block;
 
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
+import com.rocketnotfound.rnf.item.RNFItems;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -9,11 +10,14 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -50,6 +54,23 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
         super(builder);
         this.setDefaultState(this.getDefaultState().with(WATERLOGGED, false).with(FACING, Direction.UP));
 
+    }
+
+    @Override
+    public void onPlaced(World world, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity livingEntity, ItemStack itemStack) {
+        BlockEntity be = world.getBlockEntity(blockPos);
+        if (be instanceof RitualFrameBlockEntity) {
+            NbtCompound target = itemStack.getSubNbt("Target");
+            if (target != null) {
+                BlockPos targetPos = NbtHelper.toBlockPos(target);
+                BlockEntity targetBe = world.getBlockEntity(targetPos);
+                if (targetBe instanceof RitualFrameBlockEntity) {
+                    RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) be;
+                    rfbe.setTarget(targetPos);
+                }
+            }
+        }
+        super.onPlaced(world, blockPos, blockState, livingEntity, itemStack);
     }
 
     @Override

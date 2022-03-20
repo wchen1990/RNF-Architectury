@@ -1,4 +1,4 @@
-package com.rocketnotfound.rnf.client.particle;
+package com.rocketnotfound.rnf.particle;
 
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.mixin.access.DefaultParticleTypeAccess;

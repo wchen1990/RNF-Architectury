@@ -1,6 +1,6 @@
 package com.rocketnotfound.rnf.blockentity;
 
-import com.rocketnotfound.rnf.client.particle.RNFParticleTypes;
+import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
@@ -98,12 +98,17 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
 
     @Override
     public boolean isConductor() {
-        return conductor == null || pos.getX() == conductor.getX()
-                && pos.getY() == conductor.getY() && pos.getZ() == conductor.getZ();
+        return (
+            target == null || pos.getX() == target.getX()
+            && pos.getY() == target.getY() && pos.getZ() == target.getZ()
+        ) && (
+            conductor == null || pos.getX() == conductor.getX()
+            && pos.getY() == conductor.getY() && pos.getZ() == conductor.getZ()
+        );
     }
 
     public void onPositionChanged() {
-        removeConductor(true);
+        removeConductor();
         lastKnownPos = pos;
     }
 
@@ -116,7 +121,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         return null;
     }
 
-    public void removeConductor(boolean keepContents) {
+    public void removeConductor() {
         if (world.isClient())
             return;
         updateConnectivity = true;
@@ -153,10 +158,6 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         super.readNbt(nbtCompound);
 
         BlockPos conductorBefore = conductor;
-        /*
-        int prevSize = radius;
-        int prevLength = length;
-         */
 
         updateConnectivity = nbtCompound.contains("Uninitialized");
         conductor = null;
@@ -168,10 +169,6 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             conductor = NbtHelper.toBlockPos(nbtCompound.getCompound("Conductor"));
 
         if (isConductor()) {
-            /*
-            radius = nbtCompound.getInt("Size");
-            length = nbtCompound.getInt("Length");
-             */
         }
 
         this.inventory = DefaultedList.ofSize(1, ItemStack.EMPTY);
@@ -179,9 +176,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
 
         boolean changeOfConductor =
                 conductorBefore == null ? conductor != null : !conductorBefore.equals(conductor);
-        if (hasWorld() && (changeOfConductor
-                //|| prevSize != radius || prevLength != length
-        )) {
+        if (hasWorld() && (changeOfConductor)) {
             world.scheduleBlockRerenderIfNeeded(getPos(), Blocks.AIR.getDefaultState(), getCachedState());
         }
     }
@@ -196,10 +191,6 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         if (!isConductor())
             nbtCompound.put("Conductor", NbtHelper.fromBlockPos(conductor));
         if (isConductor()) {
-            /*
-            nbtCompound.putInt("Size", radius);
-            nbtCompound.putInt("Length", length);
-            */
         }
 
         Inventories.writeNbt(nbtCompound, this.inventory);

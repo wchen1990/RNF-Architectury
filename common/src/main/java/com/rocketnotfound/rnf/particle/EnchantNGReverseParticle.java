@@ -1,4 +1,4 @@
-package com.rocketnotfound.rnf.client.particle;
+package com.rocketnotfound.rnf.particle;
 
 import net.minecraft.client.particle.*;
 import net.minecraft.client.world.ClientWorld;

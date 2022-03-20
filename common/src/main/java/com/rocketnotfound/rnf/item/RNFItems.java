@@ -19,5 +19,5 @@ public class RNFItems {
 
     public static final RegistrySupplier<Item> MOONSTONE = ITEMS.register("moonstone", () -> new BlockItem(RNFBlocks.MOONSTONE.get(), new Item.Settings().group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> DEEP_MOONSTONE = ITEMS.register("deep_moonstone", () -> new BlockItem(RNFBlocks.DEEP_MOONSTONE.get(), new Item.Settings().group(CREATIVE_TAB)));
-    public static final RegistrySupplier<Item> RITUAL_FRAME = ITEMS.register("ritual_frame", () -> new RitualFrameItem(new Item.Settings().group(CREATIVE_TAB)));
+    public static final RegistrySupplier<Item> RITUAL_FRAME = ITEMS.register("ritual_frame", () -> new RitualFrameItem(new Item.Settings().maxCount(1).group(CREATIVE_TAB)));
 }
