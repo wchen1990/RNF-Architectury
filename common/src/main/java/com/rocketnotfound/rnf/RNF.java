@@ -5,6 +5,7 @@ import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.proxy.IProxy;
+import com.rocketnotfound.rnf.proxy.ServerProxy;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +17,7 @@ public class RNF {
     public static IProxy PROXY;
 
     public static void init() {
+        if (PROXY == null) PROXY = new ServerProxy();
         RNFBlocks.BLOCKS.register();
         RNFBlockEntities.BLOCK_ENTITIES.register();
         RNFItems.ITEMS.register();

@@ -161,15 +161,15 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
 
         updateConnectivity = nbtCompound.contains("Uninitialized");
         conductor = null;
+        target = null;
         lastKnownPos = null;
 
         if (nbtCompound.contains("LastKnownPos"))
             lastKnownPos = NbtHelper.toBlockPos(nbtCompound.getCompound("LastKnownPos"));
         if (nbtCompound.contains("Conductor"))
             conductor = NbtHelper.toBlockPos(nbtCompound.getCompound("Conductor"));
-
-        if (isConductor()) {
-        }
+        if (nbtCompound.contains("Target"))
+            target = NbtHelper.toBlockPos(nbtCompound.getCompound("Target"));
 
         this.inventory = DefaultedList.ofSize(1, ItemStack.EMPTY);
         Inventories.readNbt(nbtCompound, this.inventory);
@@ -188,10 +188,10 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             nbtCompound.putBoolean("Uninitialized", true);
         if (lastKnownPos != null)
             nbtCompound.put("LastKnownPos", NbtHelper.fromBlockPos(lastKnownPos));
-        if (!isConductor())
+        if (conductor != null && !isConductor())
             nbtCompound.put("Conductor", NbtHelper.fromBlockPos(conductor));
-        if (isConductor()) {
-        }
+        if (target != null && !isConductor())
+            nbtCompound.put("Target", NbtHelper.fromBlockPos(target));
 
         Inventories.writeNbt(nbtCompound, this.inventory);
     }

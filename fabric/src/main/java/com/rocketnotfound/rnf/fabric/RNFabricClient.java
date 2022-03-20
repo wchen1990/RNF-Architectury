@@ -1,10 +1,13 @@
 package com.rocketnotfound.rnf.fabric;
 
+import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.fabric.client.renderer.blockentity.RitualFrameRenderer;
 import com.rocketnotfound.rnf.fabric.client.renderer.item.RitualFrameItemRenderer;
 import com.rocketnotfound.rnf.item.RNFItems;
+import com.rocketnotfound.rnf.proxy.ClientProxy;
+import com.rocketnotfound.rnf.proxy.ServerProxy;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.impl.blockrenderlayer.BlockRenderLayerMapImpl;
@@ -16,6 +19,9 @@ public class RNFabricClient implements ClientModInitializer {
     @SuppressWarnings({ "unchecked" })
     @Override
     public void onInitializeClient() {
+        // Proxy
+        RNF.PROXY = new ClientProxy();
+
         // Blocks
         BlockEntityRendererRegistry.register(RNFBlockEntities.RITUAL_FRAME.get(),
                 (BlockEntityRendererFactory.Context rendererDispatcherIn) -> new RitualFrameRenderer());

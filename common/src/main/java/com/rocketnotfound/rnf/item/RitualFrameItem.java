@@ -1,5 +1,6 @@
 package com.rocketnotfound.rnf.item;
 
+import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
@@ -26,7 +27,7 @@ public class RitualFrameItem extends GeckoBlockItem {
         BlockEntity te = world.getBlockEntity(blockPos);
         if (te instanceof RitualFrameBlockEntity && playerEntity.isSneaking() && itemStack.isOf(RNFItems.RITUAL_FRAME.get())) {
             if (world.isClient) {
-                playerEntity.sendMessage(new TranslatableText("ritual_frame.attune_to", new Object[] {blockPos.getX(), blockPos.getY(), blockPos.getZ()}), false);
+                RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_frame.attune_to", new Object[] {blockPos.getX(), blockPos.getY(), blockPos.getZ()}), false);
             }
             itemStack.setSubNbt("Target", NbtHelper.fromBlockPos(blockPos));
             return ActionResult.SUCCESS;

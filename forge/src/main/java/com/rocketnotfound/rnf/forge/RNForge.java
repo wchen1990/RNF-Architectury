@@ -4,8 +4,11 @@ import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.forge.item.ForgeRitualFrameItem;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.item.RitualFrameItem;
+import com.rocketnotfound.rnf.proxy.ClientProxy;
+import com.rocketnotfound.rnf.proxy.ServerProxy;
 import dev.architectury.platform.forge.EventBuses;
 import net.minecraft.item.Item;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -18,6 +21,7 @@ public class RNForge {
         // There has to be a better way
         RNFItems.ITEMS.register("ritual_frame", () -> new ForgeRitualFrameItem(new Item.Settings().group(RNFItems.CREATIVE_TAB)));
 
+        RNF.PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
         RNF.init();
     }
 }
