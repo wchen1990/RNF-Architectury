@@ -42,13 +42,13 @@ public class RitualFrameModel extends AnimatedGeoModel<RitualFrameBlockEntity> {
 
             matrixStackIn.push();
 
-            matrixStackIn.scale(0.4f, 0.4f, 0.4f);
-            matrixStackIn.translate(1.25,1.25,1.25);
+            matrixStackIn.translate(0.5,0.5,0.5);
+            matrixStackIn.scale(0.32f, 0.32f, 0.32f);
             RitualFrameModel.rotateItem(tile.getCachedState().get(Properties.FACING), matrixStackIn);
             matrixStackIn.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(rotation));
 
             minecraft.getItemRenderer()
-                    .renderItem(stack, ModelTransformation.Mode.FIXED, combinedLightIn, combinedOverlayIn, matrixStackIn, bufferIn, 0);
+                    .renderItem(stack, ModelTransformation.Mode.GUI, combinedLightIn, combinedOverlayIn, matrixStackIn, bufferIn, 0);
 
             matrixStackIn.pop();
         }

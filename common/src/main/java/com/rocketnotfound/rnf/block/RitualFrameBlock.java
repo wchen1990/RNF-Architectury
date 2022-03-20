@@ -7,6 +7,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -16,10 +18,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -54,14 +53,74 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
     }
 
     @Override
+    public void onBlockAdded(BlockState blockState, World world, BlockPos blockPos, BlockState blockState2, boolean bl) {
+        if (blockState2.getBlock() == blockState.getBlock())
+            return;
+        if (bl)
+            return;
+
+        BlockEntity be = world.getBlockEntity(blockPos);
+        if (be instanceof RitualFrameBlockEntity) {
+            RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) be;
+            rfbe.updateConnectivity();
+        }
+    }
+
+    @Override
+    public void onStateReplaced(BlockState blockState, World world, BlockPos blockPos, BlockState blockState2, boolean bl) {
+        if (blockState.hasBlockEntity() && (blockState.getBlock() != blockState2.getBlock() || !blockState2.hasBlockEntity())) {
+            BlockEntity be = world.getBlockEntity(blockPos);
+            if (!(be instanceof RitualFrameBlockEntity))
+                return;
+            RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) be;
+            ItemScatterer.spawn(world, blockPos, rfbe.getInventory());
+
+            world.removeBlockEntity(blockPos);
+            //ItemVaultConnectivityHandler.splitVault(tankTE);
+        }
+    }
+
+    @Override
     public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockHitResult blockHitResult) {
         ItemStack heldItem = playerEntity.getStackInHand(hand);
-        boolean isHand = heldItem.isEmpty() && hand == Hand.MAIN_HAND;
 
         BlockEntity te = world.getBlockEntity(blockPos);
-        if (!(te instanceof RitualFrameBlockEntity))
+        if (!(te instanceof RitualFrameBlockEntity)) {
             return ActionResult.PASS;
-        return ActionResult.PASS;
+        }
+
+        RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) te;
+        ItemStack inSlot = rfbe.getItem();
+
+        ItemStack copy = heldItem.copy();
+        copy.setCount(1);
+        heldItem.decrement(1);
+
+        if (!inSlot.isEmpty()) {
+            playerEntity.getInventory().offerOrDrop(inSlot);
+        }
+        rfbe.setItem(copy);
+        rfbe.updateBlock();
+
+        return ActionResult.SUCCESS;
+    }
+
+    @Override
+    public void onEntityCollision(BlockState blockState, World world, BlockPos blockPos, Entity entity) {
+        if (entity instanceof ItemEntity) {
+            BlockEntity be = world.getBlockEntity(blockPos);
+            ItemStack itemStack = ((ItemEntity) entity).getStack();
+            if (be instanceof RitualFrameBlockEntity) {
+                RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) be;
+                if (rfbe.getItem() == ItemStack.EMPTY) {
+                    ItemStack copy = itemStack.copy();
+                    copy.setCount(1);
+                    rfbe.setItem(copy);
+                    itemStack.decrement(1);
+                    rfbe.updateBlock();
+                }
+            }
+        }
     }
 
     @Nullable
