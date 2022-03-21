@@ -153,6 +153,8 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     public void setTarget(BlockPos target) {
         if (world.isClient())
             return;
+        if (pos.equals(target))
+            return;
         this.target = target;
     }
 
@@ -172,6 +174,8 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     // TargettedBy Methods
     public void setTargettedBy(BlockPos targettedBy) {
         if (world.isClient())
+            return;
+        if (pos.equals(targettedBy))
             return;
         this.targettedBy = targettedBy;
     }

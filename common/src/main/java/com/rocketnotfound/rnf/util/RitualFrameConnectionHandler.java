@@ -38,6 +38,9 @@ public class RitualFrameConnectionHandler {
             list = new ArrayList<>();
             RitualFrameBlockEntity targettedBy = conductor.getTargettedByBE();
             while (targettedBy != null) {
+                if (list.contains(targettedBy)) {
+                    break;
+                }
                 list.add(targettedBy);
                 targettedBy = targettedBy.getTargettedByBE();
             }
@@ -51,46 +54,81 @@ public class RitualFrameConnectionHandler {
             List<RitualFrameBlockEntity> list = conductorActorsCache.get(conductor);
             if (list == null) {
                 list = new ArrayList<>();
-                conductorActorsCache.put(conductor, list);
-            }
-            if (!list.contains(add)) {
                 list.add(add);
+                conductorActorsCache.put(conductor, list);
+            } else {
+                if (!list.contains(add)) {
+                    list.add(add);
+                }
             }
         }
     }
 
     public static void remove(RitualFrameBlockEntity remove) {
+        if (remove == null) return;
+
+        // Remove removed from the conductor cache
+        List<RitualFrameBlockEntity> ordered = getOrderedActors(remove.getConductorBE());
+        ordered.remove(remove);
+
+        // Remove TargettedBy reference from the remove's target
         RitualFrameBlockEntity target = remove.getTargetBE();
         if (target != null) {
             target.setTargettedBy(null);
-            target.updateBlock();
+            target.markDirty();
         }
 
+        // Remove target from the one targetting the removed
+        // Also, since the one targetting is no longer targetting anything it becomes a new conductor
         RitualFrameBlockEntity targettedBy = remove.getTargettedByBE();
-        List<RitualFrameBlockEntity> ordered = getOrderedActors(remove.getConductorBE());
         if (targettedBy != null) {
-            targettedBy.setTarget(null);
-            targettedBy.removeConductor();
-            targettedBy.updateBlock();
+            List<RitualFrameBlockEntity> temp = null;
+
+            ordered.remove(targettedBy);
 
             if (!remove.isConductor()) {
-                int idx = ordered.indexOf(targettedBy);
-                int size = ordered.size();
-                if (idx + 1 < size) {
-                    ordered.subList(idx + 1, size - 1).forEach((actor) -> {
+                RitualFrameBlockEntity tgtByTgtByBE = targettedBy.getTargettedByBE();
+                if (tgtByTgtByBE != null) {
+                    int idx = ordered.indexOf(tgtByTgtByBE);
+                    int size = ordered.size();
+
+                    temp = new ArrayList<>(ordered.subList(idx, size));
+                    temp.forEach((actor) -> {
                         actor.setConductor(targettedBy.getPos());
-                        actor.updateBlock();
+                        actor.markDirty();
                     });
+
+                    ordered.removeAll(temp);
                 }
             } else {
                 ordered.forEach((actor) -> {
                     actor.setConductor(targettedBy.getPos());
-                    actor.updateBlock();
+                    actor.markDirty();
                 });
+
+                temp = new ArrayList<>(ordered);
+
+                ordered.clear();
             }
+
+            // Update caches
+            if (ordered.size() == 0) {
+                conductorActorsCache.remove(remove.getConductor());
+            }
+            if (temp != null && temp.size() > 0) {
+                conductorActorsCache.put(targettedBy.getPos(), temp);
+            }
+
+            // TargettedBy is a conductor now
+            targettedBy.setTarget(null);
+            targettedBy.removeConductor();
+            targettedBy.markDirty();
         }
 
-        // Invalidate cache
-        conductorActorsCache.remove(remove.getConductor());
+        // Remove is a conductor now
+        remove.setTarget(null);
+        remove.setTargettedBy(null);
+        remove.removeConductor();
+        remove.markDirty();
     }
 }
