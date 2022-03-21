@@ -1,6 +1,7 @@
 package com.rocketnotfound.rnf.blockentity;
 
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
+import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
@@ -21,12 +22,16 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
+import java.util.Objects;
+
 public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatable, IMultiBlockEntityContainer {
     protected DefaultedList<ItemStack> inventory;
     protected BlockPos conductor;
     protected BlockPos target;
+    protected BlockPos targettedBy;
     protected BlockPos lastKnownPos;
     protected boolean updateConnectivity;
+    protected boolean firstRun = true;
 
     private final AnimationFactory factory = new AnimationFactory(this);
 
@@ -53,19 +58,21 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             blockEntity.updateConnectivity();
         }
 
-        if (blockEntity.getItem() != ItemStack.EMPTY) {
-            int count = 1;
-            float speed = 0.25f;
-            DefaultParticleType particle = (blockEntity.isConductor()) ? RNFParticleTypes.ENCHANT_NG.get() : RNFParticleTypes.ENCHANT_NG_REV.get();
-            serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, count, 0, 0, 0, speed);
-
-            BlockPos target = blockEntity.getTarget();
-            if (target != null) {
-                BlockPos diff = target.mutableCopy().subtract(blockPos).add(0.5, 0.5, 0.5);
-                float diffMul = (1 / speed);
-                serverWorld.spawnParticles(particle, target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5, 0, 0, 0, 0, speed);
-                serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, diff.getX() * diffMul, diff.getY() * diffMul, diff.getZ() * diffMul, speed);
+        int count = 1;
+        float speed = 0.25f;
+        BlockPos target = blockEntity.getTarget();
+        DefaultParticleType particle = (blockEntity.isConductor()) ? RNFParticleTypes.ENCHANT_NG.get() : RNFParticleTypes.ENCHANT_NG_REV.get();
+        if (target != null) {
+            BlockPos diff = target.mutableCopy().subtract(blockPos).add(0.5, 0.5, 0.5);
+            float diffMul = (1 / speed);
+            serverWorld.spawnParticles(particle, target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5, 0, 0, 0, 0, speed);
+            serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, diff.getX() * diffMul, diff.getY() * diffMul, diff.getZ() * diffMul, speed);
+            if (blockEntity.getItem() == ItemStack.EMPTY) {
+                serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, speed);
             }
+        }
+        if (blockEntity.getItem() != ItemStack.EMPTY) {
+            serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, count, 0, 0, 0, speed);
         }
     }
 
@@ -75,16 +82,15 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     public void setItem(ItemStack itemStack) { inventory.set(0, itemStack); }
 
     public boolean getUpdateConnectivity() {
-        return updateConnectivity;
+        return updateConnectivity || firstRun;
     }
 
     public void updateConnectivity() {
+        firstRun = false;
         updateConnectivity = false;
         if (world.isClient())
             return;
-        if (!isConductor())
-            return;
-        //ItemVaultConnectivityHandler.formVaults(this);
+        RitualFrameConnectionHandler.add(this);
     }
 
     @Override
@@ -96,20 +102,42 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         lastKnownPos = pos;
     }
 
+    public void onPositionChanged() {
+        RitualFrameConnectionHandler.remove(this);
+        lastKnownPos = pos;
+    }
+
+    // Conductor methods
     @Override
     public boolean isConductor() {
         return (
-            target == null || pos.getX() == target.getX()
-            && pos.getY() == target.getY() && pos.getZ() == target.getZ()
+                target == null || pos.getX() == target.getX()
+                        && pos.getY() == target.getY() && pos.getZ() == target.getZ()
         ) && (
-            conductor == null || pos.getX() == conductor.getX()
-            && pos.getY() == conductor.getY() && pos.getZ() == conductor.getZ()
+                conductor == null || pos.getX() == conductor.getX()
+                        && pos.getY() == conductor.getY() && pos.getZ() == conductor.getZ()
         );
     }
 
-    public void onPositionChanged() {
-        removeConductor();
-        lastKnownPos = pos;
+    public void removeConductor() {
+        if (world.isClient())
+            return;
+        updateConnectivity = true;
+        conductor = null;
+    }
+
+    @Override
+    public void setConductor(BlockPos conductor) {
+        if (world.isClient)
+            return;
+        if (conductor.equals(this.conductor))
+            return;
+        this.conductor = conductor;
+    }
+
+    @Override
+    public BlockPos getConductor() {
+        return isConductor() ? pos : conductor;
     }
 
     public RitualFrameBlockEntity getConductorBE() {
@@ -121,35 +149,44 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         return null;
     }
 
-    public void removeConductor() {
+    // Target methods
+    public void setTarget(BlockPos target) {
         if (world.isClient())
             return;
-        updateConnectivity = true;
-        conductor = null;
-        updateBlock();
-    }
-
-    @Override
-    public void setConductor(BlockPos conductor) {
-        if (world.isClient)
-            return;
-        if (conductor.equals(this.conductor))
-            return;
-        this.conductor = conductor;
-        updateBlock();
-    }
-
-    @Override
-    public BlockPos getConductor() {
-        return isConductor() ? pos : conductor;
-    }
-
-    public void setTarget(BlockPos target) {
         this.target = target;
     }
 
     public BlockPos getTarget() {
         return target;
+    }
+
+    public RitualFrameBlockEntity getTargetBE() {
+        if (target != null) {
+            BlockEntity tileEntity = world.getBlockEntity(target);
+            if (tileEntity instanceof RitualFrameBlockEntity)
+                return (RitualFrameBlockEntity) tileEntity;
+        }
+        return null;
+    }
+
+    // TargettedBy Methods
+    public void setTargettedBy(BlockPos targettedBy) {
+        if (world.isClient())
+            return;
+        this.targettedBy = targettedBy;
+    }
+
+    public BlockPos getTargettedBy() {
+        return targettedBy;
+    }
+
+    public RitualFrameBlockEntity getTargettedByBE() {
+        if (targettedBy != null) {
+            BlockEntity tileEntity = world.getBlockEntity(targettedBy);
+            if (tileEntity instanceof RitualFrameBlockEntity)
+                return (RitualFrameBlockEntity) tileEntity;
+        }
+        return null;
     }
 
     // NBT
@@ -170,12 +207,13 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             conductor = NbtHelper.toBlockPos(nbtCompound.getCompound("Conductor"));
         if (nbtCompound.contains("Target"))
             target = NbtHelper.toBlockPos(nbtCompound.getCompound("Target"));
+        if (nbtCompound.contains("TargettedBy"))
+            targettedBy = NbtHelper.toBlockPos(nbtCompound.getCompound("TargettedBy"));
 
         this.inventory = DefaultedList.ofSize(1, ItemStack.EMPTY);
         Inventories.readNbt(nbtCompound, this.inventory);
 
-        boolean changeOfConductor =
-                conductorBefore == null ? conductor != null : !conductorBefore.equals(conductor);
+        boolean changeOfConductor = !Objects.equals(conductorBefore, conductor);
         if (hasWorld() && (changeOfConductor)) {
             world.scheduleBlockRerenderIfNeeded(getPos(), Blocks.AIR.getDefaultState(), getCachedState());
         }
@@ -192,6 +230,8 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             nbtCompound.put("Conductor", NbtHelper.fromBlockPos(conductor));
         if (target != null && !isConductor())
             nbtCompound.put("Target", NbtHelper.fromBlockPos(target));
+        if (targettedBy != null)
+            nbtCompound.put("TargettedBy", NbtHelper.fromBlockPos(targettedBy));
 
         Inventories.writeNbt(nbtCompound, this.inventory);
     }

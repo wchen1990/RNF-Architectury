@@ -6,5 +6,9 @@
   "block.rnf.deep_moonstone": "Deep Moonstone Block",
   "item.rnf.ritual_frame": "Ritual Frame",
   "block.rnf.ritual_frame": "Ritual Frame",
-  "ritual_frame.attune_to": "Ritual Frame attuned to: [%s, %s, %s]"
+  "ritual_frame.attune.set": "The Ritual Frame attunes with: [%s, %s, %s]",
+  "ritual_frame.attune.redirect": "The Ritual Frame attunes with the latest attuner: [%s, %s, %s]",
+  "ritual_frame.attune.self": "The Ritual Frame attunes within",
+  "ritual_frame.attune.falter": "The Ritual Frame's attunement falters",
+  "ritual_frame.attune.break": "The Ritual Frame's attunement breaks"
 }

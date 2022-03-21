@@ -2,7 +2,7 @@ package com.rocketnotfound.rnf.block;
 
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
-import com.rocketnotfound.rnf.item.RNFItems;
+import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -16,12 +16,14 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -60,31 +62,21 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
     public void onPlaced(World world, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity livingEntity, ItemStack itemStack) {
         BlockEntity be = world.getBlockEntity(blockPos);
         if (be instanceof RitualFrameBlockEntity) {
+            RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) be;
             NbtCompound target = itemStack.getSubNbt("Target");
             if (target != null) {
                 BlockPos targetPos = NbtHelper.toBlockPos(target);
-                BlockEntity targetBe = world.getBlockEntity(targetPos);
-                if (targetBe instanceof RitualFrameBlockEntity) {
-                    RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) be;
+                BlockEntity targetBE = world.getBlockEntity(targetPos);
+                if (targetBE instanceof RitualFrameBlockEntity) {
+                    RitualFrameBlockEntity targetRFBE = (RitualFrameBlockEntity) targetBE;
+                    targetRFBE.setTargettedBy(blockPos);
                     rfbe.setTarget(targetPos);
+                    rfbe.setConductor(targetRFBE.getConductor());
+                    rfbe.updateConnectivity();
                 }
             }
         }
         super.onPlaced(world, blockPos, blockState, livingEntity, itemStack);
-    }
-
-    @Override
-    public void onBlockAdded(BlockState blockState, World world, BlockPos blockPos, BlockState blockState2, boolean bl) {
-        if (blockState2.getBlock() == blockState.getBlock())
-            return;
-        if (bl)
-            return;
-
-        BlockEntity be = world.getBlockEntity(blockPos);
-        if (be instanceof RitualFrameBlockEntity) {
-            RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) be;
-            rfbe.updateConnectivity();
-        }
     }
 
     @Override
@@ -94,10 +86,11 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
             if (!(be instanceof RitualFrameBlockEntity))
                 return;
             RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) be;
+            RitualFrameConnectionHandler.remove(rfbe);
+
             ItemScatterer.spawn(world, blockPos, rfbe.getInventory());
 
             world.removeBlockEntity(blockPos);
-            //ItemVaultConnectivityHandler.splitVault(tankTE);
         }
     }
 
@@ -112,6 +105,13 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
 
         RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) te;
         ItemStack inSlot = rfbe.getItem();
+
+        if (heldItem.isOf(Items.STICK)) {
+            if (!world.isClient) {
+                playerEntity.sendMessage(Text.of(String.format("--------------------------------\nPos: %s\nConductor: %s\nTarget: %s\nTargetted By: %s", rfbe.getPos(), rfbe.getConductor(), rfbe.getTarget(), rfbe.getTargettedBy())), false);
+            }
+            return ActionResult.SUCCESS;
+        }
 
         ItemStack copy = heldItem.copy();
         copy.setCount(1);
