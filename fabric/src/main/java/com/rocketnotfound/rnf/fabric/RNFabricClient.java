@@ -5,6 +5,7 @@ import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.fabric.client.renderer.blockentity.RitualFrameRenderer;
 import com.rocketnotfound.rnf.fabric.client.renderer.item.RitualFrameItemRenderer;
+import com.rocketnotfound.rnf.fabric.client.renderer.item.RitualStaffItemRenderer;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.proxy.ClientProxy;
 import com.rocketnotfound.rnf.proxy.ServerProxy;
@@ -29,5 +30,6 @@ public class RNFabricClient implements ClientModInitializer {
 
         //Items
         GeoItemRenderer.registerItemRenderer(RNFItems.RITUAL_FRAME.get(), new RitualFrameItemRenderer());
+        GeoItemRenderer.registerItemRenderer(RNFItems.RITUAL_STAFF.get(), new RitualStaffItemRenderer());
     }
 }

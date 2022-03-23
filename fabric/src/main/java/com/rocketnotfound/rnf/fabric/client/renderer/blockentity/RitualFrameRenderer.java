@@ -3,11 +3,10 @@ package com.rocketnotfound.rnf.fabric.client.renderer.blockentity;
 import com.rocketnotfound.rnf.block.RitualFrameBlock;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.client.model.RitualFrameModel;
+import com.rocketnotfound.rnf.client.render.RNFRenderLayer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
@@ -34,7 +33,7 @@ public class RitualFrameRenderer extends GeoBlockRenderer<RitualFrameBlockEntity
     public RenderLayer getRenderType(RitualFrameBlockEntity animatable, float partialTicks, MatrixStack stack,
                                      VertexConsumerProvider renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn,
                                      Identifier textureLocation) {
-        return RenderLayer.getEntityTranslucent(getTextureLocation(animatable));
+        return RNFRenderLayer.getTranslucentRNF(getTextureLocation(animatable));
     }
 
     @Override

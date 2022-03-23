@@ -15,7 +15,7 @@ public class RNFBlocks {
 
     public static final RegistrySupplier<Block> MOONSTONE = BLOCKS.register("moonstone", () -> new MoonstoneBlock(AbstractBlock.Settings.of(Material.STONE, MapColor.TERRACOTTA_WHITE).requiresTool().ticksRandomly().luminance(litBlockLuminance(9)).sounds(BlockSoundGroup.STONE).strength(1.5f, 6.0f)));
     public static final RegistrySupplier<Block> DEEP_MOONSTONE = BLOCKS.register("deep_moonstone", () -> new MoonstoneBlock(AbstractBlock.Settings.copy(MOONSTONE.get()).mapColor(MapColor.DEEPSLATE_GRAY).sounds(BlockSoundGroup.DEEPSLATE)));
-    public static final RegistrySupplier<Block> RITUAL_FRAME = BLOCKS.register("ritual_frame", () -> new RitualFrameBlock(AbstractBlock.Settings.of(Material.STONE, MapColor.TERRACOTTA_WHITE).nonOpaque().requiresTool().luminance(blockLuminance(6)).sounds(BlockSoundGroup.STONE).strength(1.5f, 6.0f)));
+    public static final RegistrySupplier<Block> RITUAL_FRAME = BLOCKS.register("ritual_frame", () -> new RitualFrameBlock(AbstractBlock.Settings.of(Material.DECORATION, MapColor.TERRACOTTA_WHITE).nonOpaque().requiresTool().luminance(blockLuminance(6)).sounds(BlockSoundGroup.AMETHYST_CLUSTER).strength(1.5f, 6.0f)));
 
     private static ToIntFunction<BlockState> blockLuminance(int luminance) {
         return (blockState) -> {

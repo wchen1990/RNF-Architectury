@@ -1,14 +1,19 @@
 {
   "itemGroup.rnf.rnf_tab": "RNF",
+
   "item.rnf.moonstone": "Moonstone",
   "block.rnf.moonstone": "Moonstone Block",
+
   "item.rnf.deep_moonstone": "Deep Moonstone",
   "block.rnf.deep_moonstone": "Deep Moonstone Block",
+
   "item.rnf.ritual_frame": "Ritual Frame",
   "block.rnf.ritual_frame": "Ritual Frame",
   "ritual_frame.attune.set": "The Ritual Frame attunes with: [%s, %s, %s]",
   "ritual_frame.attune.redirect": "The Ritual Frame attunes with the latest attuner: [%s, %s, %s]",
   "ritual_frame.attune.self": "The Ritual Frame attunes within",
   "ritual_frame.attune.falter": "The Ritual Frame's attunement falters",
-  "ritual_frame.attune.break": "The Ritual Frame's attunement breaks"
+  "ritual_frame.attune.break": "The Ritual Frame's attunement breaks",
+
+  "item.rnf.ritual_staff": "Ritual Staff"
 }

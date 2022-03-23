@@ -106,9 +106,18 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
         RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) te;
         ItemStack inSlot = rfbe.getItem();
 
-        if (heldItem.isOf(Items.STICK)) {
+        if (heldItem.isOf(Items.STICK) && heldItem.getSubNbt("Debug") != null) {
             if (!world.isClient) {
-                playerEntity.sendMessage(Text.of(String.format("--------------------------------\nPos: %s\nConductor: %s\nTarget: %s\nTargetted By: %s", rfbe.getPos(), rfbe.getConductor(), rfbe.getTarget(), rfbe.getTargettedBy())), false);
+                playerEntity.sendMessage(Text.of(
+                    String.format(
+                        "--------------------------------\n" +
+                        "Pos: %s\n" +
+                        "Conductor: %s\n" +
+                        "Target: %s\n" +
+                        "Targetted By: %s",
+                        rfbe.getPos(), rfbe.getConductor(), rfbe.getTarget(), rfbe.getTargettedBy()
+                    )
+                ), false);
             }
             return ActionResult.SUCCESS;
         }
