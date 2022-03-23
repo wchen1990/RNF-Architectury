@@ -9,11 +9,15 @@
 
   "item.rnf.ritual_frame": "Ritual Frame",
   "block.rnf.ritual_frame": "Ritual Frame",
-  "ritual_frame.attune.set": "The Ritual Frame attunes with: [%s, %s, %s]",
-  "ritual_frame.attune.redirect": "The Ritual Frame attunes with the latest attuner: [%s, %s, %s]",
-  "ritual_frame.attune.self": "The Ritual Frame attunes within",
+  "ritual_frame.attune.set": "The Ritual Frame attunes with another ritual",
+  "ritual_frame.attune.self": "The Ritual Frame attunes to its own ritual",
   "ritual_frame.attune.falter": "The Ritual Frame's attunement falters",
   "ritual_frame.attune.break": "The Ritual Frame's attunement breaks",
 
-  "item.rnf.ritual_staff": "Ritual Staff"
+  "item.rnf.ritual_staff": "Ritual Staff",
+  "ritual_staff.attune.set": "The Ritual Staff attunes with a ritual",
+  "ritual_staff.attune.link": "The rituals have attuned with each other",
+  "ritual_staff.attune.conduct": "The Ritual Staff splits a ritual",
+  "ritual_staff.attune.self": "The Ritual Staff seeks a ritual to attune with",
+  "ritual_staff.attune.dormant": "The Ritual Staff becomes dormant"
 }

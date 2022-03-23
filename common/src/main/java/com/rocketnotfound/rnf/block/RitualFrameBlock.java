@@ -2,6 +2,7 @@ package com.rocketnotfound.rnf.block;
 
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
+import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -106,20 +107,25 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
         RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) te;
         ItemStack inSlot = rfbe.getItem();
 
-        if (heldItem.isOf(Items.STICK) && heldItem.getSubNbt("Debug") != null) {
-            if (!world.isClient) {
-                playerEntity.sendMessage(Text.of(
-                    String.format(
-                        "--------------------------------\n" +
-                        "Pos: %s\n" +
-                        "Conductor: %s\n" +
-                        "Target: %s\n" +
-                        "Targetted By: %s",
-                        rfbe.getPos(), rfbe.getConductor(), rfbe.getTarget(), rfbe.getTargettedBy()
-                    )
-                ), false);
+        if (heldItem.isOf(RNFItems.RITUAL_STAFF.get())) {
+            if (heldItem.getSubNbt("Debug") != null) {
+                if (!world.isClient) {
+                    playerEntity.sendMessage(Text.of(
+                            String.format(
+                                    "--------------------------------\n" +
+                                            "Pos: %s\n" +
+                                            "Conductor: %s\n" +
+                                            "Target: %s\n" +
+                                            "Targetted By: %s",
+                                    rfbe.getPos(), rfbe.getConductor(), rfbe.getTarget(), rfbe.getTargettedBy()
+                            )
+                    ), false);
+                }
+                return ActionResult.SUCCESS;
             }
-            return ActionResult.SUCCESS;
+            if (heldItem.getSubNbt("Seeking") != null) {
+                return ActionResult.PASS;
+            }
         }
 
         ItemStack copy = heldItem.copy();

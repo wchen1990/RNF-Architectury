@@ -3,14 +3,17 @@ package com.rocketnotfound.rnf.util;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.CheckForNull;
 import java.util.*;
 
 public class RitualFrameConnectionHandler {
     private static Map<BlockPos, List<RitualFrameBlockEntity>> conductorActorsCache = new HashMap<>();
 
+    @CheckForNull
     public static BlockPos checkTarget(World world, BlockPos target) {
         if (world.isClient) return target;
         BlockEntity be = world.getBlockEntity(target);
@@ -32,7 +35,10 @@ public class RitualFrameConnectionHandler {
         return null;
     }
 
+    @CheckForNull
     public static List<RitualFrameBlockEntity> getOrderedActors(RitualFrameBlockEntity conductor) {
+        if (conductor == null || !(conductor.getWorld() instanceof ServerWorld)) return null;
+
         List<RitualFrameBlockEntity> list = conductorActorsCache.get(conductor.getPos());
         if (list == null) {
             list = new ArrayList<>();
@@ -49,6 +55,8 @@ public class RitualFrameConnectionHandler {
     }
 
     public static void add(RitualFrameBlockEntity add) {
+        if (add == null || !(add.getWorld() instanceof ServerWorld)) return;
+
         if (!add.isConductor()) {
             BlockPos conductor = add.getConductor();
             List<RitualFrameBlockEntity> list = conductorActorsCache.get(conductor);
@@ -65,7 +73,7 @@ public class RitualFrameConnectionHandler {
     }
 
     public static void remove(RitualFrameBlockEntity remove) {
-        if (remove == null) return;
+        if (remove == null || !(remove.getWorld() instanceof ServerWorld)) return;
 
         // Remove removed from the conductor cache
         List<RitualFrameBlockEntity> ordered = getOrderedActors(remove.getConductorBE());
@@ -130,5 +138,85 @@ public class RitualFrameConnectionHandler {
         remove.setTargettedBy(null);
         remove.removeConductor();
         remove.markDirty();
+    }
+
+    public static void makeConductor(RitualFrameBlockEntity make) {
+        if (make == null || !(make.getWorld() instanceof ServerWorld)) return;
+
+        if (!make.isConductor()) {
+            List<RitualFrameBlockEntity> ordered = getOrderedActors(make.getConductorBE());
+            List<RitualFrameBlockEntity> temp = null;
+
+            ordered.remove(make);
+
+            RitualFrameBlockEntity targettedBy = make.getTargettedByBE();
+            if (targettedBy != null) {
+                int idx = ordered.indexOf(targettedBy);
+                int size = ordered.size();
+
+                temp = new ArrayList<>(ordered.subList(idx, size));
+                temp.forEach((actor) -> {
+                    actor.setConductor(make.getPos());
+                    actor.markDirty();
+                });
+
+                ordered.removeAll(temp);
+            }
+
+            // Update caches
+            if (ordered.size() == 0) {
+                conductorActorsCache.remove(make.getConductor());
+            }
+            if (temp != null && temp.size() > 0) {
+                conductorActorsCache.put(make.getPos(), temp);
+            }
+
+            // Make is a conductor now
+            make.setTarget(null);
+            make.removeConductor();
+            make.markDirty();
+        }
+    }
+
+    public static void target(RitualFrameBlockEntity from, RitualFrameBlockEntity to) {
+        if (
+            from == null ||
+            to == null ||
+            !(from.getWorld() instanceof ServerWorld) ||
+            !(to.getWorld() instanceof ServerWorld)
+        ) {
+            return;
+        }
+
+        if (!from.isConductor()) makeConductor(from);
+        if (to.getTargettedByBE() != null) makeConductor(to.getTargettedByBE());
+
+        List<RitualFrameBlockEntity> orderedFrom = conductorActorsCache.get(from.getPos());
+        List<RitualFrameBlockEntity> orderedTo = conductorActorsCache.get(to.getConductor());
+
+        boolean addToCache = false;
+        if (orderedTo == null) {
+            addToCache = true;
+            orderedTo = new ArrayList<>();
+        }
+
+        from.setTarget(to.getPos());
+        from.setConductor(to.getConductor());
+        to.setTargettedBy(from.getPos());
+
+        if (orderedFrom != null) {
+            orderedFrom.stream().forEach((actor) -> {
+                actor.setConductor(to.getConductor());
+            });
+        }
+
+        orderedTo.add(from);
+        orderedTo.addAll(orderedFrom);
+        orderedFrom.clear();
+
+        conductorActorsCache.remove(from.getPos());
+        if (addToCache) {
+            conductorActorsCache.put(to.getConductor(), orderedTo);
+        }
     }
 }

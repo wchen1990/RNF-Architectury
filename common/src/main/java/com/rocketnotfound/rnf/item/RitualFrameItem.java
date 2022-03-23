@@ -4,8 +4,6 @@ import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -53,8 +51,7 @@ public class RitualFrameItem extends GeckoBlockItem {
                 BlockPos target = RitualFrameConnectionHandler.checkTarget(world, blockPos);
                 if (target != null) {
                     if (world.isClient) {
-                        String langEntry = (target.equals(blockPos)) ? "ritual_frame.attune.set" : "ritual_frame.attune.redirect";
-                        RNF.PROXY.sendOverlayMessage(new TranslatableText(langEntry, new Object[]{target.getX(), target.getY(), target.getZ()}), false);
+                        RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_frame.attune.set"), false);
                     }
                     itemStack.setSubNbt("Target", NbtHelper.fromBlockPos(target));
                     return ActionResult.SUCCESS;
@@ -67,22 +64,13 @@ public class RitualFrameItem extends GeckoBlockItem {
         NbtCompound targetNbt = itemStack.getSubNbt("Target");
         if (targetNbt != null) {
             BlockPos targetPos = NbtHelper.toBlockPos(targetNbt);
-            BlockPos checkedTarget = RitualFrameConnectionHandler.checkTarget(world, targetPos);
-            if (!targetPos.equals(checkedTarget)) {
-                if (world.isClient) {
-                    RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_frame.attune.break"), false);
-                }
-                itemStack.removeSubNbt("Target");
-                return ActionResult.FAIL;
-            }
-
             if(!targetPos.isWithinDistance(blockPos, MAX_RANGE)) {
                 NbtCompound warnNbt = itemStack.getSubNbt("Warn");
                 if (warnNbt != null) {
                     BlockPos warnPos = NbtHelper.toBlockPos(warnNbt);
                     if (warnPos.equals(blockPos)) {
                         if (world.isClient) {
-                            RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_frame.attune.self"), false);
+                            RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_frame.attune.break"), false);
                         }
                         itemStack.removeSubNbt("Target");
                         return super.useOnBlock(itemUsageContext);
