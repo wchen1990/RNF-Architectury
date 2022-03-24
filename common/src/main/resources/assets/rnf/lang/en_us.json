@@ -19,5 +19,6 @@
   "ritual_staff.attune.link": "The rituals have attuned with each other",
   "ritual_staff.attune.conduct": "%s alters a ritual",
   "ritual_staff.attune.self": "%s seeks a ritual to attune with",
+  "ritual_staff.attune.break": "%s's attunement breaks",
   "ritual_staff.attune.dormant": "%s becomes dormant"
 }
