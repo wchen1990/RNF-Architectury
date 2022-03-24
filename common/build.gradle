@@ -6,7 +6,10 @@ dependencies {
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
     // Geckolib
     modImplementation "software.bernie.geckolib:${rootProject.geckolib_fabric_version}"
-}
+    // Cloth Config
+    modCompileOnly("me.shedaniel.cloth:cloth-config:${rootProject.cloth_config_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }}
 
 architectury {
     common()

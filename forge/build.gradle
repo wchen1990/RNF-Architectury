@@ -36,6 +36,8 @@ dependencies {
     modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
     // Geckolib
     modImplementation "software.bernie.geckolib:${rootProject.geckolib_forge_version}"
+    // Cloth Config
+    modImplementation("me.shedaniel.cloth:cloth-config-forge:${rootProject.cloth_config_version}")
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
