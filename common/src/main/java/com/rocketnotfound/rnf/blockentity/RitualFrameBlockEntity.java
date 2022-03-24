@@ -63,12 +63,17 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         BlockPos target = blockEntity.getTarget();
         DefaultParticleType particle = (blockEntity.isConductor()) ? RNFParticleTypes.ENCHANT_NG.get() : RNFParticleTypes.ENCHANT_NG_REV.get();
         if (target != null) {
-            BlockPos diff = target.mutableCopy().subtract(blockPos).add(0.5, 0.5, 0.5);
-            float diffMul = (1 / speed);
-            serverWorld.spawnParticles(particle, target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5, 0, 0, 0, 0, speed);
-            serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, diff.getX() * diffMul, diff.getY() * diffMul, diff.getZ() * diffMul, speed);
-            if (blockEntity.getItem() == ItemStack.EMPTY) {
-                serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, speed);
+            if (world.getBlockEntity(target) instanceof RitualFrameBlockEntity) {
+                BlockPos diff = target.mutableCopy().subtract(blockPos).add(0.5, 0.5, 0.5);
+                float diffMul = (1 / speed);
+                serverWorld.spawnParticles(particle, target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5, 0, 0, 0, 0, speed);
+                serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, diff.getX() * diffMul, diff.getY() * diffMul, diff.getZ() * diffMul, speed);
+                if (blockEntity.getItem() == ItemStack.EMPTY) {
+                    serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, speed);
+                }
+            } else {
+                blockEntity.setTarget(null);
+                blockEntity.markDirty();
             }
         }
         if (blockEntity.getItem() != ItemStack.EMPTY) {
@@ -111,11 +116,11 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     @Override
     public boolean isConductor() {
         return (
-                target == null || pos.getX() == target.getX()
-                        && pos.getY() == target.getY() && pos.getZ() == target.getZ()
+            target == null || pos.getX() == target.getX()
+                && pos.getY() == target.getY() && pos.getZ() == target.getZ()
         ) && (
-                conductor == null || pos.getX() == conductor.getX()
-                        && pos.getY() == conductor.getY() && pos.getZ() == conductor.getZ()
+            conductor == null || pos.getX() == conductor.getX()
+                && pos.getY() == conductor.getY() && pos.getZ() == conductor.getZ()
         );
     }
 

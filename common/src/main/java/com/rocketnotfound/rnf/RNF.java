@@ -6,6 +6,8 @@ import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.proxy.IProxy;
 import com.rocketnotfound.rnf.proxy.ServerProxy;
+import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
+import dev.architectury.event.events.common.LifecycleEvent;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +24,11 @@ public class RNF {
         RNFBlockEntities.BLOCK_ENTITIES.register();
         RNFItems.ITEMS.register();
         RNFParticleTypes.PARTICLES.register();
+
+        // Lifecycle events
+        LifecycleEvent.SERVER_LEVEL_LOAD.register((world) -> {
+            RitualFrameConnectionHandler.invalidateCache();
+        });
     }
 
     public static Identifier createIdentifier(String path) {

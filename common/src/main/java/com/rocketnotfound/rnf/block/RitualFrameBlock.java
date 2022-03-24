@@ -1,5 +1,6 @@
 package com.rocketnotfound.rnf.block;
 
+import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.item.RNFItems;
@@ -20,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -70,10 +72,13 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
                 BlockEntity targetBE = world.getBlockEntity(targetPos);
                 if (targetBE instanceof RitualFrameBlockEntity) {
                     RitualFrameBlockEntity targetRFBE = (RitualFrameBlockEntity) targetBE;
+                    RitualFrameConnectionHandler.target(rfbe, targetRFBE);
+                    /*
                     targetRFBE.setTargettedBy(blockPos);
                     rfbe.setTarget(targetPos);
                     rfbe.setConductor(targetRFBE.getConductor());
                     rfbe.updateConnectivity();
+                     */
                 }
             }
         }
@@ -111,14 +116,14 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
             if (heldItem.getSubNbt("Debug") != null) {
                 if (!world.isClient) {
                     playerEntity.sendMessage(Text.of(
-                            String.format(
-                                    "--------------------------------\n" +
-                                            "Pos: %s\n" +
-                                            "Conductor: %s\n" +
-                                            "Target: %s\n" +
-                                            "Targetted By: %s",
-                                    rfbe.getPos(), rfbe.getConductor(), rfbe.getTarget(), rfbe.getTargettedBy()
-                            )
+                        String.format(
+                            "--------------------------------\n" +
+                                "Pos: %s\n" +
+                                "Conductor: %s\n" +
+                                "Target: %s\n" +
+                                "Targetted By: %s",
+                            rfbe.getPos(), rfbe.getConductor(), rfbe.getTarget(), rfbe.getTargettedBy()
+                        )
                     ), false);
                 }
                 return ActionResult.SUCCESS;
@@ -126,6 +131,14 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
             if (heldItem.getSubNbt("Seeking") != null) {
                 return ActionResult.PASS;
             }
+        }
+
+        if (heldItem.isEmpty() && inSlot.isEmpty()) {
+            return ActionResult.PASS;
+        }
+
+        if (world.isClient) {
+            RNF.PROXY.getClientPlayer().playSound(SoundEvents.BLOCK_AMETHYST_BLOCK_STEP, 1, 1);
         }
 
         ItemStack copy = heldItem.copy();

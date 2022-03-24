@@ -13,6 +13,10 @@ import java.util.*;
 public class RitualFrameConnectionHandler {
     private static Map<BlockPos, List<RitualFrameBlockEntity>> conductorActorsCache = new HashMap<>();
 
+    public static void invalidateCache() {
+        conductorActorsCache.clear();
+    }
+
     @CheckForNull
     public static BlockPos checkTarget(World world, BlockPos target) {
         if (world.isClient) return target;
@@ -171,6 +175,12 @@ public class RitualFrameConnectionHandler {
                 conductorActorsCache.put(make.getPos(), temp);
             }
 
+            if (make.getTarget() != null) {
+                RitualFrameBlockEntity targetBE = make.getTargetBE();
+                targetBE.setTargettedBy(null);
+                targetBE.markDirty();
+            }
+
             // Make is a conductor now
             make.setTarget(null);
             make.removeConductor();
@@ -207,16 +217,24 @@ public class RitualFrameConnectionHandler {
         if (orderedFrom != null) {
             orderedFrom.stream().forEach((actor) -> {
                 actor.setConductor(to.getConductor());
+                actor.markDirty();
             });
         }
 
-        orderedTo.add(from);
-        orderedTo.addAll(orderedFrom);
-        orderedFrom.clear();
+        if (!from.equals(to.getConductor())) {
+            orderedTo.add(from);
+        }
+        if (orderedFrom != null) {
+            orderedTo.addAll(orderedFrom);
+            orderedFrom.clear();
+        }
 
         conductorActorsCache.remove(from.getPos());
-        if (addToCache) {
+        if (addToCache && orderedTo.size() > 0) {
             conductorActorsCache.put(to.getConductor(), orderedTo);
         }
+
+        from.markDirty();
+        to.markDirty();
     }
 }
