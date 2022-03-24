@@ -9,9 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -82,7 +80,7 @@ public class RitualStaffItem extends GeckoItem {
                         if (targetNbt != null) {
                             BlockPos target = NbtHelper.toBlockPos(targetNbt);
                             if (!target.equals(blockPos)) {
-                                if (!target.isWithinDistance(blockPos, RitualFrameItem.MAX_RANGE)) {
+                                if (!target.isWithinDistance(blockPos, RNF.serverConfig().MAX_RANGE)) {
                                     if (world.isClient) {
                                         RNF.PROXY.getClientPlayer().playSound(SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK, 1, 1);
                                         RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_staff.attune.break", new Object[]{customName(itemStack)}), false);

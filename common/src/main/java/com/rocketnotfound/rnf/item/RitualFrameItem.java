@@ -21,8 +21,6 @@ import net.minecraft.world.World;
 import static com.rocketnotfound.rnf.item.RNFItems.customName;
 
 public class RitualFrameItem extends GeckoBlockItem {
-    public static final int MAX_RANGE = 16;
-
     public RitualFrameItem(Settings settings) {
         super(RNFBlocks.RITUAL_FRAME.get(), settings);
     }
@@ -69,7 +67,7 @@ public class RitualFrameItem extends GeckoBlockItem {
         NbtCompound targetNbt = itemStack.getSubNbt("Target");
         if (targetNbt != null) {
             BlockPos targetPos = NbtHelper.toBlockPos(targetNbt);
-            if(!targetPos.isWithinDistance(blockPos, MAX_RANGE)) {
+            if(!targetPos.isWithinDistance(blockPos, RNF.serverConfig().MAX_RANGE)) {
                 NbtCompound warnNbt = itemStack.getSubNbt("Warn");
                 if (warnNbt != null) {
                     BlockPos warnPos = NbtHelper.toBlockPos(warnNbt);

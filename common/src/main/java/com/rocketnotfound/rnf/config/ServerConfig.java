@@ -7,5 +7,5 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 @Config(name = "rnf-common")
 public class ServerConfig implements ConfigData {
     @ConfigEntry.Category("ritual_frame")
-    public int MAX_DISTANCE = 16;
+    public int MAX_RANGE = 16;
 }
