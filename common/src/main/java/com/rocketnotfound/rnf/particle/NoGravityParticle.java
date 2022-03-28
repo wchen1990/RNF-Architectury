@@ -10,19 +10,23 @@ public class NoGravityParticle extends SpriteBillboardParticle {
     private final double startZ;
 
     private final boolean reverse;
-    private final boolean allWhite;
-    private final boolean fixedScale;
     private final boolean fullBright;
+    private final boolean allWhite;
+    private final float fixedScale;
 
     NoGravityParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-        this(clientWorld, d, e, f, g, h, i, false, false, false, false);
+        this(clientWorld, d, e, f, g, h, i, false, false, false, 0F);
     }
-
     NoGravityParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i, boolean reverse) {
-        this(clientWorld, d, e, f, g, h, i, reverse, false, false, false);
+        this(clientWorld, d, e, f, g, h, i, reverse, false, false, 0F);
     }
-
-    NoGravityParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i, boolean reverse, boolean allWhite, boolean fixedScale, boolean fullBright) {
+    NoGravityParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i, boolean reverse, boolean fullBright) {
+        this(clientWorld, d, e, f, g, h, i, reverse, fullBright, false, 0F);
+    }
+    NoGravityParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i, boolean reverse, boolean fullBright, boolean allWhite) {
+        this(clientWorld, d, e, f, g, h, i, reverse, fullBright, allWhite, 0F);
+    }
+    NoGravityParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i, boolean reverse, boolean fullBright, boolean allWhite, float fixedScale) {
         super(clientWorld, d, e, f);
 
         this.velocityX = g;
@@ -44,11 +48,11 @@ public class NoGravityParticle extends SpriteBillboardParticle {
         this.z = this.prevPosZ;
 
         this.reverse = reverse;
+        this.fullBright = fullBright;
         this.allWhite = allWhite;
         this.fixedScale = fixedScale;
-        this.fullBright = fullBright;
 
-        this.scale = (fixedScale) ? 0.1F : 0.1F * (this.random.nextFloat() * 0.5F + 0.2F);
+        this.scale = (fixedScale > 0) ? fixedScale : 0.1F * (this.random.nextFloat() * 0.5F + 0.2F);
 
         if (allWhite) {
             this.red = 1F;
@@ -116,7 +120,7 @@ public class NoGravityParticle extends SpriteBillboardParticle {
         }
 
         public Particle createParticle(DefaultParticleType defaultParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-            NoGravityParticle particle = new NoGravityParticle(clientWorld, d, e, f, g, h, i);
+            NoGravityParticle particle = new NoGravityParticle(clientWorld, d, e, f, g, h, i, false, true);
             particle.setSprite(this.spriteProvider);
             return particle;
         }
@@ -130,35 +134,31 @@ public class NoGravityParticle extends SpriteBillboardParticle {
         }
 
         public Particle createParticle(DefaultParticleType defaultParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-            NoGravityParticle particle = new NoGravityParticle(clientWorld, d, e, f, g, h, i);
+            NoGravityParticle particle = new NoGravityParticle(clientWorld, d, e, f, g, h, i, true, true);
             particle.setSprite(this.spriteProvider);
             return particle;
         }
     }
 
-    public static class AllOnNormal implements ParticleFactory<DefaultParticleType> {
+    public static class Custom implements ParticleFactory<DefaultParticleType> {
         private final SpriteProvider spriteProvider;
 
-        public AllOnNormal(SpriteProvider spriteProvider) {
+        private final boolean reverse;
+        private final boolean fullBright;
+        private final boolean allWhite;
+        private final float fixedScale;
+
+        public Custom(SpriteProvider spriteProvider, boolean reverse, boolean fullBright, boolean allWhite, float fixedScale) {
             this.spriteProvider = spriteProvider;
+
+            this.reverse = reverse;
+            this.fullBright = fullBright;
+            this.allWhite = allWhite;
+            this.fixedScale = fixedScale;
         }
 
         public Particle createParticle(DefaultParticleType defaultParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-            NoGravityParticle particle = new NoGravityParticle(clientWorld, d, e, f, g, h, i, false, true, true, true);
-            particle.setSprite(this.spriteProvider);
-            return particle;
-        }
-    }
-
-    public static class AllOnReverse implements ParticleFactory<DefaultParticleType> {
-        private final SpriteProvider spriteProvider;
-
-        public AllOnReverse(SpriteProvider spriteProvider) {
-            this.spriteProvider = spriteProvider;
-        }
-
-        public Particle createParticle(DefaultParticleType defaultParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-            NoGravityParticle particle = new NoGravityParticle(clientWorld, d, e, f, g, h, i, true, true, true, true);
+            NoGravityParticle particle = new NoGravityParticle(clientWorld, d, e, f, g, h, i, reverse, fullBright, allWhite, fixedScale);
             particle.setSprite(this.spriteProvider);
             return particle;
         }

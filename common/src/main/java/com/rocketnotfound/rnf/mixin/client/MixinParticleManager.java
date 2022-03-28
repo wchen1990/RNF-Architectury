@@ -25,7 +25,7 @@ public class MixinParticleManager {
         registerFactory(RNFParticleTypes.ENCHANT_NG.get(), NoGravityParticle.Normal::new);
         registerFactory(RNFParticleTypes.ENCHANT_NG_REV.get(), NoGravityParticle.Reverse::new);
 
-        registerFactory(RNFParticleTypes.END_ROD.get(), NoGravityParticle.AllOnNormal::new);
-        registerFactory(RNFParticleTypes.END_ROD_REV.get(), NoGravityParticle.AllOnReverse::new);
+        registerFactory(RNFParticleTypes.END_ROD.get(), (spriteProvider) -> new NoGravityParticle.Custom(spriteProvider, false, true, true, 0F));
+        registerFactory(RNFParticleTypes.END_ROD_REV.get(), (spriteProvider) -> new NoGravityParticle.Custom(spriteProvider, true, true, true, 0F));
     }
 }
