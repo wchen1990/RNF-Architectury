@@ -1,0 +1,15 @@
+{
+  "type": "rnf:ritual",
+  "requiresLoop": false,
+  "ingredients": [
+    {
+      "item": "rnf:moonstone"
+    },
+    {
+      "item": "rnf:deep_moonstone"
+    }
+  ],
+  "output": {
+    "item": "rnf:ritual_staff"
+  }
+}

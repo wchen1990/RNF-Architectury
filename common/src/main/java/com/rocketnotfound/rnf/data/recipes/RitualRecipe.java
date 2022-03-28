@@ -2,6 +2,7 @@ package com.rocketnotfound.rnf.data.recipes;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import dev.architectury.core.AbstractRecipeSerializer;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -16,7 +17,11 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
+import static com.rocketnotfound.rnf.RNF.createIdentifier;
+
 public class RitualRecipe implements IRitualRecipe {
+    public static final Identifier TYPE = createIdentifier("ritual");
+
     protected final Identifier id;
     protected final ItemStack output;
     protected final DefaultedList<Ingredient> recipeItems;
@@ -78,8 +83,13 @@ public class RitualRecipe implements IRitualRecipe {
         return RNFRecipes.RITUAL_TYPE.get();
     }
 
-    public static class RitualRecipeType implements RecipeType<RitualRecipe> {}
-    public static class Serializer implements RecipeSerializer<RitualRecipe> {
+    public static class RitualRecipeType implements RecipeType<RitualRecipe> {
+        @Override
+        public String toString() {
+            return "rnf:ritual";
+        }
+    }
+    public static class Serializer extends AbstractRecipeSerializer<RitualRecipe> {
         @Override
         public RitualRecipe read(Identifier identifier, JsonObject jsonObject) {
             ItemStack output = ShapedRecipe.outputFromJson(JsonHelper.getObject(jsonObject, "output"));

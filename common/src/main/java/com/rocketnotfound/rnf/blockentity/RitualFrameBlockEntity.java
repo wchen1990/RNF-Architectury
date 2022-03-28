@@ -40,6 +40,8 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
 
     protected boolean recipeFound = false;
 
+    protected static boolean test = true;
+
     private final AnimationFactory factory = new AnimationFactory(this);
 
     public RitualFrameBlockEntity(BlockPos blockPos, BlockState blockState) {
@@ -62,9 +64,10 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             return;
         }
 
-        if (blockEntity.firstRun) {
+        if (blockEntity.test) {
+            blockEntity.test = false;
             var test = serverWorld.getRecipeManager().listAllOfType(RNFRecipes.RITUAL_TYPE.get());
-            test.size();
+            System.out.println(String.format("Num recipes found: %s", test.size()));
         }
 
         // Update connectivity if necessary
