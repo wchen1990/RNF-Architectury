@@ -1,7 +1,6 @@
 package com.rocketnotfound.rnf.mixin.client;
 
-import com.rocketnotfound.rnf.particle.EnchantNGParticle;
-import com.rocketnotfound.rnf.particle.EnchantNGReverseParticle;
+import com.rocketnotfound.rnf.particle.NoGravityParticle;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.particle.ParticleEffect;
@@ -23,7 +22,10 @@ public class MixinParticleManager {
 
     @Inject(method = ("registerDefaultFactories"), at = @At("RETURN"))
     private void registerRNFProviders(CallbackInfo ci) {
-        registerFactory(RNFParticleTypes.ENCHANT_NG.get(), EnchantNGParticle.Provider::new);
-        registerFactory(RNFParticleTypes.ENCHANT_NG_REV.get(), EnchantNGReverseParticle.Provider::new);
+        registerFactory(RNFParticleTypes.ENCHANT_NG.get(), NoGravityParticle.Normal::new);
+        registerFactory(RNFParticleTypes.ENCHANT_NG_REV.get(), NoGravityParticle.Reverse::new);
+
+        registerFactory(RNFParticleTypes.END_ROD.get(), NoGravityParticle.AllOnNormal::new);
+        registerFactory(RNFParticleTypes.END_ROD_REV.get(), NoGravityParticle.AllOnReverse::new);
     }
 }

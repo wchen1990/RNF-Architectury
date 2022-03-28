@@ -13,4 +13,7 @@ public class RNFParticleTypes {
 
     public static final RegistrySupplier<DefaultParticleType> ENCHANT_NG = PARTICLES.register("enchant_ng", () -> DefaultParticleTypeAccess.create(false));
     public static final RegistrySupplier<DefaultParticleType> ENCHANT_NG_REV = PARTICLES.register("enchant_ng_rev", () -> DefaultParticleTypeAccess.create(false));
+
+    public static final RegistrySupplier<DefaultParticleType> END_ROD = PARTICLES.register("end_rod", () -> DefaultParticleTypeAccess.create(false));
+    public static final RegistrySupplier<DefaultParticleType> END_ROD_REV = PARTICLES.register("end_rod_rev", () -> DefaultParticleTypeAccess.create(false));
 }

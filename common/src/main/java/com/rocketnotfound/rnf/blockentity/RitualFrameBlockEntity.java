@@ -13,6 +13,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.particle.DefaultParticleType;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleType;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.DefaultedList;
@@ -35,12 +37,10 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     protected BlockPos target;
     protected BlockPos targettedBy;
     protected BlockPos lastKnownPos;
-    protected boolean updateConnectivity;
-    protected boolean firstRun = true;
-
     protected boolean recipeFound = false;
 
-    protected static boolean test = true;
+    protected boolean updateConnectivity;
+    protected boolean firstRun = true;
 
     private final AnimationFactory factory = new AnimationFactory(this);
 
@@ -64,18 +64,12 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             return;
         }
 
-        if (blockEntity.test) {
-            blockEntity.test = false;
-            var test = serverWorld.getRecipeManager().listAllOfType(RNFRecipes.RITUAL_TYPE.get());
-            System.out.println(String.format("Num recipes found: %s", test.size()));
-        }
-
         // Update connectivity if necessary
         if (blockEntity.getUpdateConnectivity()) {
             blockEntity.updateConnectivity();
         }
 
-        if (blockEntity.isConductor()) {
+        if (blockEntity.isConductor() && !blockEntity.isRecipeFound()) {
             Optional<RitualRecipe> recipe = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), RitualFrameConnectionHandler.getCombinedInventoryFrom(blockEntity), serverWorld);
             recipe.ifPresent((ritualRecipe) -> {
                 blockEntity.setRecipeFound(true);
@@ -83,18 +77,28 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         }
 
         if (blockEntity.isRecipeFound()) {
-            serverWorld.spawnParticles(ParticleTypes.END_ROD, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 1, 0, 0, 0, 0.25);
         }
 
         // Spawn particles
         spawnParticles(serverWorld, blockPos, blockState, blockEntity);
     }
 
+    public ParticleEffect getParticle() {
+        ParticleEffect particle;
+        if (this.getConductorBE().isRecipeFound()) {
+            particle = (isConductor()) ? RNFParticleTypes.END_ROD.get() : RNFParticleTypes.END_ROD_REV.get();
+        } else {
+            particle = (isConductor()) ? RNFParticleTypes.ENCHANT_NG.get() : RNFParticleTypes.ENCHANT_NG_REV.get();
+        }
+        return particle;
+    }
+
     protected static void spawnParticles(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualFrameBlockEntity blockEntity) {
         int count = 1;
         float speed = 0.25f;
         BlockPos target = blockEntity.getTarget();
-        DefaultParticleType particle = (blockEntity.isConductor()) ? RNFParticleTypes.ENCHANT_NG.get() : RNFParticleTypes.ENCHANT_NG_REV.get();
+        ParticleEffect particle = blockEntity.getParticle();
+
         if (target != null) {
             if (serverWorld.getBlockEntity(target) instanceof RitualFrameBlockEntity) {
                 BlockPos diff = target.mutableCopy().subtract(blockPos).add(0.5, 0.5, 0.5);
