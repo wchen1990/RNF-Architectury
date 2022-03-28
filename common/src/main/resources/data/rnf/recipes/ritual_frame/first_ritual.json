@@ -1,0 +1,15 @@
+{
+  "type": "rnf:ritual",
+  "requiresLoop": false,
+  "ingredients": [
+    {
+      "item": "rnf:moonstone"
+    },
+    {
+      "item": "minecraft:deepslate"
+    }
+  ],
+  "output": {
+    "item": "rnf:deep_moonstone"
+  }
+}

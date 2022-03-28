@@ -4,6 +4,7 @@ import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.config.ClientConfig;
 import com.rocketnotfound.rnf.config.ServerConfig;
+import com.rocketnotfound.rnf.data.recipes.RNFRecipes;
 import com.rocketnotfound.rnf.network.RNFNetwork;
 import com.rocketnotfound.rnf.network.SyncConfigMessage;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
@@ -54,6 +55,9 @@ public class RNF {
         RNFBlockEntities.BLOCK_ENTITIES.register();
         RNFItems.ITEMS.register();
         RNFParticleTypes.PARTICLES.register();
+        RNFRecipes.register();
+
+        RNFNetwork.init();
 
         // Lifecycle events
         LifecycleEvent.SERVER_LEVEL_LOAD.register((world) -> {
@@ -62,7 +66,7 @@ public class RNF {
 
         // Sync Server Configs
         PlayerEvent.PLAYER_JOIN.register(player ->
-                RNFNetwork.CHANNEL.sendToPlayer(player, new SyncConfigMessage(RNF.serverConfig()))
+            RNFNetwork.CHANNEL.sendToPlayer(player, new SyncConfigMessage(RNF.serverConfig()))
         );
     }
 

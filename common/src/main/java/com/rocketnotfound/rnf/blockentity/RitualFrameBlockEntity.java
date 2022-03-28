@@ -1,15 +1,19 @@
 package com.rocketnotfound.rnf.blockentity;
 
+import com.rocketnotfound.rnf.data.recipes.RNFRecipes;
+import com.rocketnotfound.rnf.data.recipes.RitualRecipe;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.particle.DefaultParticleType;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -23,6 +27,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatable, IMultiBlockEntityContainer {
     protected DefaultedList<ItemStack> inventory;
@@ -32,6 +37,8 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     protected BlockPos lastKnownPos;
     protected boolean updateConnectivity;
     protected boolean firstRun = true;
+
+    protected boolean recipeFound = false;
 
     private final AnimationFactory factory = new AnimationFactory(this);
 
@@ -45,6 +52,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
 
         ServerWorld serverWorld = ((ServerWorld) world);
 
+        // Update last known position if necessary
         BlockPos lastKnownPos = blockEntity.getLastKnownPos();
         BlockPos pos = blockEntity.getPos();
         if (lastKnownPos == null) {
@@ -54,16 +62,38 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             return;
         }
 
+        if (blockEntity.firstRun) {
+            var test = serverWorld.getRecipeManager().listAllOfType(RNFRecipes.RITUAL_TYPE.get());
+            test.size();
+        }
+
+        // Update connectivity if necessary
         if (blockEntity.getUpdateConnectivity()) {
             blockEntity.updateConnectivity();
         }
 
+        if (blockEntity.isConductor()) {
+            Optional<RitualRecipe> recipe = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), RitualFrameConnectionHandler.getCombinedInventoryFrom(blockEntity), serverWorld);
+            recipe.ifPresent((ritualRecipe) -> {
+                blockEntity.setRecipeFound(true);
+            });
+        }
+
+        if (blockEntity.isRecipeFound()) {
+            serverWorld.spawnParticles(ParticleTypes.END_ROD, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 1, 0, 0, 0, 0.25);
+        }
+
+        // Spawn particles
+        spawnParticles(serverWorld, blockPos, blockState, blockEntity);
+    }
+
+    protected static void spawnParticles(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualFrameBlockEntity blockEntity) {
         int count = 1;
         float speed = 0.25f;
         BlockPos target = blockEntity.getTarget();
         DefaultParticleType particle = (blockEntity.isConductor()) ? RNFParticleTypes.ENCHANT_NG.get() : RNFParticleTypes.ENCHANT_NG_REV.get();
         if (target != null) {
-            if (world.getBlockEntity(target) instanceof RitualFrameBlockEntity) {
+            if (serverWorld.getBlockEntity(target) instanceof RitualFrameBlockEntity) {
                 BlockPos diff = target.mutableCopy().subtract(blockPos).add(0.5, 0.5, 0.5);
                 float diffMul = (1 / speed);
                 serverWorld.spawnParticles(particle, target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5, 0, 0, 0, 0, speed);
@@ -85,6 +115,8 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     public DefaultedList<ItemStack> getInventory() { return inventory; }
     public ItemStack getItem() { return inventory.get(0); }
     public void setItem(ItemStack itemStack) { inventory.set(0, itemStack); }
+    public boolean isRecipeFound() { return recipeFound; }
+    public void setRecipeFound(boolean found) { recipeFound = found; }
 
     public boolean getUpdateConnectivity() {
         return updateConnectivity || firstRun;

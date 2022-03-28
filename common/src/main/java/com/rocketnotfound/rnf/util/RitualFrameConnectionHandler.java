@@ -1,9 +1,12 @@
 package com.rocketnotfound.rnf.util;
 
+import com.google.common.collect.Lists;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
-import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -12,9 +15,35 @@ import java.util.*;
 
 public class RitualFrameConnectionHandler {
     private static Map<BlockPos, List<RitualFrameBlockEntity>> conductorActorsCache = new HashMap<>();
-
     public static void invalidateCache() {
         conductorActorsCache.clear();
+    }
+
+    public static Inventory getCombinedInventoryFrom(RitualFrameBlockEntity start) {
+        List<RitualFrameBlockEntity> ordered = getOrderedActors(start.getConductorBE());
+        DefaultedList<ItemStack> inventory;
+
+        if (start.isConductor()) {
+            inventory = DefaultedList.ofSize(ordered.size() + 1);
+
+            inventory.add(start.getItem());
+            ordered.stream().forEach((frame) -> {
+                inventory.add(frame.getItem());
+            });
+        } else {
+            int idx = ordered.indexOf(start);
+            int size = ordered.size();
+
+            List<RitualFrameBlockEntity> sublist = ordered.subList(idx, size);
+            inventory = DefaultedList.ofSize(sublist.size());
+
+            inventory.add(start.getItem());
+            sublist.stream().forEach((frame) -> {
+                inventory.add(frame.getItem());
+            });
+        }
+
+        return ReadOnlyInventory.of(inventory);
     }
 
     @CheckForNull
