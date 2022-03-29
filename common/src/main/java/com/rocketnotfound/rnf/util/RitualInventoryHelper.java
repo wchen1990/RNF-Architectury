@@ -6,14 +6,14 @@ import net.minecraft.item.ItemStack;
 
 import java.util.List;
 
-public class ReadOnlyInventory implements Inventory {
+public class RitualInventoryHelper implements Inventory {
     private List<ItemStack> inventory;
 
-    public static ReadOnlyInventory of(List<ItemStack> list) {
-        return new ReadOnlyInventory(list);
+    public static RitualInventoryHelper of(List<ItemStack> list) {
+        return new RitualInventoryHelper(list);
     }
 
-    protected ReadOnlyInventory(List<ItemStack> list) {
+    protected RitualInventoryHelper(List<ItemStack> list) {
         inventory = list;
     }
 
@@ -54,5 +54,9 @@ public class ReadOnlyInventory implements Inventory {
     }
 
     @Override
-    public void clear() {}
+    public void clear() {
+        inventory.stream().forEach((itemStack) -> {
+            itemStack.decrement(1);
+        });
+    }
 }

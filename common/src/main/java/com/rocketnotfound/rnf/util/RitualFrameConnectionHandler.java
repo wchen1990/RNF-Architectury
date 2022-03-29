@@ -1,11 +1,14 @@
 package com.rocketnotfound.rnf.util;
 
-import com.google.common.collect.Lists;
+import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
+import com.rocketnotfound.rnf.data.recipes.RNFRecipes;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.Recipe;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Pair;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -17,6 +20,66 @@ public class RitualFrameConnectionHandler {
     private static Map<BlockPos, List<RitualFrameBlockEntity>> conductorActorsCache = new HashMap<>();
     public static void invalidateCache() {
         conductorActorsCache.clear();
+    }
+
+    public static void updateAllBlocksFor(RitualFrameBlockEntity start) {
+        List<RitualFrameBlockEntity> ordered = getOrderedActors(start.getConductorBE());
+
+        if (start.isConductor()) {
+            start.markDirty();
+            ordered.stream().forEach((actor) -> {
+                actor.updateBlock();
+            });
+        } else {
+            int idx = ordered.indexOf(start);
+            int size = ordered.size();
+            ordered.subList(idx, size).stream().forEach((actor) -> {
+                actor.updateBlock();
+            });
+        }
+    }
+
+    public static void clearInventoryFrom(RitualFrameBlockEntity start) {
+        List<RitualFrameBlockEntity> ordered = getOrderedActors(start.getConductorBE());
+
+        if (start.isConductor()) {
+            start.clearItem();
+            start.updateBlock();
+            ordered.stream().forEach((actor) -> {
+                actor.clearItem();
+                actor.updateBlock();
+            });
+        } else {
+            int idx = ordered.indexOf(start);
+            int size = ordered.size();
+            ordered.subList(idx, size).stream().forEach((actor) -> {
+                actor.clearItem();
+                actor.updateBlock();
+            });
+        }
+    }
+
+    public static int getCraftingTicksFor(RitualFrameBlockEntity start) {
+        List<RitualFrameBlockEntity> ordered = getOrderedActors(start.getConductorBE());
+
+        int listSize = 0;
+        if (start.isConductor()) {
+            listSize = ordered.size() + (ordered.contains(start) ? 0 : 1);
+        } else {
+            int idx = ordered.indexOf(start);
+            int size = ordered.size();
+            listSize = ordered.subList(idx, size).size();
+        }
+
+        return listSize * RNF.serverConfig().CRAFTING_TICKS_PER_FRAME;
+    }
+
+    public static Pair<Optional<Recipe>, Inventory> checkForRecipe(RitualFrameBlockEntity blockEntity, ServerWorld serverWorld) {
+        Inventory inv = getCombinedInventoryFrom(blockEntity);
+        return new Pair<>(
+            serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), inv, serverWorld),
+            inv
+        );
     }
 
     public static Inventory getCombinedInventoryFrom(RitualFrameBlockEntity start) {
@@ -43,7 +106,7 @@ public class RitualFrameConnectionHandler {
             });
         }
 
-        return ReadOnlyInventory.of(inventory);
+        return RitualInventoryHelper.of(inventory);
     }
 
     @CheckForNull
@@ -90,6 +153,9 @@ public class RitualFrameConnectionHandler {
     public static void add(RitualFrameBlockEntity add) {
         if (add == null || !(add.getWorld() instanceof ServerWorld)) return;
 
+        // Something changed, inform the conductor
+        add.getConductorBE().setPhase(RitualFrameBlockEntity.Phase.DORMANT);
+
         if (!add.isConductor()) {
             BlockPos conductor = add.getConductor();
             List<RitualFrameBlockEntity> list = conductorActorsCache.get(conductor);
@@ -107,6 +173,9 @@ public class RitualFrameConnectionHandler {
 
     public static void remove(RitualFrameBlockEntity remove) {
         if (remove == null || !(remove.getWorld() instanceof ServerWorld)) return;
+
+        // Something changed, inform the conductor
+        remove.getConductorBE().setPhase(RitualFrameBlockEntity.Phase.DORMANT);
 
         // Remove removed from the conductor cache
         List<RitualFrameBlockEntity> ordered = getOrderedActors(remove.getConductorBE());
@@ -176,6 +245,9 @@ public class RitualFrameConnectionHandler {
     public static void makeConductor(RitualFrameBlockEntity make) {
         if (make == null || !(make.getWorld() instanceof ServerWorld)) return;
 
+        // Something changed, inform the conductor
+        make.getConductorBE().setPhase(RitualFrameBlockEntity.Phase.DORMANT);
+
         if (!make.isConductor()) {
             List<RitualFrameBlockEntity> ordered = getOrderedActors(make.getConductorBE());
             List<RitualFrameBlockEntity> temp = null;
@@ -230,6 +302,7 @@ public class RitualFrameConnectionHandler {
         if (!from.isConductor()) makeConductor(from);
         if (to.getTargettedByBE() != null) makeConductor(to.getTargettedByBE());
 
+        // We can access these directly rather than using getOrderedActors since we made them conductors
         List<RitualFrameBlockEntity> orderedFrom = conductorActorsCache.get(from.getPos());
         List<RitualFrameBlockEntity> orderedTo = conductorActorsCache.get(to.getConductor());
 

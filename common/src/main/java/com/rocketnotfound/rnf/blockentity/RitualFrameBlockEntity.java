@@ -1,5 +1,7 @@
 package com.rocketnotfound.rnf.blockentity;
 
+import com.rocketnotfound.rnf.RNF;
+import com.rocketnotfound.rnf.config.ServerConfig;
 import com.rocketnotfound.rnf.data.recipes.RNFRecipes;
 import com.rocketnotfound.rnf.data.recipes.RitualRecipe;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
@@ -12,11 +14,11 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.particle.ParticleTypes;
+import net.minecraft.recipe.Recipe;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.Pair;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -32,12 +34,20 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatable, IMultiBlockEntityContainer {
+    public enum Phase {
+        DORMANT,
+        RECIPE_FOUND,
+        CRAFTING,
+        CRAFTING_DONE
+    }
+
     protected DefaultedList<ItemStack> inventory;
     protected BlockPos conductor;
     protected BlockPos target;
     protected BlockPos targettedBy;
     protected BlockPos lastKnownPos;
-    protected boolean recipeFound = false;
+    protected Phase phase = Phase.DORMANT;
+    protected int phaseTicks = 0;
 
     protected boolean updateConnectivity;
     protected boolean firstRun = true;
@@ -50,9 +60,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     }
 
     public static void tick(World world, BlockPos blockPos, BlockState blockState, RitualFrameBlockEntity blockEntity) {
-        if (!(world instanceof ServerWorld)) return;
-
-        ServerWorld serverWorld = ((ServerWorld) world);
+        if (!(world instanceof ServerWorld serverWorld)) return;
 
         // Update last known position if necessary
         BlockPos lastKnownPos = blockEntity.getLastKnownPos();
@@ -69,51 +77,87 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             blockEntity.updateConnectivity();
         }
 
-        if (blockEntity.isConductor() && !blockEntity.isRecipeFound()) {
-            Optional<RitualRecipe> recipe = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), RitualFrameConnectionHandler.getCombinedInventoryFrom(blockEntity), serverWorld);
-            recipe.ifPresent((ritualRecipe) -> {
-                blockEntity.setRecipeFound(true);
-            });
-        }
+        if (blockEntity.isConductor()) {
+            if (blockEntity.isDormant()) {
+                blockEntity.phaseTicks++;
+                if (blockEntity.phaseTicks > RNF.serverConfig().CHECK_RECIPE_INTERVAL_TICKS) {
+                    blockEntity.phaseTicks = 0;
+                    Pair<Optional<Recipe>, Inventory> pair = RitualFrameConnectionHandler.checkForRecipe(blockEntity, serverWorld);
+                    pair.getLeft().ifPresent((ritualRecipe) -> {
+                        blockEntity.setPhase(Phase.RECIPE_FOUND);
+                    });
+                }
+            } else if (blockEntity.isRecipeFound()) {
+                blockEntity.phaseTicks++;
+                if (blockEntity.phaseTicks > RNF.serverConfig().RECIPE_CRAFTING_DELAY_TICKS) {
+                    blockEntity.setPhase(Phase.CRAFTING);
+                }
+            } else if (blockEntity.isCrafting()) {
+                blockEntity.phaseTicks++;
+                if (blockEntity.phaseTicks > RitualFrameConnectionHandler.getCraftingTicksFor(blockEntity)) {
+                    Pair<Optional<Recipe>, Inventory> pair = RitualFrameConnectionHandler.checkForRecipe(blockEntity, serverWorld);
+                    pair.getLeft().ifPresent((ritualRecipe) -> {
+                        RitualFrameConnectionHandler.clearInventoryFrom(blockEntity);
+                        ItemScatterer.spawn(serverWorld, blockPos, DefaultedList.ofSize(1, ritualRecipe.getOutput()));
+                    });
 
-        if (blockEntity.isRecipeFound()) {
+                    blockEntity.setPhase(Phase.CRAFTING_DONE);
+                }
+            } else if (blockEntity.isCraftingDone()) {
+                blockEntity.phaseTicks++;
+                if (blockEntity.phaseTicks > RNF.serverConfig().CRAFTING_COOLDOWN) {
+                    blockEntity.setPhase(Phase.DORMANT);
+                }
+            }
         }
 
         // Spawn particles
-        spawnParticles(serverWorld, blockPos, blockState, blockEntity);
-    }
-
-    public ParticleEffect getParticle() {
-        ParticleEffect particle;
-        if (this.getConductorBE().isRecipeFound()) {
-            particle = (isConductor()) ? RNFParticleTypes.END_ROD.get() : RNFParticleTypes.END_ROD_REV.get();
-        } else {
-            particle = (isConductor()) ? RNFParticleTypes.ENCHANT_NG.get() : RNFParticleTypes.ENCHANT_NG_REV.get();
+        if (!blockEntity.isCraftingDone()) {
+            spawnParticles(serverWorld, blockPos, blockState, blockEntity);
         }
-        return particle;
     }
 
     protected static void spawnParticles(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualFrameBlockEntity blockEntity) {
-        int count = 1;
-        float speed = 0.25f;
+        if (blockEntity == null) return;
+
+        final int count = 1;
+        final float speed = 0.25f;
+
         BlockPos target = blockEntity.getTarget();
-        ParticleEffect particle = blockEntity.getParticle();
+        ParticleEffect particle = (blockEntity.isConductor()) ? RNFParticleTypes.ENCHANT_NG.get() : RNFParticleTypes.ENCHANT_NG_REV.get();
+        ParticleEffect recipeParticle = (blockEntity.isConductor()) ? RNFParticleTypes.END_ROD.get() : RNFParticleTypes.END_ROD_REV.get();
 
         if (target != null) {
             if (serverWorld.getBlockEntity(target) instanceof RitualFrameBlockEntity) {
                 BlockPos diff = target.mutableCopy().subtract(blockPos).add(0.5, 0.5, 0.5);
-                float diffMul = (1 / speed);
-                serverWorld.spawnParticles(particle, target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5, 0, 0, 0, 0, speed);
-                serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, diff.getX() * diffMul, diff.getY() * diffMul, diff.getZ() * diffMul, speed);
-                if (blockEntity.getItem() == ItemStack.EMPTY) {
-                    serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, speed);
+                final float diffMul = (1 / speed);
+
+                if (blockEntity.isRecipeFound() || blockEntity.isCrafting()) {
+                    // Spiral path follows straight normal path
+                    serverWorld.spawnParticles(recipeParticle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, diff.getX() * diffMul, diff.getY() * diffMul, diff.getZ() * diffMul, speed);
+                } else {
+                    // Emits from center point of target
+                    serverWorld.spawnParticles(particle, target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5, 0, 0, 0, 0, speed);
+
+                    // Emits from center
+                    if (blockEntity.getItem() == ItemStack.EMPTY) {
+                        serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, speed);
+                    }
                 }
+
+                // Straight normal path
+                serverWorld.spawnParticles(RNFParticleTypes.ENCHANT_NG_REV.get(), blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, diff.getX() * diffMul, diff.getY() * diffMul, diff.getZ() * diffMul, speed);
             } else {
                 blockEntity.setTarget(null);
                 blockEntity.markDirty();
             }
         }
-        if (blockEntity.getItem() != ItemStack.EMPTY) {
+
+        if (blockEntity.isCrafting()) {
+            // Emits from center
+            serverWorld.spawnParticles(recipeParticle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, speed);
+        } else if (blockEntity.getItem() != ItemStack.EMPTY) {
+            // Emits from center
             serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, count, 0, 0, 0, speed);
         }
     }
@@ -121,9 +165,24 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     // Getter/Setters
     public DefaultedList<ItemStack> getInventory() { return inventory; }
     public ItemStack getItem() { return inventory.get(0); }
-    public void setItem(ItemStack itemStack) { inventory.set(0, itemStack); }
-    public boolean isRecipeFound() { return recipeFound; }
-    public void setRecipeFound(boolean found) { recipeFound = found; }
+    public void setItem(ItemStack itemStack) {
+        setPhase(Phase.DORMANT);
+        inventory.set(0, itemStack);
+    }
+    public void clearItem() {
+        inventory.set(0, ItemStack.EMPTY);
+    }
+
+    public boolean isDormant() { return getPhase().equals(Phase.DORMANT); }
+    public boolean isRecipeFound() { return getPhase().equals(Phase.RECIPE_FOUND); }
+    public boolean isCrafting() { return getPhase().equals(Phase.CRAFTING); }
+    public boolean isCraftingDone() { return getPhase().equals(Phase.CRAFTING_DONE); }
+
+    public Phase getPhase() { return (isConductor()) ? phase : getConductorBE().getPhase(); }
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+        this.phaseTicks = 0;
+    }
 
     public boolean getUpdateConnectivity() {
         return updateConnectivity || firstRun;
@@ -155,9 +214,6 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     @Override
     public boolean isConductor() {
         return (
-            target == null || pos.getX() == target.getX()
-                && pos.getY() == target.getY() && pos.getZ() == target.getZ()
-        ) && (
             conductor == null || pos.getX() == conductor.getX()
                 && pos.getY() == conductor.getY() && pos.getZ() == conductor.getZ()
         );
@@ -257,6 +313,10 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             target = NbtHelper.toBlockPos(nbtCompound.getCompound("Target"));
         if (nbtCompound.contains("TargettedBy"))
             targettedBy = NbtHelper.toBlockPos(nbtCompound.getCompound("TargettedBy"));
+        if (nbtCompound.contains("Phase"))
+            phase = Phase.valueOf(nbtCompound.getString("Phase"));
+        if (nbtCompound.contains("PhaseTicks"))
+            phaseTicks = nbtCompound.getInt("PhaseTicks");
 
         this.inventory = DefaultedList.ofSize(1, ItemStack.EMPTY);
         Inventories.readNbt(nbtCompound, this.inventory);
@@ -274,12 +334,16 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             nbtCompound.putBoolean("Uninitialized", true);
         if (lastKnownPos != null)
             nbtCompound.put("LastKnownPos", NbtHelper.fromBlockPos(lastKnownPos));
-        if (conductor != null && !isConductor())
+        if (conductor != null)
             nbtCompound.put("Conductor", NbtHelper.fromBlockPos(conductor));
-        if (target != null && !isConductor())
+        if (target != null)
             nbtCompound.put("Target", NbtHelper.fromBlockPos(target));
         if (targettedBy != null)
             nbtCompound.put("TargettedBy", NbtHelper.fromBlockPos(targettedBy));
+        if (phase != null)
+            nbtCompound.putString("Phase", phase.toString());
+        if (phaseTicks >= 0)
+            nbtCompound.putInt("PhaseTicks", phaseTicks);
 
         Inventories.writeNbt(nbtCompound, this.inventory);
     }

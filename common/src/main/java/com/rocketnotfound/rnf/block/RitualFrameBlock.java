@@ -73,12 +73,6 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
                 if (targetBE instanceof RitualFrameBlockEntity) {
                     RitualFrameBlockEntity targetRFBE = (RitualFrameBlockEntity) targetBE;
                     RitualFrameConnectionHandler.target(rfbe, targetRFBE);
-                    /*
-                    targetRFBE.setTargettedBy(blockPos);
-                    rfbe.setTarget(targetPos);
-                    rfbe.setConductor(targetRFBE.getConductor());
-                    rfbe.updateConnectivity();
-                     */
                 }
             }
         }
@@ -121,8 +115,9 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
                                 "Pos: %s\n" +
                                 "Conductor: %s\n" +
                                 "Target: %s\n" +
-                                "Targetted By: %s",
-                            rfbe.getPos(), rfbe.getConductor(), rfbe.getTarget(), rfbe.getTargettedBy()
+                                "Targetted By: %s\n" +
+                                "Phase (Conductor): %s",
+                            rfbe.getPos(), rfbe.getConductor(), rfbe.getTarget(), rfbe.getTargettedBy(), rfbe.getPhase()
                         )
                     ), false);
                 }
@@ -161,7 +156,7 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
             ItemStack itemStack = ((ItemEntity) entity).getStack();
             if (be instanceof RitualFrameBlockEntity) {
                 RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) be;
-                if (rfbe.getItem() == ItemStack.EMPTY) {
+                if (rfbe.getItem() == ItemStack.EMPTY && rfbe.isDormant()) {
                     ItemStack copy = itemStack.copy();
                     copy.setCount(1);
                     rfbe.setItem(copy);

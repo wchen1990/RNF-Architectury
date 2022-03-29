@@ -5,14 +5,14 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.DefaultParticleType;
 
 public class NoGravityParticle extends SpriteBillboardParticle {
-    private final double startX;
-    private final double startY;
-    private final double startZ;
+    protected final double startX;
+    protected final double startY;
+    protected final double startZ;
 
-    private final boolean reverse;
-    private final boolean fullBright;
-    private final boolean allWhite;
-    private final float fixedScale;
+    protected final boolean reverse;
+    protected final boolean fullBright;
+    protected final boolean allWhite;
+    protected final float fixedScale;
 
     NoGravityParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
         this(clientWorld, d, e, f, g, h, i, false, false, false, 0F);
@@ -106,6 +106,7 @@ public class NoGravityParticle extends SpriteBillboardParticle {
             int revMul = (this.reverse) ? -1 : 1;
             float f = (float)this.age / (float)this.maxAge;
             f = 1.0F - f;
+            double fPi = f * (8 * Math.PI);
             this.x = this.startX + (this.velocityX * (double)f) * revMul;
             this.y = this.startY + (this.velocityY * (double)f) * revMul;
             this.z = this.startZ + (this.velocityZ * (double)f) * revMul;
