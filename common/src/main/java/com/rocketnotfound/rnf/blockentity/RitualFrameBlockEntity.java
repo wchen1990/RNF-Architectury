@@ -1,9 +1,6 @@
 package com.rocketnotfound.rnf.blockentity;
 
 import com.rocketnotfound.rnf.RNF;
-import com.rocketnotfound.rnf.config.ServerConfig;
-import com.rocketnotfound.rnf.data.recipes.RNFRecipes;
-import com.rocketnotfound.rnf.data.recipes.RitualRecipe;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
 import net.minecraft.block.BlockState;
@@ -15,8 +12,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.Pair;
 import net.minecraft.util.collection.DefaultedList;
@@ -97,7 +97,9 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                 if (blockEntity.phaseTicks > RitualFrameConnectionHandler.getCraftingTicksFor(blockEntity)) {
                     Pair<Optional<Recipe>, Inventory> pair = RitualFrameConnectionHandler.checkForRecipe(blockEntity, serverWorld);
                     pair.getLeft().ifPresent((ritualRecipe) -> {
-                        RitualFrameConnectionHandler.clearInventoryFrom(blockEntity);
+                        RitualFrameConnectionHandler.clearInventoryStartingFrom(blockEntity);
+                        serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.BLOCKS, 1F, 1F);
+                        serverWorld.spawnParticles(ParticleTypes.FLASH, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, 1);
                         ItemScatterer.spawn(serverWorld, blockPos, DefaultedList.ofSize(1, ritualRecipe.getOutput()));
                     });
 
@@ -334,15 +336,15 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             nbtCompound.putBoolean("Uninitialized", true);
         if (lastKnownPos != null)
             nbtCompound.put("LastKnownPos", NbtHelper.fromBlockPos(lastKnownPos));
-        if (conductor != null)
+        if (conductor != null && !isConductor())
             nbtCompound.put("Conductor", NbtHelper.fromBlockPos(conductor));
         if (target != null)
             nbtCompound.put("Target", NbtHelper.fromBlockPos(target));
         if (targettedBy != null)
             nbtCompound.put("TargettedBy", NbtHelper.fromBlockPos(targettedBy));
-        if (phase != null)
+        if (phase != null && isConductor())
             nbtCompound.putString("Phase", phase.toString());
-        if (phaseTicks >= 0)
+        if (phaseTicks >= 0 && isConductor())
             nbtCompound.putInt("PhaseTicks", phaseTicks);
 
         Inventories.writeNbt(nbtCompound, this.inventory);

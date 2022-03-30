@@ -39,7 +39,7 @@ public class RitualFrameConnectionHandler {
         }
     }
 
-    public static void clearInventoryFrom(RitualFrameBlockEntity start) {
+    public static void clearInventoryStartingFrom(RitualFrameBlockEntity start) {
         List<RitualFrameBlockEntity> ordered = getOrderedActors(start.getConductorBE());
 
         if (start.isConductor()) {
