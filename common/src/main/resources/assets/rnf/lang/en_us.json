@@ -7,7 +7,9 @@
   "item.rnf.deep_moonstone": "Deep Moonstone",
   "block.rnf.deep_moonstone": "Deep Moonstone Block",
 
-  "subtitle.ritual.generic.complete": "A ritual is complete",
+  "subtitle.ritual.generic.progress": "Ritual progresses",
+  "subtitle.ritual.generic.complete": "Ritual completed",
+  "subtitle.ritual.generic.interrupt": "Ritual interrupted",
 
   "item.rnf.ritual_frame": "Ritual Frame",
   "block.rnf.ritual_frame": "Ritual Frame",

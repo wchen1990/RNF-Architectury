@@ -21,7 +21,7 @@
     "sounds": [
       {
         "name": "block/amethyst/shimmer",
-        "volume": 0.5
+        "volume": 0.3
       }
     ]
   },
@@ -66,6 +66,25 @@
       "block/amethyst/break4"
     ]
   },
+  "ritual.generic.progress": {
+    "sounds": [
+      "block/amethyst/step1",
+      "block/amethyst/step2",
+      "block/amethyst/step3",
+      "block/amethyst/step4",
+      "block/amethyst/step5",
+      "block/amethyst/step6",
+      "block/amethyst/step7",
+      "block/amethyst/step8",
+      "block/amethyst/step9",
+      "block/amethyst/step10",
+      "block/amethyst/step11",
+      "block/amethyst/step12",
+      "block/amethyst/step13",
+      "block/amethyst/step14"
+    ],
+    "subtitle": "subtitle.ritual.generic.progress"
+  },
   "ritual.generic.complete": {
     "sounds": [
       "block/enchantment_table/enchant1",
@@ -73,6 +92,15 @@
       "block/enchantment_table/enchant3"
     ],
     "subtitle": "subtitle.ritual.generic.complete"
+  },
+  "ritual.generic.interrupt": {
+    "sounds": [
+      "block/amethyst/break1",
+      "block/amethyst/break2",
+      "block/amethyst/break3",
+      "block/amethyst/break4"
+    ],
+    "subtitle": "subtitle.ritual.generic.interrupt"
   },
   "ritual.staff.change": {
     "sounds": [
