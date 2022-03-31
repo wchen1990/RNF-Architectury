@@ -11,6 +11,7 @@ import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.proxy.IProxy;
 import com.rocketnotfound.rnf.proxy.ServerProxy;
+import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
@@ -55,6 +56,7 @@ public class RNF {
         RNFBlockEntities.BLOCK_ENTITIES.register();
         RNFItems.ITEMS.register();
         RNFParticleTypes.PARTICLES.register();
+        RNFSounds.SOUND_EVENTS.register();
         RNFRecipes.register();
 
         RNFNetwork.init();

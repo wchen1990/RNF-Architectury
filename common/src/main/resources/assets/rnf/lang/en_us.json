@@ -7,6 +7,8 @@
   "item.rnf.deep_moonstone": "Deep Moonstone",
   "block.rnf.deep_moonstone": "Deep Moonstone Block",
 
+  "subtitle.ritual.generic.complete": "A ritual is complete",
+
   "item.rnf.ritual_frame": "Ritual Frame",
   "block.rnf.ritual_frame": "Ritual Frame",
   "ritual_frame.attune.set": "%s attunes with another ritual",

@@ -3,6 +3,7 @@ package com.rocketnotfound.rnf.item;
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
+import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,7 +31,7 @@ public class RitualFrameItem extends GeckoBlockItem {
         ItemStack itemStack = playerEntity.getStackInHand(hand);
         if (playerEntity.isSneaking() && itemStack.isOf(RNFItems.RITUAL_FRAME.get())) {
             if (world.isClient) {
-                RNF.PROXY.getClientPlayer().playSound(SoundEvents.BLOCK_AMETHYST_BLOCK_STEP,1,1);
+                RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_GENERIC_CHANGE.get(),1,1);
                 RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_frame.attune.self", new Object[]{ customName(itemStack) }), false);
             }
             itemStack.removeSubNbt("Target");
@@ -53,7 +54,7 @@ public class RitualFrameItem extends GeckoBlockItem {
                 BlockPos target = RitualFrameConnectionHandler.checkTarget(world, blockPos);
                 if (target != null) {
                     if (world.isClient) {
-                        RNF.PROXY.getClientPlayer().playSound(SoundEvents.BLOCK_AMETHYST_BLOCK_HIT,1,1);
+                        RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_GENERIC_SET.get(),1,1);
                         RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_frame.attune.set", new Object[]{ customName(itemStack) }), false);
                     }
                     itemStack.setSubNbt("Target", NbtHelper.fromBlockPos(target));
@@ -73,7 +74,7 @@ public class RitualFrameItem extends GeckoBlockItem {
                     BlockPos warnPos = NbtHelper.toBlockPos(warnNbt);
                     if (warnPos.equals(blockPos)) {
                         if (world.isClient) {
-                            RNF.PROXY.getClientPlayer().playSound(SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK,1,1);
+                            RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_GENERIC_BREAK.get(),1,1);
                             RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_frame.attune.break", new Object[]{ customName(itemStack) }), false);
                         }
                         itemStack.removeSubNbt("Target");
@@ -82,7 +83,7 @@ public class RitualFrameItem extends GeckoBlockItem {
                 }
 
                 if (world.isClient) {
-                    RNF.PROXY.getClientPlayer().playSound(SoundEvents.BLOCK_AMETHYST_BLOCK_FALL,1,1);
+                    RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_GENERIC_FALTER.get(),1,1);
                     RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_frame.attune.falter", new Object[]{ customName(itemStack) }), false);
                 }
                 itemStack.setSubNbt("Warn", NbtHelper.fromBlockPos(blockPos));

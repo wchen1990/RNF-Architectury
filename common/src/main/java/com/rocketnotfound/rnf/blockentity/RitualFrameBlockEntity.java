@@ -2,6 +2,7 @@ package com.rocketnotfound.rnf.blockentity;
 
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
+import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -98,7 +99,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                     Pair<Optional<Recipe>, Inventory> pair = RitualFrameConnectionHandler.checkForRecipe(blockEntity, serverWorld);
                     pair.getLeft().ifPresent((ritualRecipe) -> {
                         RitualFrameConnectionHandler.clearInventoryStartingFrom(blockEntity);
-                        serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.BLOCKS, 1F, 1F);
+                        serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_COMPLETE.get(), SoundCategory.BLOCKS, 1F, 1F);
                         serverWorld.spawnParticles(ParticleTypes.FLASH, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, 1);
                         ItemScatterer.spawn(serverWorld, blockPos, DefaultedList.ofSize(1, ritualRecipe.getOutput()));
                     });

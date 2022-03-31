@@ -4,6 +4,7 @@ import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.item.RNFItems;
+import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -18,10 +19,8 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -133,7 +132,7 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
         }
 
         if (world.isClient) {
-            RNF.PROXY.getClientPlayer().playSound(SoundEvents.BLOCK_AMETHYST_BLOCK_STEP, 1, 1);
+            RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_GENERIC_CHANGE.get(), 1, 1);
         }
 
         ItemStack copy = heldItem.copy();
