@@ -81,6 +81,11 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         }
 
         if (blockEntity.isConductor()) {
+            // Play ritual interrupt sound
+            if ((blockEntity.prevPhase == Phase.CRAFTING || blockEntity.prevPhase == Phase.RECIPE_FOUND) && blockEntity.isDormant()) {
+                serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_INTERRUPT.get(), SoundCategory.BLOCKS, 1F, 1F);
+            }
+
             // Keep track of phase changes
             if (blockEntity.prevPhase == null || blockEntity.prevPhase != blockEntity.getPhase()) {
                 blockEntity.prevPhase = blockEntity.getPhase();
@@ -130,11 +135,6 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                 if (blockEntity.phaseTicks > RNF.serverConfig().CRAFTING_COOLDOWN) {
                     blockEntity.setPhase(Phase.DORMANT);
                 }
-            }
-
-            // Play interruption sound if phase changed from crafting/recipe to dormant
-            if ((blockEntity.prevPhase == Phase.CRAFTING || blockEntity.prevPhase == Phase.RECIPE_FOUND) && blockEntity.isDormant()) {
-                serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_INTERRUPT.get(), SoundCategory.BLOCKS, 1F, 1F);
             }
         }
 
