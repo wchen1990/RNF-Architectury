@@ -247,6 +247,7 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
         return blockState.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(blockState);
     }
 
+    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(WATERLOGGED, FACING);
     }

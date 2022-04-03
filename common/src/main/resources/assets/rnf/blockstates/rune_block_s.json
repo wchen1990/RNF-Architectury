@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "rnf:block/rune_block_s",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "rnf:block/rune_block_s"
+    },
+    "facing=south": {
+      "model": "rnf:block/rune_block_s",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "rnf:block/rune_block_s",
+      "y": 270
+    }
+  }
+}
