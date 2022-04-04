@@ -3,6 +3,8 @@ package com.rocketnotfound.rnf.util;
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.data.recipes.RNFRecipes;
+import com.rocketnotfound.rnf.data.recipes.RuneEngravementRecipe;
+import com.rocketnotfound.rnf.item.RNFItems;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -76,10 +78,15 @@ public class RitualFrameConnectionHandler {
 
     public static Pair<Optional<Recipe>, Inventory> checkForRecipe(RitualFrameBlockEntity blockEntity, ServerWorld serverWorld) {
         Inventory inv = getCombinedInventoryFrom(blockEntity);
-        return new Pair<>(
-            serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), inv, serverWorld),
-            inv
-        );
+        Optional<Recipe> rec;
+
+        // Hardcode Rune Engraving
+        if (RuneEngravementRecipe.isValid(inv, serverWorld)) {
+            rec = Optional.of(new RuneEngravementRecipe(inv));
+        } else {
+            rec = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), inv, serverWorld);
+        }
+        return new Pair<>(rec, inv);
     }
 
     public static Inventory getCombinedInventoryFrom(RitualFrameBlockEntity start) {
