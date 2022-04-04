@@ -31,6 +31,7 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
+import javax.annotation.CheckForNull;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -198,19 +199,29 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     public DefaultedList<ItemStack> getInventory() { return inventory; }
     public ItemStack getItem() { return inventory.get(0); }
     public void setItem(ItemStack itemStack) {
-        getConductorBE().setPhase(Phase.DORMANT);
+        RitualFrameBlockEntity conductor = getConductorBE();
+        if (conductor != null) {
+            conductor.setPhase(Phase.DORMANT);
+        }
         inventory.set(0, itemStack);
     }
     public void clearItem() {
         inventory.set(0, ItemStack.EMPTY);
     }
 
-    public boolean isDormant() { return getPhase().equals(Phase.DORMANT); }
-    public boolean isRecipeFound() { return getPhase().equals(Phase.RECIPE_FOUND); }
-    public boolean isCrafting() { return getPhase().equals(Phase.CRAFTING); }
-    public boolean isCraftingDone() { return getPhase().equals(Phase.CRAFTING_DONE); }
+    public boolean isDormant() { return getPhase() == Phase.DORMANT; }
+    public boolean isRecipeFound() { return getPhase() == Phase.RECIPE_FOUND; }
+    public boolean isCrafting() { return getPhase() == Phase.CRAFTING; }
+    public boolean isCraftingDone() { return getPhase() == Phase.CRAFTING_DONE; }
 
-    public Phase getPhase() { return (isConductor()) ? phase : getConductorBE().getPhase(); }
+    public Phase getPhase() {
+        if (isConductor()) {
+            return phase;
+        } else {
+            RitualFrameBlockEntity conductor = getConductorBE();
+            return (conductor != null) ? conductor.getPhase() : null;
+        }
+    }
     public void setPhase(Phase phase) {
         this.phase = phase;
         this.phaseTicks = 0;
@@ -267,10 +278,12 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     }
 
     @Override
+    @CheckForNull
     public BlockPos getConductor() {
         return isConductor() ? pos : conductor;
     }
 
+    @CheckForNull
     public RitualFrameBlockEntity getConductorBE() {
         if (isConductor())
             return this;
@@ -289,10 +302,12 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         this.target = target;
     }
 
+    @CheckForNull
     public BlockPos getTarget() {
         return target;
     }
 
+    @CheckForNull
     public RitualFrameBlockEntity getTargetBE() {
         if (target != null) {
             BlockEntity tileEntity = world.getBlockEntity(target);

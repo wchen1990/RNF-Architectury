@@ -92,7 +92,7 @@ public class RitualFrameConnectionHandler {
 
     public static boolean isLoop(RitualFrameBlockEntity start) {
         RitualFrameBlockEntity conductor = start.getConductorBE();
-        RitualFrameBlockEntity target = conductor.getTargetBE();
+        RitualFrameBlockEntity target = (conductor != null) ? conductor.getTargetBE() : null;
         return target != null && target.getConductorBE() == conductor;
     }
 
@@ -181,15 +181,18 @@ public class RitualFrameConnectionHandler {
         if (add == null || !(add.getWorld() instanceof ServerWorld)) return;
 
         // Something changed, inform the conductor
-        add.getConductorBE().setPhase(RitualFrameBlockEntity.Phase.DORMANT);
+        RitualFrameBlockEntity conductor = add.getConductorBE();
+        if (conductor == null) return;
+
+        conductor.setPhase(RitualFrameBlockEntity.Phase.DORMANT);
 
         if (!add.isConductor()) {
-            BlockPos conductor = add.getConductor();
-            List<RitualFrameBlockEntity> list = conductorActorsCache.get(conductor);
+            BlockPos conductorPos = add.getConductor();
+            List<RitualFrameBlockEntity> list = conductorActorsCache.get(conductorPos);
             if (list == null) {
                 list = new ArrayList<>();
                 list.add(add);
-                conductorActorsCache.put(conductor, list);
+                conductorActorsCache.put(conductorPos, list);
             } else {
                 if (!list.contains(add)) {
                     list.add(add);
@@ -202,10 +205,15 @@ public class RitualFrameConnectionHandler {
         if (remove == null || !(remove.getWorld() instanceof ServerWorld)) return;
 
         // Something changed, inform the conductor
-        remove.getConductorBE().setPhase(RitualFrameBlockEntity.Phase.DORMANT);
+        RitualFrameBlockEntity conductor = remove.getConductorBE();
+        if (conductor == null) return;
+
+        conductor.setPhase(RitualFrameBlockEntity.Phase.DORMANT);
 
         // Remove removed from the conductor cache
-        List<RitualFrameBlockEntity> ordered = getOrderedActors(remove.getConductorBE());
+        List<RitualFrameBlockEntity> ordered = getOrderedActors(conductor);
+        if (ordered == null) return;
+
         ordered.remove(remove);
 
         // Remove TargettedBy reference from the remove's target
@@ -273,10 +281,13 @@ public class RitualFrameConnectionHandler {
         if (make == null || !(make.getWorld() instanceof ServerWorld)) return;
 
         // Something changed, inform the conductor
-        make.getConductorBE().setPhase(RitualFrameBlockEntity.Phase.DORMANT);
+        RitualFrameBlockEntity conductor = make.getConductorBE();
+        if (conductor == null) return;
+
+        conductor.setPhase(RitualFrameBlockEntity.Phase.DORMANT);
 
         if (!make.isConductor()) {
-            List<RitualFrameBlockEntity> ordered = getOrderedActors(make.getConductorBE());
+            List<RitualFrameBlockEntity> ordered = getOrderedActors(conductor);
             List<RitualFrameBlockEntity> temp = null;
 
             ordered.remove(make);
