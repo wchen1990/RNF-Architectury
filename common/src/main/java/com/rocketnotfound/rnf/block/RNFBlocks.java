@@ -18,6 +18,8 @@ public class RNFBlocks {
     public static final RegistrySupplier<Block> DEEP_MOONSTONE = BLOCKS.register("deep_moonstone", () -> new MoonstoneBlock(AbstractBlock.Settings.copy(MOONSTONE.get()).mapColor(MapColor.DEEPSLATE_GRAY).sounds(BlockSoundGroup.DEEPSLATE)));
     public static final RegistrySupplier<Block> RITUAL_FRAME = BLOCKS.register("ritual_frame", () -> new RitualFrameBlock(AbstractBlock.Settings.of(Material.DECORATION, MapColor.TERRACOTTA_WHITE).nonOpaque().requiresTool().luminance(blockLuminance(6)).sounds(BlockSoundGroup.AMETHYST_CLUSTER).strength(1.5f, 6.0f)));
 
+    public static final RegistrySupplier<Block> DRAINED_RUNE_BLOCK = BLOCKS.register("drained_rune_block", () -> new DrainedRuneBlock());
+
     public static final RegistrySupplier<Block> RUNE_BLOCK = BLOCKS.register("rune_block", () -> new RuneBlock());
     public static final RegistrySupplier<Block> RUNE_BLOCK_A = BLOCKS.register("rune_block_a", () -> new RuneBlock());
     public static final RegistrySupplier<Block> RUNE_BLOCK_B = BLOCKS.register("rune_block_b", () -> new RuneBlock());
@@ -46,6 +48,7 @@ public class RNFBlocks {
     public static final RegistrySupplier<Block> RUNE_BLOCK_Y = BLOCKS.register("rune_block_y", () -> new RuneBlock());
     public static final RegistrySupplier<Block> RUNE_BLOCK_Z = BLOCKS.register("rune_block_z", () -> new RuneBlock());
     public static final List<RegistrySupplier<Block>> RUNE_BLOCKS = List.of(
+        DRAINED_RUNE_BLOCK,
         RUNE_BLOCK,
         RUNE_BLOCK_A,
         RUNE_BLOCK_B,

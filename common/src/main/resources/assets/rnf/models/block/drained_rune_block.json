@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "rnf:block/drained_rune_block",
+    "particle": "rnf:block/drained_rune_block"
+  }
+}

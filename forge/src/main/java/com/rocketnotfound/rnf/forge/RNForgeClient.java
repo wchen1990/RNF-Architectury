@@ -5,6 +5,7 @@ import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.block.RuneBlock;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.forge.client.renderer.blockentity.RitualFrameRenderer;
+import net.minecraft.block.TransparentBlock;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayers;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,9 +20,9 @@ import software.bernie.example.GeckoLibMod;
 public class RNForgeClient {
     @SubscribeEvent
     public static void registerRenderLayers(final FMLClientSetupEvent event) {
-        // Set render layers for all RuneBlocks
+        // Set render layers for all TransparentBlocks
         RNFBlocks.RUNE_BLOCKS.forEach((blockRegistry) -> {
-            if (blockRegistry.isPresent() && blockRegistry.get() instanceof RuneBlock) {
+            if (blockRegistry.isPresent() && blockRegistry.get() instanceof TransparentBlock) {
                 RenderLayers.setRenderLayer(blockRegistry.get(), RenderLayer.getTranslucent());
             }
         });

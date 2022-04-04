@@ -12,6 +12,7 @@ import com.rocketnotfound.rnf.proxy.ClientProxy;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.impl.blockrenderlayer.BlockRenderLayerMapImpl;
+import net.minecraft.block.TransparentBlock;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
@@ -28,9 +29,9 @@ public class RNFabricClient implements ClientModInitializer {
                 (BlockEntityRendererFactory.Context rendererDispatcherIn) -> new RitualFrameRenderer());
         BlockRenderLayerMapImpl.INSTANCE.putBlock(RNFBlocks.RITUAL_FRAME.get(), RenderLayer.getCutout());
 
-        // Set render layers for all RuneBlocks
+        // Set render layers for all TransparentBlocks
         RNFBlocks.RUNE_BLOCKS.forEach((blockRegistry) -> {
-            if (blockRegistry.isPresent() && blockRegistry.get() instanceof RuneBlock) {
+            if (blockRegistry.isPresent() && blockRegistry.get() instanceof TransparentBlock) {
                 BlockRenderLayerMapImpl.INSTANCE.putBlock(blockRegistry.get(), RenderLayer.getTranslucent());
             }
         });

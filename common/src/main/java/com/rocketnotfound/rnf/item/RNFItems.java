@@ -25,6 +25,8 @@ public class RNFItems {
     public static final RegistrySupplier<Item> RITUAL_FRAME = ITEMS.register("ritual_frame", () -> new RitualFrameItem(new Item.Settings().maxCount(1).group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> RITUAL_STAFF = ITEMS.register("ritual_staff", () -> new RitualStaffItem(new Item.Settings().maxCount(1).group(CREATIVE_TAB)));
 
+    public static final RegistrySupplier<Item> DRAINED_RUNE_BLOCK = ITEMS.register("drained_rune_block", () -> new BlockItem(RNFBlocks.DRAINED_RUNE_BLOCK.get(), new Item.Settings().group(CREATIVE_TAB)));
+
     public static final RegistrySupplier<Item> RUNE_BLOCK = ITEMS.register("rune_block", () -> new BlockItem(RNFBlocks.RUNE_BLOCK.get(), new Item.Settings().group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> RUNE_BLOCK_A = ITEMS.register("rune_block_a", () -> new BlockItem(RNFBlocks.RUNE_BLOCK_A.get(), new Item.Settings().group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> RUNE_BLOCK_B = ITEMS.register("rune_block_b", () -> new BlockItem(RNFBlocks.RUNE_BLOCK_B.get(), new Item.Settings().group(CREATIVE_TAB)));
@@ -53,6 +55,7 @@ public class RNFItems {
     public static final RegistrySupplier<Item> RUNE_BLOCK_Y = ITEMS.register("rune_block_y", () -> new BlockItem(RNFBlocks.RUNE_BLOCK_Y.get(), new Item.Settings().group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> RUNE_BLOCK_Z = ITEMS.register("rune_block_z", () -> new BlockItem(RNFBlocks.RUNE_BLOCK_Z.get(), new Item.Settings().group(CREATIVE_TAB)));
     public static final List<RegistrySupplier<Item>> RUNE_BLOCKS = List.of(
+            DRAINED_RUNE_BLOCK,
             RUNE_BLOCK,
             RUNE_BLOCK_A,
             RUNE_BLOCK_B,

@@ -22,7 +22,7 @@ public class RuneBlock extends TransparentBlock {
 
     public RuneBlock() {
         this(
-            AbstractBlock.Settings.of(Material.ICE, MapColor.TERRACOTTA_WHITE)
+            AbstractBlock.Settings.of(Material.GLASS, MapColor.TERRACOTTA_WHITE)
                 .nonOpaque()
                 .requiresTool()
                 .luminance(blockLuminance(12))

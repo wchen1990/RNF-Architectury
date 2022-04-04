@@ -26,6 +26,9 @@
   "ritual_staff.attune.break": "%s's attunement breaks",
   "ritual_staff.attune.dormant": "%s becomes dormant",
 
+  "item.rnf.drained_rune_block": "Drained Rune",
+  "block.rnf.drained_rune_block": "Drained Rune Block",
+
   "item.rnf.rune_block": "Blank Rune",
   "block.rnf.rune_block": "Blank Rune Block",
   "item.rnf.rune_block_a": "Rune - A",

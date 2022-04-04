@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "rnf:block/drained_rune_block"
+    }
+  }
+}
