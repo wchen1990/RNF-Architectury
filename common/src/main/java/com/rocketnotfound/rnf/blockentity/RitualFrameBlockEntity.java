@@ -96,10 +96,14 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                 blockEntity.phaseTicks++;
                 if (blockEntity.phaseTicks > RNF.serverConfig().CHECK_RECIPE_INTERVAL_TICKS) {
                     blockEntity.phaseTicks = 0;
-                    Pair<Optional<Recipe>, Inventory> pair = RitualFrameConnectionHandler.checkForRecipe(blockEntity, serverWorld);
-                    pair.getLeft().ifPresent((ritualRecipe) -> {
-                        blockEntity.setPhase(Phase.RECIPE_FOUND);
-                    });
+
+                    // Lets not waste resources checking for recipes if conductor doesn't have an item
+                    if (blockEntity.getItem() != ItemStack.EMPTY) {
+                        Pair<Optional<Recipe>, Inventory> pair = RitualFrameConnectionHandler.checkForRecipe(blockEntity, serverWorld);
+                        pair.getLeft().ifPresent((ritualRecipe) -> {
+                            blockEntity.setPhase(Phase.RECIPE_FOUND);
+                        });
+                    }
                 }
             } else if (blockEntity.isRecipeFound()) {
                 blockEntity.phaseTicks++;
@@ -221,7 +225,6 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         updateConnectivity = false;
         if (world.isClient())
             return;
-        RitualFrameConnectionHandler.add(this);
     }
 
     @Override

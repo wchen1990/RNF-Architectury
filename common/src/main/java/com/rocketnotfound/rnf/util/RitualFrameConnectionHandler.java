@@ -4,7 +4,6 @@ import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.data.recipes.RNFRecipes;
 import com.rocketnotfound.rnf.data.recipes.RuneEngravementRecipe;
-import com.rocketnotfound.rnf.item.RNFItems;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -80,7 +79,7 @@ public class RitualFrameConnectionHandler {
         Inventory inv = getCombinedInventoryFrom(blockEntity);
         Optional<Recipe> rec;
 
-        // Hardcode Rune Engraving
+        // Hardcode Rune Engraving check
         if (RuneEngravementRecipe.isValid(inv, serverWorld)) {
             rec = Optional.of(new RuneEngravementRecipe(inv));
         } else {
@@ -157,6 +156,15 @@ public class RitualFrameConnectionHandler {
         return list;
     }
 
+    /**
+     * <p>{@code RitualFrameConnectionHandler.add} is {@code @Deprecated} since
+     * during world load, {@code RitualFrameBlockEntity}'s are loaded fairly
+     * arbitrarily, which would result in a disordering of the cache.</p>
+     *
+     * <p>This should only be used when we're guaranteed that the order in the
+     * cache is correct.</p>
+     */
+    @Deprecated
     public static void add(RitualFrameBlockEntity add) {
         if (add == null || !(add.getWorld() instanceof ServerWorld)) return;
 
