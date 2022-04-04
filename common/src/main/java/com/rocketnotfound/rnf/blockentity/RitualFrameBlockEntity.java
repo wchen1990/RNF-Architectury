@@ -166,7 +166,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
 
                 if (blockEntity.isRecipeFound() || blockEntity.isCrafting()) {
                     // Spiral path follows straight normal path
-                    serverWorld.spawnParticles(recipeParticle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, diff.getX() * diffMul, diff.getY() * diffMul, diff.getZ() * diffMul, speed);
+                    serverWorld.spawnParticles(RNFParticleTypes.END_ROD_REV.get(), blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, diff.getX() * diffMul, diff.getY() * diffMul, diff.getZ() * diffMul, speed);
                 } else {
                     // Emits from center point of target
                     serverWorld.spawnParticles(particle, target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5, 0, 0, 0, 0, speed);

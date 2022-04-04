@@ -65,7 +65,7 @@ public class RitualFrameConnectionHandler {
 
         int listSize = 0;
         if (start.isConductor()) {
-            listSize = ordered.size() + (ordered.contains(start) ? 0 : 1);
+            listSize = ordered.size() + (isLoop(start) ? 0 : 1);
         } else {
             int idx = ordered.indexOf(start);
             int size = ordered.size();
@@ -82,10 +82,18 @@ public class RitualFrameConnectionHandler {
         // Hardcode Rune Engraving check
         if (RuneEngravementRecipe.isValid(inv, serverWorld)) {
             rec = Optional.of(new RuneEngravementRecipe(inv));
+        } if (isLoop(blockEntity)) {
+            rec = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.LOOP_RITUAL_TYPE.get(), inv, serverWorld);
         } else {
             rec = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), inv, serverWorld);
         }
         return new Pair<>(rec, inv);
+    }
+
+    public static boolean isLoop(RitualFrameBlockEntity start) {
+        RitualFrameBlockEntity conductor = start.getConductorBE();
+        RitualFrameBlockEntity target = conductor.getTargetBE();
+        return target != null && target.getConductorBE() == conductor;
     }
 
     public static Inventory getCombinedInventoryFrom(RitualFrameBlockEntity start) {
@@ -93,11 +101,13 @@ public class RitualFrameConnectionHandler {
         DefaultedList<ItemStack> inventory;
 
         if (start.isConductor()) {
-            inventory = DefaultedList.ofSize(ordered.size() + 1);
+            inventory = DefaultedList.ofSize(ordered.size() + (isLoop(start) ? 0 : 1));
 
             inventory.add(start.getItem());
             ordered.stream().forEach((frame) -> {
-                inventory.add(frame.getItem());
+                if (!inventory.contains(frame.getItem())) {
+                    inventory.add(frame.getItem());
+                }
             });
         } else {
             int idx = ordered.indexOf(start);
@@ -108,7 +118,9 @@ public class RitualFrameConnectionHandler {
 
             inventory.add(start.getItem());
             sublist.stream().forEach((frame) -> {
-                inventory.add(frame.getItem());
+                if (!inventory.contains(frame.getItem())) {
+                    inventory.add(frame.getItem());
+                }
             });
         }
 

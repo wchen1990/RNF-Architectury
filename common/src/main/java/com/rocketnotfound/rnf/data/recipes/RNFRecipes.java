@@ -14,6 +14,9 @@ public class RNFRecipes {
     public static final RegistrySupplier<RecipeType> RITUAL_TYPE = RECIPE_TYPES.register(RitualRecipe.TYPE, RitualRecipe.RitualRecipeType::new);
     public static final RegistrySupplier<RecipeSerializer> RITUAL_SERIALIZER = RECIPE_SERIALIZERS.register(RitualRecipe.TYPE, RitualRecipe.Serializer::new);
 
+    public static final RegistrySupplier<RecipeType> LOOP_RITUAL_TYPE = RECIPE_TYPES.register(LoopRitualRecipe.TYPE, LoopRitualRecipe.LoopRitualRecipeType::new);
+    public static final RegistrySupplier<RecipeSerializer> LOOP_RITUAL_SERIALIZER = RECIPE_SERIALIZERS.register(LoopRitualRecipe.TYPE, LoopRitualRecipe.Serializer::new);
+
     public static void register() {
         RECIPE_TYPES.register();
         RECIPE_SERIALIZERS.register();

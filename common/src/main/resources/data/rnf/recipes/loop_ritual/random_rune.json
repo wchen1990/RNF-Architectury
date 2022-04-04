@@ -1,0 +1,26 @@
+{
+  "type": "rnf:loop_ritual",
+  "ingredients": [
+    {
+      "tag": "rnf:active_rune_blocks"
+    },
+    {
+      "tag": "rnf:active_rune_blocks"
+    },
+    {
+      "tag": "rnf:active_rune_blocks"
+    },
+    {
+      "tag": "rnf:active_rune_blocks"
+    },
+    {
+      "tag": "rnf:active_rune_blocks"
+    },
+    {
+      "tag": "rnf:active_rune_blocks"
+    }
+  ],
+  "output": {
+    "tag": "rnf:active_rune_blocks"
+  }
+}

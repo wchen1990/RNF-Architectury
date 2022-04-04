@@ -18,9 +18,11 @@ public class RuneEngravementRecipe implements IRitualRecipe {
     public static final Identifier TYPE = createIdentifier("rune_engravement");
 
     protected final Inventory recipeItems;
+    protected final Random random;
 
     public RuneEngravementRecipe(Inventory recipeItems) {
         this.recipeItems = recipeItems;
+        this.random = new Random();
     }
 
     public static boolean isValid(Inventory inventory, World world) {
@@ -40,14 +42,13 @@ public class RuneEngravementRecipe implements IRitualRecipe {
     public ItemStack craft(Inventory inventory) {
         if (matches(inventory, null)) {
             Identifier id = Registry.ITEM.getId(inventory.getStack(3).getItem());
-            Random rand = new Random();
             if (id != null) {
                 String validLetters = id.getPath().toLowerCase().replaceAll("[^a-z]", "");
                 return Registry.ITEM.get(
                     createIdentifier(
                         String.format(
                             "rune_block_%s",
-                            validLetters.charAt(rand.nextInt(validLetters.length()))
+                            validLetters.charAt(random.nextInt(validLetters.length()))
                         )
                     )
                 ).getDefaultStack();

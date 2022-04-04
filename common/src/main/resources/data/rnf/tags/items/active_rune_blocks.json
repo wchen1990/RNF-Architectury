@@ -1,0 +1,31 @@
+{
+  "replace": false,
+  "values": [
+    "rnf:rune_block_a",
+    "rnf:rune_block_b",
+    "rnf:rune_block_c",
+    "rnf:rune_block_d",
+    "rnf:rune_block_e",
+    "rnf:rune_block_f",
+    "rnf:rune_block_g",
+    "rnf:rune_block_h",
+    "rnf:rune_block_i",
+    "rnf:rune_block_j",
+    "rnf:rune_block_k",
+    "rnf:rune_block_l",
+    "rnf:rune_block_m",
+    "rnf:rune_block_n",
+    "rnf:rune_block_o",
+    "rnf:rune_block_p",
+    "rnf:rune_block_q",
+    "rnf:rune_block_r",
+    "rnf:rune_block_s",
+    "rnf:rune_block_t",
+    "rnf:rune_block_u",
+    "rnf:rune_block_v",
+    "rnf:rune_block_w",
+    "rnf:rune_block_x",
+    "rnf:rune_block_y",
+    "rnf:rune_block_z"
+  ]
+}

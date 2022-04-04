@@ -17,19 +17,24 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
+import java.util.Random;
+
 import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
-public class RitualRecipe implements IRitualRecipe {
-    public static final Identifier TYPE = createIdentifier("ritual");
+public class LoopRitualRecipe implements IRitualRecipe {
+    public static final Identifier TYPE = createIdentifier("loop_ritual");
 
     protected final Identifier id;
-    protected final ItemStack output;
+    protected final Ingredient output;
     protected final DefaultedList<Ingredient> recipeItems;
 
-    public RitualRecipe(Identifier id, ItemStack output, DefaultedList<Ingredient> recipeItems) {
+    protected final Random random;
+
+    public LoopRitualRecipe(Identifier id, Ingredient output, DefaultedList<Ingredient> recipeItems) {
         this.id = id;
         this.output = output;
         this.recipeItems = recipeItems;
+        this.random = new Random();
     }
 
     @Override
@@ -49,7 +54,7 @@ public class RitualRecipe implements IRitualRecipe {
 
     @Override
     public ItemStack craft(Inventory inventory) {
-        return output;
+        return getOutput();
     }
 
     @Override
@@ -57,9 +62,17 @@ public class RitualRecipe implements IRitualRecipe {
         return true;
     }
 
+    public Ingredient getOutputIngredient() {
+        return output;
+    }
+
     @Override
     public ItemStack getOutput() {
-        return output.copy();
+        ItemStack[] outcomes = output.getMatchingStacks();
+        if (outcomes.length > 0) {
+            return outcomes[random.nextInt(outcomes.length)].copy();
+        }
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -69,24 +82,24 @@ public class RitualRecipe implements IRitualRecipe {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return RNFRecipes.RITUAL_SERIALIZER.get();
+        return RNFRecipes.LOOP_RITUAL_SERIALIZER.get();
     }
 
     @Override
     public RecipeType<?> getType() {
-        return RNFRecipes.RITUAL_TYPE.get();
+        return RNFRecipes.LOOP_RITUAL_TYPE.get();
     }
 
-    public static class RitualRecipeType implements RecipeType<RitualRecipe> {
+    public static class LoopRitualRecipeType implements RecipeType<LoopRitualRecipe> {
         @Override
         public String toString() {
-            return "rnf:ritual";
+            return "rnf:loop_ritual";
         }
     }
-    public static class Serializer extends AbstractRecipeSerializer<RitualRecipe> {
+    public static class Serializer extends AbstractRecipeSerializer<LoopRitualRecipe> {
         @Override
-        public RitualRecipe read(Identifier identifier, JsonObject jsonObject) {
-            ItemStack output = ShapedRecipe.outputFromJson(JsonHelper.getObject(jsonObject, "output"));
+        public LoopRitualRecipe read(Identifier identifier, JsonObject jsonObject) {
+            Ingredient output = Ingredient.fromJson(JsonHelper.getObject(jsonObject, "output"));
 
             JsonArray ingredients = JsonHelper.getArray(jsonObject, "ingredients");
             DefaultedList<Ingredient> inputs = DefaultedList.ofSize(ingredients.size(), Ingredient.EMPTY);
@@ -95,30 +108,30 @@ public class RitualRecipe implements IRitualRecipe {
                 inputs.set(i, Ingredient.fromJson(ingredients.get(i)));
             }
 
-            return new RitualRecipe(identifier, output, inputs);
+            return new LoopRitualRecipe(identifier, output, inputs);
         }
 
         @Override
-        public void write(PacketByteBuf packetByteBuf, RitualRecipe recipe) {
+        public void write(PacketByteBuf packetByteBuf, LoopRitualRecipe recipe) {
             packetByteBuf.writeInt(recipe.getIngredients().size());
             for (Ingredient ing : recipe.getIngredients()) {
                 ing.write(packetByteBuf);
             }
-            packetByteBuf.writeItemStack(recipe.getOutput());
+            recipe.getOutputIngredient().write(packetByteBuf);
         }
 
         @Nullable
         @Override
-        public RitualRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
+        public LoopRitualRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
             DefaultedList<Ingredient> inputs = DefaultedList.ofSize(packetByteBuf.readInt(), Ingredient.EMPTY);
 
             for (int i = 0; i < inputs.size(); i++) {
                 inputs.set(i, Ingredient.fromPacket(packetByteBuf));
             }
 
-            ItemStack output = packetByteBuf.readItemStack();
+            Ingredient output = Ingredient.fromPacket(packetByteBuf);
 
-            return new RitualRecipe(identifier, output, inputs);
+            return new LoopRitualRecipe(identifier, output, inputs);
         }
     }
 }
