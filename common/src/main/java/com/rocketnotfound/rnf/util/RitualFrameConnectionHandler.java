@@ -18,6 +18,7 @@ import javax.annotation.CheckForNull;
 import java.util.*;
 
 public class RitualFrameConnectionHandler {
+    // TODO: Figure out why conductorsActorsCache sometimes ends up with empty lists
     private static Map<BlockPos, List<RitualFrameBlockEntity>> conductorActorsCache = new HashMap<>();
     public static void invalidateCache() {
         conductorActorsCache.clear();
