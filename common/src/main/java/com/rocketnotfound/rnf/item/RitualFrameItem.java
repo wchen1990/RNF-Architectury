@@ -68,7 +68,7 @@ public class RitualFrameItem extends GeckoBlockItem {
         NbtCompound targetNbt = itemStack.getSubNbt("Target");
         if (targetNbt != null) {
             BlockPos targetPos = NbtHelper.toBlockPos(targetNbt);
-            if(!targetPos.isWithinDistance(blockPos, RNF.serverConfig().MAX_RANGE)) {
+            if(!targetPos.isWithinDistance(blockPos, RNF.serverConfig().RITUAL.MAX_RANGE)) {
                 NbtCompound warnNbt = itemStack.getSubNbt("Warn");
                 if (warnNbt != null) {
                     BlockPos warnPos = NbtHelper.toBlockPos(warnNbt);

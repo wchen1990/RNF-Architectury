@@ -1,0 +1,18 @@
+{
+  "type": "rnf:rune_engravement",
+  "requirements": [
+    {
+      "item": "rnf:rune_block"
+    },
+    {
+      "item": "rnf:luna"
+    },
+    {
+      "item": "minecraft:amethyst_shard"
+    },
+    {
+      "item": "minecraft:blaze_rod"
+    }
+  ],
+  "output": "rnf:rune_block_%s"
+}

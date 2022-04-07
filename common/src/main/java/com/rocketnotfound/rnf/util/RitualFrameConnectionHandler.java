@@ -73,7 +73,7 @@ public class RitualFrameConnectionHandler {
             listSize = ordered.subList(idx, size).size();
         }
 
-        return listSize * RNF.serverConfig().CRAFTING_TICKS_PER_FRAME;
+        return listSize * RNF.serverConfig().RITUAL.CRAFTING_TICKS_PER_FRAME;
     }
 
     public static Pair<Optional<Recipe>, Inventory> checkForRecipe(RitualFrameBlockEntity blockEntity, ServerWorld serverWorld) {
@@ -81,8 +81,9 @@ public class RitualFrameConnectionHandler {
         Optional<Recipe> rec;
 
         // Hardcode Rune Engraving check
-        if (RuneEngravementRecipe.isValid(inv, serverWorld)) {
-            rec = Optional.of(new RuneEngravementRecipe(inv));
+        List<RuneEngravementRecipe> runeEngravements = serverWorld.getRecipeManager().getAllMatches(RNFRecipes.RUNE_ENGRAVEMENT_TYPE.get(), inv, serverWorld);
+        if (runeEngravements.size() > 0 && runeEngravements.stream().anyMatch((rune) -> rune.getId().compareTo(RuneEngravementRecipe.REQUIREMENTS) == 0)) {
+            rec = Optional.of(runeEngravements.stream().filter((rune) -> rune.getId().compareTo(RuneEngravementRecipe.REQUIREMENTS) == 0).findFirst().get());
         } else if (isLoop(blockEntity)) {
             rec = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.LOOP_RITUAL_TYPE.get(), inv, serverWorld);
         } else {

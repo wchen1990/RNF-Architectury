@@ -81,7 +81,7 @@ public class RitualStaffItem extends GeckoItem {
                         if (targetNbt != null) {
                             BlockPos target = NbtHelper.toBlockPos(targetNbt);
                             if (!target.equals(blockPos)) {
-                                if (!target.isWithinDistance(blockPos, RNF.serverConfig().MAX_RANGE)) {
+                                if (!target.isWithinDistance(blockPos, RNF.serverConfig().RITUAL.MAX_RANGE)) {
                                     if (world.isClient) {
                                         RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_GENERIC_BREAK.get(), 1, 1);
                                         RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_staff.attune.break", new Object[]{customName(itemStack)}), false);

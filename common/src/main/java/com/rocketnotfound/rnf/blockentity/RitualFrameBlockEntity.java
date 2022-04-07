@@ -107,8 +107,8 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         if (blockEntity.isInfusing()) {
             blockEntity.phaseTicks++;
             if (blockEntity.miscPos == null) {
-                if (blockEntity.phaseTicks > RNF.serverConfig().CHECK_INFUSING_TARGET_INTERVAL_TICKS) {
-                    int radius = RNF.serverConfig().INFUSING_RADIUS;
+                if (blockEntity.phaseTicks > RNF.serverConfig().INFUSE.CHECK_INFUSING_TARGET_INTERVAL_TICKS) {
+                    int radius = RNF.serverConfig().INFUSE.INFUSING_RADIUS;
                     int negRagius = radius * -1;
                     BlockPos infuseTarget;
 
@@ -129,7 +129,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                     blockEntity.phaseTicks = 0;
                 }
             } else if (serverWorld.getBlockState(blockEntity.miscPos).isOf(RNFBlocks.DRAINED_RUNE_BLOCK.get())) {
-                if (blockEntity.phaseTicks > RNF.serverConfig().INFUSING_COMPLETION_TICKS) {
+                if (blockEntity.phaseTicks > RNF.serverConfig().INFUSE.INFUSING_COMPLETION_TICKS) {
                     // Replace Drained with Rune Block
                     serverWorld.setBlockState(blockEntity.miscPos, RNFBlocks.RUNE_BLOCK.get().getDefaultState());
 
@@ -140,7 +140,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
 
                     // Damage the Luna
                     if (!itemStack.hasNbt() || !itemStack.getNbt().contains("Damage")) {
-                        itemStack.setDamage(RNF.serverConfig().INFUSE_PER_LUNA - 1);
+                        itemStack.setDamage(RNF.serverConfig().INFUSE.INFUSE_PER_LUNA - 1);
                     } else {
                         itemStack.setDamage(itemStack.getDamage() - 1);
                     }
@@ -181,7 +181,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             // Phase changes
             if (blockEntity.isDormant()) {
                 blockEntity.phaseTicks++;
-                if (blockEntity.phaseTicks > RNF.serverConfig().CHECK_RECIPE_INTERVAL_TICKS) {
+                if (blockEntity.phaseTicks > RNF.serverConfig().RITUAL.CHECK_RECIPE_INTERVAL_TICKS) {
                     blockEntity.phaseTicks = 0;
 
                     // Lets not waste resources checking for recipes if conductor doesn't have an item
@@ -194,11 +194,11 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                 }
             } else if (blockEntity.isRecipeFound()) {
                 blockEntity.phaseTicks++;
-                if (blockEntity.phaseTicks > RNF.serverConfig().RECIPE_CRAFTING_DELAY_TICKS) {
+                if (blockEntity.phaseTicks > RNF.serverConfig().RITUAL.RECIPE_CRAFTING_DELAY_TICKS) {
                     blockEntity.setPhase(Phase.CRAFTING);
                 } else {
                     if (blockEntity.phaseTicks % 15 == 0) {
-                        float volume = 0.3F * (blockEntity.phaseTicks / RNF.serverConfig().RECIPE_CRAFTING_DELAY_TICKS) + 0.5F;
+                        float volume = 0.3F * (blockEntity.phaseTicks / RNF.serverConfig().RITUAL.RECIPE_CRAFTING_DELAY_TICKS) + 0.5F;
                         serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_PROGRESS.get(), SoundCategory.BLOCKS, volume, 1F);
                         serverWorld.spawnParticles(ParticleTypes.END_ROD, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 3, 0, 0, 0, 0.1);
                     }
@@ -212,7 +212,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                         serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_COMPLETE.get(), SoundCategory.BLOCKS, 1F, 1F);
                         serverWorld.spawnParticles(ParticleTypes.FLASH, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, 0);
                         serverWorld.spawnParticles(ParticleTypes.END_ROD, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 50, 0, 0, 0, 0.1);
-                        ItemScatterer.spawn(serverWorld, blockPos, DefaultedList.ofSize(1, ritualRecipe.getOutput()));
+                        ItemScatterer.spawn(serverWorld, blockPos, DefaultedList.ofSize(1, ritualRecipe.craft(pair.getRight())));
                     });
 
                     blockEntity.setPhase(Phase.CRAFTING_DONE);
@@ -224,7 +224,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                 }
             } else if (blockEntity.isCraftingDone()) {
                 blockEntity.phaseTicks++;
-                if (blockEntity.phaseTicks > RNF.serverConfig().CRAFTING_COOLDOWN) {
+                if (blockEntity.phaseTicks > RNF.serverConfig().RITUAL.CRAFTING_COOLDOWN) {
                     blockEntity.setPhase(Phase.DORMANT);
                 }
             } else {
