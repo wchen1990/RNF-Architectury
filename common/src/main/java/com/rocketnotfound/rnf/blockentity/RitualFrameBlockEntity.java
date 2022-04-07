@@ -1,6 +1,8 @@
 package com.rocketnotfound.rnf.blockentity;
 
 import com.rocketnotfound.rnf.RNF;
+import com.rocketnotfound.rnf.block.RNFBlocks;
+import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
@@ -17,7 +19,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.Pair;
 import net.minecraft.util.collection.DefaultedList;
@@ -32,6 +33,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 import javax.annotation.CheckForNull;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -40,7 +42,8 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         DORMANT,
         RECIPE_FOUND,
         CRAFTING,
-        CRAFTING_DONE
+        CRAFTING_DONE,
+        INFUSING
     }
 
     protected DefaultedList<ItemStack> inventory;
@@ -48,6 +51,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     protected BlockPos target;
     protected BlockPos targettedBy;
     protected BlockPos lastKnownPos;
+    protected BlockPos miscPos;
     protected Phase phase = Phase.DORMANT;
     protected int phaseTicks = 0;
 
@@ -81,6 +85,88 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             blockEntity.updateConnectivity();
         }
 
+        ItemStack itemStack = blockEntity.getItemStack();
+        if (blockEntity.isIndependent() && itemStack.isOf(RNFItems.LUNA.get())) {
+            // Ritual crafting
+            performRitualInfusion(serverWorld, blockPos, blockState, blockEntity);
+        } else {
+            // Ritual crafting
+            performPhasedRituals(serverWorld, blockPos, blockState, blockEntity);
+        }
+
+        // Spawn particles
+        if (!blockEntity.isCraftingDone()) {
+            spawnParticles(serverWorld, blockPos, blockState, blockEntity);
+        }
+    }
+
+    protected static void performRitualInfusion(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualFrameBlockEntity blockEntity) {
+        BlockPos pos = blockEntity.getPos();
+        ItemStack itemStack = blockEntity.getItemStack();
+
+        if (blockEntity.isInfusing()) {
+            blockEntity.phaseTicks++;
+            if (blockEntity.miscPos == null) {
+                if (blockEntity.phaseTicks > RNF.serverConfig().CHECK_INFUSING_TARGET_INTERVAL_TICKS) {
+                    int radius = RNF.serverConfig().INFUSING_RADIUS;
+                    int negRagius = radius * -1;
+                    BlockPos infuseTarget;
+
+                    Iterator iter = BlockPos.iterate(pos.add(negRagius, negRagius, negRagius), pos.add(radius, radius, radius)).iterator();
+                    do {
+                        if (!iter.hasNext()) {
+                            infuseTarget = null;
+                            break;
+                        }
+
+                        infuseTarget = (BlockPos) iter.next();
+                    } while (!serverWorld.getBlockState(infuseTarget).isOf(RNFBlocks.DRAINED_RUNE_BLOCK.get()));
+
+                    if (infuseTarget != null && serverWorld.getBlockState(infuseTarget).isOf(RNFBlocks.DRAINED_RUNE_BLOCK.get())) {
+                        blockEntity.miscPos = infuseTarget;
+                    }
+
+                    blockEntity.phaseTicks = 0;
+                }
+            } else if (serverWorld.getBlockState(blockEntity.miscPos).isOf(RNFBlocks.DRAINED_RUNE_BLOCK.get())) {
+                if (blockEntity.phaseTicks > RNF.serverConfig().INFUSING_COMPLETION_TICKS) {
+                    // Replace Drained with Rune Block
+                    serverWorld.setBlockState(blockEntity.miscPos, RNFBlocks.RUNE_BLOCK.get().getDefaultState());
+
+                    // FX
+                    serverWorld.playSound(null, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_COMPLETE.get(), SoundCategory.BLOCKS, 1F, 1F);
+                    serverWorld.spawnParticles(ParticleTypes.FLASH, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, 0, 0, 0, 0, 0);
+                    serverWorld.spawnParticles(ParticleTypes.END_ROD, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, 50, 0, 0, 0, 0.1);
+
+                    // Damage the Luna
+                    if (!itemStack.hasNbt() || !itemStack.getNbt().contains("Damage")) {
+                        itemStack.setDamage(RNF.serverConfig().INFUSE_PER_LUNA - 1);
+                    } else {
+                        itemStack.setDamage(itemStack.getDamage() - 1);
+                    }
+                    if (itemStack.getDamage() <= 0) {
+                        blockEntity.clearItem();
+                        blockEntity.updateBlock();
+                    }
+
+                    blockEntity.miscPos = null;
+                    blockEntity.phaseTicks = 0;
+                } else {
+                    if (blockEntity.phaseTicks % 15 == 0) {
+                        serverWorld.playSound(null, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_PROGRESS.get(), SoundCategory.BLOCKS, 0.8F, 1F);
+                        serverWorld.spawnParticles(ParticleTypes.END_ROD, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, 3, 0, 0, 0, 0.1);
+                    }
+                }
+            } else {
+                blockEntity.miscPos = null;
+                blockEntity.setPhase(Phase.DORMANT);
+            }
+        } else {
+            blockEntity.setPhase(Phase.INFUSING);
+        }
+    }
+
+    protected static void performPhasedRituals(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualFrameBlockEntity blockEntity) {
         if (blockEntity.isConductor()) {
             // Play ritual interrupt sound
             if ((blockEntity.prevPhase == Phase.CRAFTING || blockEntity.prevPhase == Phase.RECIPE_FOUND) && blockEntity.isDormant()) {
@@ -99,7 +185,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                     blockEntity.phaseTicks = 0;
 
                     // Lets not waste resources checking for recipes if conductor doesn't have an item
-                    if (blockEntity.getItem() != ItemStack.EMPTY) {
+                    if (blockEntity.getItemStack() != ItemStack.EMPTY) {
                         Pair<Optional<Recipe>, Inventory> pair = RitualFrameConnectionHandler.checkForRecipe(blockEntity, serverWorld);
                         pair.getLeft().ifPresent((ritualRecipe) -> {
                             blockEntity.setPhase(Phase.RECIPE_FOUND);
@@ -141,12 +227,9 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                 if (blockEntity.phaseTicks > RNF.serverConfig().CRAFTING_COOLDOWN) {
                     blockEntity.setPhase(Phase.DORMANT);
                 }
+            } else {
+                blockEntity.setPhase(Phase.DORMANT);
             }
-        }
-
-        // Spawn particles
-        if (!blockEntity.isCraftingDone()) {
-            spawnParticles(serverWorld, blockPos, blockState, blockEntity);
         }
     }
 
@@ -173,7 +256,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                     serverWorld.spawnParticles(particle, target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5, 0, 0, 0, 0, speed);
 
                     // Emits from center
-                    if (blockEntity.getItem() == ItemStack.EMPTY) {
+                    if (blockEntity.getItemStack() == ItemStack.EMPTY) {
                         serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, speed);
                     }
                 }
@@ -189,15 +272,15 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         if (blockEntity.isCrafting()) {
             // Emits from center
             serverWorld.spawnParticles(recipeParticle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, speed);
-        } else if (blockEntity.getItem() != ItemStack.EMPTY) {
+        } else if (blockEntity.getItemStack() != ItemStack.EMPTY) {
             // Emits from center
-            serverWorld.spawnParticles(particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, count, 0, 0, 0, speed);
+            serverWorld.spawnParticles(blockEntity.isInfusing() ? recipeParticle : particle, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, count, 0, 0, 0, speed);
         }
     }
 
     // Getter/Setters
     public DefaultedList<ItemStack> getInventory() { return inventory; }
-    public ItemStack getItem() { return inventory.get(0); }
+    public ItemStack getItemStack() { return inventory.get(0); }
     public void setItem(ItemStack itemStack) {
         RitualFrameBlockEntity conductor = getConductorBE();
         if (conductor != null) {
@@ -213,6 +296,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     public boolean isRecipeFound() { return getPhase() == Phase.RECIPE_FOUND; }
     public boolean isCrafting() { return getPhase() == Phase.CRAFTING; }
     public boolean isCraftingDone() { return getPhase() == Phase.CRAFTING_DONE; }
+    public boolean isInfusing() { return getPhase() == Phase.INFUSING; }
 
     public Phase getPhase() {
         if (isConductor()) {
@@ -250,6 +334,32 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     public void onPositionChanged() {
         RitualFrameConnectionHandler.remove(this);
         lastKnownPos = pos;
+    }
+
+    public BlockPos getMiscPos() {
+        return miscPos;
+    }
+
+    public void setMiscPos(BlockPos pos) {
+        miscPos = pos;
+    }
+
+    public boolean isIndependent() {
+        return (
+            isConductor() &&
+            (
+                target == null ||
+                pos.getX() == target.getX() &&
+                pos.getY() == target.getY() &&
+                pos.getZ() == target.getZ()
+            ) &&
+            (
+                targettedBy == null ||
+                pos.getX() == targettedBy.getX() &&
+                pos.getY() == targettedBy.getY() &&
+                pos.getZ() == targettedBy.getZ()
+            )
+        );
     }
 
     // Conductor methods
@@ -359,6 +469,8 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             target = NbtHelper.toBlockPos(nbtCompound.getCompound("Target"));
         if (nbtCompound.contains("TargettedBy"))
             targettedBy = NbtHelper.toBlockPos(nbtCompound.getCompound("TargettedBy"));
+        if (nbtCompound.contains("MiscPos"))
+            miscPos = NbtHelper.toBlockPos(nbtCompound.getCompound("MiscPos"));
         if (nbtCompound.contains("Phase"))
             phase = Phase.valueOf(nbtCompound.getString("Phase"));
         if (nbtCompound.contains("PhaseTicks"))
@@ -382,10 +494,12 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             nbtCompound.put("LastKnownPos", NbtHelper.fromBlockPos(lastKnownPos));
         if (conductor != null && !isConductor())
             nbtCompound.put("Conductor", NbtHelper.fromBlockPos(conductor));
-        if (target != null)
+        if (target != null && !target.equals(pos))
             nbtCompound.put("Target", NbtHelper.fromBlockPos(target));
-        if (targettedBy != null)
+        if (targettedBy != null && !targettedBy.equals(pos))
             nbtCompound.put("TargettedBy", NbtHelper.fromBlockPos(targettedBy));
+        if (miscPos != null)
+            nbtCompound.put("MiscPos", NbtHelper.fromBlockPos(miscPos));
         if (phase != null && isConductor())
             nbtCompound.putString("Phase", phase.toString());
         if (phaseTicks >= 0 && isConductor())

@@ -6,6 +6,7 @@ import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
+import com.rocketnotfound.rnf.util.RitualInventoryHelper;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -21,6 +22,7 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -57,7 +59,6 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
     public RitualFrameBlock(Settings builder) {
         super(builder);
         this.setDefaultState(this.getDefaultState().with(WATERLOGGED, false).with(FACING, Direction.UP));
-
     }
 
     @Override
@@ -103,7 +104,7 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
         }
 
         RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) te;
-        ItemStack inSlot = rfbe.getItem();
+        ItemStack inSlot = rfbe.getItemStack();
 
         if (heldItem.isOf(RNFItems.RITUAL_STAFF.get())) {
             if (heldItem.getSubNbt("Debug") != null) {
@@ -155,7 +156,7 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
             ItemStack itemStack = ((ItemEntity) entity).getStack();
             if (be instanceof RitualFrameBlockEntity) {
                 RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) be;
-                if (rfbe.getItem() == ItemStack.EMPTY && rfbe.isDormant()) {
+                if (rfbe.getItemStack() == ItemStack.EMPTY && rfbe.isDormant()) {
                     ItemStack copy = itemStack.copy();
                     copy.setCount(1);
                     rfbe.setItem(copy);
@@ -164,6 +165,20 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
                 }
             }
         }
+    }
+
+    @Override
+    public boolean hasComparatorOutput(BlockState blockState) {
+        return true;
+    }
+
+    @Override
+    public int getComparatorOutput(BlockState blockState, World world, BlockPos blockPos) {
+        BlockEntity be = world.getBlockEntity(blockPos);
+        if (be instanceof RitualFrameBlockEntity) {
+            return ScreenHandler.calculateComparatorOutput(RitualInventoryHelper.of(((RitualFrameBlockEntity) be).getInventory()));
+        }
+        return 0;
     }
 
     @Nullable

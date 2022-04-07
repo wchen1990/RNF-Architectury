@@ -39,7 +39,7 @@ public class RitualFrameModel extends AnimatedGeoModel<RitualFrameBlockEntity> {
         Profiler profiler = minecraft.getProfiler();
 
         profiler.push("common");
-        ItemStack stack = ((RitualFrameBlockEntity) tile).getItem();
+        ItemStack stack = ((RitualFrameBlockEntity) tile).getItemStack();
         if (!stack.isEmpty()) {
             profiler.push("variable");
             int age = (int) (minecraft.world.getTimeOfDay() % 314);

@@ -104,10 +104,10 @@ public class RitualFrameConnectionHandler {
         if (start.isConductor()) {
             inventory = DefaultedList.ofSize(ordered.size() + (isLoop(start) ? 0 : 1));
 
-            inventory.add(start.getItem());
+            inventory.add(start.getItemStack());
             ordered.stream().forEach((frame) -> {
-                if (!inventory.contains(frame.getItem())) {
-                    inventory.add(frame.getItem());
+                if (!inventory.contains(frame.getItemStack())) {
+                    inventory.add(frame.getItemStack());
                 }
             });
         } else {
@@ -117,10 +117,10 @@ public class RitualFrameConnectionHandler {
             List<RitualFrameBlockEntity> sublist = ordered.subList(idx, size);
             inventory = DefaultedList.ofSize(sublist.size());
 
-            inventory.add(start.getItem());
+            inventory.add(start.getItemStack());
             sublist.stream().forEach((frame) -> {
-                if (!inventory.contains(frame.getItem())) {
-                    inventory.add(frame.getItem());
+                if (!inventory.contains(frame.getItemStack())) {
+                    inventory.add(frame.getItemStack());
                 }
             });
         }

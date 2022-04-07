@@ -20,4 +20,16 @@ public class ServerConfig implements ConfigData {
 
     @ConfigEntry.Category("ritual")
     public int CRAFTING_COOLDOWN = 60;
+
+    @ConfigEntry.Category("ritual")
+    public int INFUSING_RADIUS = 2;
+
+    @ConfigEntry.Category("ritual")
+    public int INFUSE_PER_LUNA = 8;
+
+    @ConfigEntry.Category("ritual")
+    public int CHECK_INFUSING_TARGET_INTERVAL_TICKS = 60;
+
+    @ConfigEntry.Category("ritual")
+    public int INFUSING_COMPLETION_TICKS = 60;
 }
