@@ -1,12 +1,14 @@
 package com.rocketnotfound.rnf.data.recipes;
 
-import com.rocketnotfound.rnf.item.RNFItems;
+import com.google.gson.*;
+import com.rocketnotfound.rnf.RNF;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
@@ -25,12 +27,40 @@ public class RuneEngravementRecipe implements IRitualRecipe {
         this.random = new Random();
     }
 
+    protected static JsonArray getRecipeJson() {
+        Gson gson = new Gson();
+        JsonArray customRecipe;
+
+        try {
+            customRecipe = gson.fromJson(RNF.serverConfig().RUNE_ENGRAVING_RECIPE, JsonArray.class);
+        } catch (JsonSyntaxException e) {
+            throw new JsonSyntaxException("Invalid rune engravement json config");
+        }
+
+        return customRecipe;
+    }
+
     public static boolean isValid(Inventory inventory, World world) {
-        return inventory.size() == 4
-            && inventory.getStack(0).isOf(RNFItems.RUNE_BLOCK.get())
-            && inventory.getStack(1).isOf(Items.AMETHYST_SHARD)
-            && inventory.getStack(2).isOf(Items.BLAZE_ROD)
-            && !inventory.getStack(3).isEmpty();
+        JsonArray customRecipe = getRecipeJson();
+        if (customRecipe != null) {
+            int size = customRecipe.size();
+
+            DefaultedList<Ingredient> inputs = DefaultedList.ofSize(customRecipe.size(), Ingredient.EMPTY);
+            for (int i = 0; i < inputs.size(); ++i) {
+                inputs.set(i, Ingredient.fromJson(customRecipe.get(i)));
+            }
+
+            if (inventory.size() == size + 1) {
+                boolean matches = true;
+                for (int idx = 0; idx < size; ++idx) {
+                    matches = matches && inputs.get(idx).test(inventory.getStack(idx));
+                    if (!matches) break;
+                }
+                return matches && !inventory.getStack(size).isEmpty();
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -41,7 +71,7 @@ public class RuneEngravementRecipe implements IRitualRecipe {
     @Override
     public ItemStack craft(Inventory inventory) {
         if (matches(inventory, null)) {
-            Identifier id = Registry.ITEM.getId(inventory.getStack(3).getItem());
+            Identifier id = Registry.ITEM.getId(inventory.getStack(getRecipeJson().size()).getItem());
             if (id != null) {
                 String validLetters = id.getPath().toLowerCase().replaceAll("[^a-z]", "");
                 return Registry.ITEM.get(

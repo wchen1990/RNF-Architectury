@@ -32,4 +32,12 @@ public class ServerConfig implements ConfigData {
 
     @ConfigEntry.Category("ritual")
     public int INFUSING_COMPLETION_TICKS = 60;
+
+    @ConfigEntry.Category("ritual")
+    public String RUNE_ENGRAVING_RECIPE = "[" +
+        "{\"item\":\"rnf:rune_block\"}," +
+        "{\"item\":\"rnf:luna\"}," +
+        "{\"item\":\"minecraft:amethyst_shard\"}," +
+        "{\"item\":\"minecraft:blaze_rod\"}" +
+    "]";
 }
