@@ -1,0 +1,20 @@
+{
+  "type": "rnf:ritual",
+  "ingredients": [
+    {
+      "item": "rnf:rune_block"
+    },
+    {
+      "item": "rnf:luna"
+    },
+    {
+      "item": "minecraft:amethyst_block"
+    },
+    {
+      "item": "minecraft:obsidian"
+    }
+  ],
+  "output": {
+    "item": "rnf:ritual_staff"
+  }
+}

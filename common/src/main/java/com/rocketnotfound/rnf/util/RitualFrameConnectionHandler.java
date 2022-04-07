@@ -83,7 +83,7 @@ public class RitualFrameConnectionHandler {
         // Hardcode Rune Engraving check
         if (RuneEngravementRecipe.isValid(inv, serverWorld)) {
             rec = Optional.of(new RuneEngravementRecipe(inv));
-        } if (isLoop(blockEntity)) {
+        } else if (isLoop(blockEntity)) {
             rec = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.LOOP_RITUAL_TYPE.get(), inv, serverWorld);
         } else {
             rec = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), inv, serverWorld);

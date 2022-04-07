@@ -2,7 +2,7 @@
   "type": "rnf:ritual",
   "ingredients": [
     {
-      "item": "rnf:deep_moonstone"
+      "item": "rnf:luna"
     },
     {
       "item": "minecraft:stone"
