@@ -3,14 +3,13 @@ package com.rocketnotfound.rnf.item;
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.sound.RNFSounds;
-import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
+import com.rocketnotfound.rnf.util.RitualFrameHelper;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -74,7 +73,7 @@ public class RitualStaffItem extends GeckoItem {
                             RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_STAFF_CHANGE.get(), 1, 1);
                             RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_staff.attune.conduct", new Object[]{customName(itemStack)}), false);
                         }
-                        RitualFrameConnectionHandler.makeConductor((RitualFrameBlockEntity) te);
+                        RitualFrameHelper.makeConductor((RitualFrameBlockEntity) te);
                         return ActionResult.SUCCESS;
                     } else {
                         NbtCompound targetNbt = itemStack.getSubNbt("Target");
@@ -96,7 +95,7 @@ public class RitualStaffItem extends GeckoItem {
                                         RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_STAFF_CHANGE.get(), 1, 1);
                                         RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_staff.attune.link"), false);
                                     }
-                                    RitualFrameConnectionHandler.target((RitualFrameBlockEntity) targetBE, (RitualFrameBlockEntity) te);
+                                    RitualFrameHelper.target((RitualFrameBlockEntity) targetBE, (RitualFrameBlockEntity) te);
                                     itemStack.removeSubNbt("Target");
                                     return ActionResult.SUCCESS;
                                 }

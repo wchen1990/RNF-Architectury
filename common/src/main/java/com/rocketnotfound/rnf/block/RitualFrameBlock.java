@@ -5,7 +5,7 @@ import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.sound.RNFSounds;
-import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
+import com.rocketnotfound.rnf.util.RitualFrameHelper;
 import com.rocketnotfound.rnf.util.RitualInventoryHelper;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -72,7 +72,7 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
                 BlockEntity targetBE = world.getBlockEntity(targetPos);
                 if (targetBE instanceof RitualFrameBlockEntity) {
                     RitualFrameBlockEntity targetRFBE = (RitualFrameBlockEntity) targetBE;
-                    RitualFrameConnectionHandler.target(rfbe, targetRFBE);
+                    RitualFrameHelper.target(rfbe, targetRFBE);
                 }
             }
         }
@@ -86,7 +86,7 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
             if (!(be instanceof RitualFrameBlockEntity))
                 return;
             RitualFrameBlockEntity rfbe = (RitualFrameBlockEntity) be;
-            RitualFrameConnectionHandler.remove(rfbe);
+            RitualFrameHelper.remove(rfbe);
 
             ItemScatterer.spawn(world, blockPos, rfbe.getInventory());
 

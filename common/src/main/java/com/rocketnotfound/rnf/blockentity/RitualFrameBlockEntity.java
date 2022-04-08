@@ -2,14 +2,13 @@ package com.rocketnotfound.rnf.blockentity;
 
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
-import com.rocketnotfound.rnf.block.RitualFrameBlock;
 import com.rocketnotfound.rnf.data.Ritual;
 import com.rocketnotfound.rnf.data.recipes.IRitualRecipe;
 import com.rocketnotfound.rnf.data.recipes.RuneEngravementRecipe;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.sound.RNFSounds;
-import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
+import com.rocketnotfound.rnf.util.RitualFrameHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
@@ -199,7 +198,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
 
                     // Lets not waste resources checking for recipes if conductor doesn't have an item
                     if (blockEntity.getItemStack() != ItemStack.EMPTY) {
-                        Pair<Optional<Recipe>, Inventory> pair = RitualFrameConnectionHandler.checkForRecipe(blockEntity, serverWorld);
+                        Pair<Optional<Recipe>, Inventory> pair = RitualFrameHelper.checkForRecipe(blockEntity, serverWorld);
                         pair.getLeft().ifPresent((ritualRecipe) -> {
                             if (ritualRecipe instanceof IRitualRecipe) {
                                 blockEntity.setRitual(((IRitualRecipe) ritualRecipe).getRitualType());
@@ -221,10 +220,10 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                 }
             } else if (blockEntity.isPerforming()) {
                 blockEntity.phaseTicks++;
-                if (blockEntity.phaseTicks > RitualFrameConnectionHandler.getCraftingTicksFor(blockEntity)) {
-                    Pair<Optional<Recipe>, Inventory> pair = RitualFrameConnectionHandler.checkForRecipe(blockEntity, serverWorld);
+                if (blockEntity.phaseTicks > RitualFrameHelper.getCraftingTicksFor(blockEntity)) {
+                    Pair<Optional<Recipe>, Inventory> pair = RitualFrameHelper.checkForRecipe(blockEntity, serverWorld);
                     pair.getLeft().ifPresent((ritualRecipe) -> {
-                        RitualFrameConnectionHandler.clearInventoryStartingFrom(blockEntity);
+                        RitualFrameHelper.clearInventoryStartingFrom(blockEntity);
                         serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_COMPLETE.get(), SoundCategory.BLOCKS, 1F, 1F);
                         serverWorld.spawnParticles(ParticleTypes.FLASH, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, 0);
                         serverWorld.spawnParticles(ParticleTypes.END_ROD, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 50, 0, 0, 0, 0.1);
@@ -371,7 +370,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     }
 
     public void onPositionChanged() {
-        RitualFrameConnectionHandler.remove(this);
+        RitualFrameHelper.remove(this);
         lastKnownPos = pos;
     }
 

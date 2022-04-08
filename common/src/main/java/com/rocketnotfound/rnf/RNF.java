@@ -12,7 +12,7 @@ import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.proxy.IProxy;
 import com.rocketnotfound.rnf.proxy.ServerProxy;
 import com.rocketnotfound.rnf.sound.RNFSounds;
-import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
+import com.rocketnotfound.rnf.util.RitualFrameHelper;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -63,7 +63,7 @@ public class RNF {
 
         // Lifecycle events
         LifecycleEvent.SERVER_LEVEL_LOAD.register((world) -> {
-            RitualFrameConnectionHandler.invalidateCache();
+            RitualFrameHelper.invalidateCache();
         });
 
         // Sync Server Configs

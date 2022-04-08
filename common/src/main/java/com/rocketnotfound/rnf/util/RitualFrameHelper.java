@@ -20,7 +20,7 @@ import net.minecraft.world.World;
 import javax.annotation.CheckForNull;
 import java.util.*;
 
-public class RitualFrameConnectionHandler {
+public class RitualFrameHelper {
     // TODO: Figure out why conductorsActorsCache sometimes ends up with empty lists
     private static Map<BlockPos, List<RitualFrameBlockEntity>> conductorActorsCache = new HashMap<>();
     public static void invalidateCache() {
@@ -183,7 +183,7 @@ public class RitualFrameConnectionHandler {
     }
 
     /**
-     * <p>{@code RitualFrameConnectionHandler.add} is {@code @Deprecated} since
+     * <p>{@code RitualFrameHelper.add} is {@code @Deprecated} since
      * during world load, {@code RitualFrameBlockEntity}'s are loaded fairly
      * arbitrarily, which would result in a disordering of the cache.</p>
      *

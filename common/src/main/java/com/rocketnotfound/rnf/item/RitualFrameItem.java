@@ -4,14 +4,13 @@ import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.sound.RNFSounds;
-import com.rocketnotfound.rnf.util.RitualFrameConnectionHandler;
+import com.rocketnotfound.rnf.util.RitualFrameHelper;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -51,7 +50,7 @@ public class RitualFrameItem extends GeckoBlockItem {
         if (playerEntity.isSneaking() && itemStack.isOf(RNFItems.RITUAL_FRAME.get())) {
             BlockEntity te = world.getBlockEntity(blockPos);
             if (te instanceof RitualFrameBlockEntity) {
-                BlockPos target = RitualFrameConnectionHandler.checkTarget(world, blockPos);
+                BlockPos target = RitualFrameHelper.checkTarget(world, blockPos);
                 if (target != null) {
                     if (world.isClient) {
                         RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_GENERIC_SET.get(),1,1);
