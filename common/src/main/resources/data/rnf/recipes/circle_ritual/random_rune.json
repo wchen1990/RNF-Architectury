@@ -1,5 +1,5 @@
 {
-  "type": "rnf:loop_ritual",
+  "type": "rnf:circle_ritual",
   "ingredients": [
     {
       "tag": "rnf:active_rune_blocks"

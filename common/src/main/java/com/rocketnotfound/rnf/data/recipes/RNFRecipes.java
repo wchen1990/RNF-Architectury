@@ -14,8 +14,8 @@ public class RNFRecipes {
     public static final RegistrySupplier<RecipeType> RITUAL_TYPE = RECIPE_TYPES.register(RitualRecipe.TYPE, RitualRecipe.RitualRecipeType::new);
     public static final RegistrySupplier<RecipeSerializer> RITUAL_SERIALIZER = RECIPE_SERIALIZERS.register(RitualRecipe.TYPE, RitualRecipe.Serializer::new);
 
-    public static final RegistrySupplier<RecipeType> LOOP_RITUAL_TYPE = RECIPE_TYPES.register(LoopRitualRecipe.TYPE, LoopRitualRecipe.LoopRitualRecipeType::new);
-    public static final RegistrySupplier<RecipeSerializer> LOOP_RITUAL_SERIALIZER = RECIPE_SERIALIZERS.register(LoopRitualRecipe.TYPE, LoopRitualRecipe.Serializer::new);
+    public static final RegistrySupplier<RecipeType> CIRCLE_RITUAL_TYPE = RECIPE_TYPES.register(CircleRitualRecipe.TYPE, CircleRitualRecipe.LoopRitualRecipeType::new);
+    public static final RegistrySupplier<RecipeSerializer> CIRCLE_RITUAL_SERIALIZER = RECIPE_SERIALIZERS.register(CircleRitualRecipe.TYPE, CircleRitualRecipe.Serializer::new);
 
     public static final RegistrySupplier<RecipeType> RUNE_ENGRAVEMENT_TYPE = RECIPE_TYPES.register(RuneEngravementRecipe.TYPE, RuneEngravementRecipe.RuneEngravementRecipeType::new);
     public static final RegistrySupplier<RecipeSerializer> RUNE_ENGRAVEMENT_SERIALIZER = RECIPE_SERIALIZERS.register(RuneEngravementRecipe.TYPE, RuneEngravementRecipe.Serializer::new);

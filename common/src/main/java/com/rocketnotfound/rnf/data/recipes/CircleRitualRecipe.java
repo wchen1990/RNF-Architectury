@@ -2,6 +2,7 @@ package com.rocketnotfound.rnf.data.recipes;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.rocketnotfound.rnf.data.Ritual;
 import dev.architectury.core.AbstractRecipeSerializer;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -9,7 +10,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.ShapedRecipe;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
@@ -21,8 +21,8 @@ import java.util.Random;
 
 import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
-public class LoopRitualRecipe implements IRitualRecipe {
-    public static final Identifier TYPE = createIdentifier("loop_ritual");
+public class CircleRitualRecipe implements IRitualRecipe {
+    public static final Identifier TYPE = createIdentifier("circle_ritual");
 
     protected final Identifier id;
     protected final Ingredient output;
@@ -30,11 +30,15 @@ public class LoopRitualRecipe implements IRitualRecipe {
 
     protected final Random random;
 
-    public LoopRitualRecipe(Identifier id, Ingredient output, DefaultedList<Ingredient> recipeItems) {
+    public CircleRitualRecipe(Identifier id, Ingredient output, DefaultedList<Ingredient> recipeItems) {
         this.id = id;
         this.output = output;
         this.recipeItems = recipeItems;
         this.random = new Random();
+    }
+
+    public Ritual getRitualType() {
+        return Ritual.CIRCLE;
     }
 
     @Override
@@ -82,23 +86,23 @@ public class LoopRitualRecipe implements IRitualRecipe {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return RNFRecipes.LOOP_RITUAL_SERIALIZER.get();
+        return RNFRecipes.CIRCLE_RITUAL_SERIALIZER.get();
     }
 
     @Override
     public RecipeType<?> getType() {
-        return RNFRecipes.LOOP_RITUAL_TYPE.get();
+        return RNFRecipes.CIRCLE_RITUAL_TYPE.get();
     }
 
-    public static class LoopRitualRecipeType implements RecipeType<LoopRitualRecipe> {
+    public static class LoopRitualRecipeType implements RecipeType<CircleRitualRecipe> {
         @Override
         public String toString() {
-            return "rnf:loop_ritual";
+            return TYPE.toString();
         }
     }
-    public static class Serializer extends AbstractRecipeSerializer<LoopRitualRecipe> {
+    public static class Serializer extends AbstractRecipeSerializer<CircleRitualRecipe> {
         @Override
-        public LoopRitualRecipe read(Identifier identifier, JsonObject jsonObject) {
+        public CircleRitualRecipe read(Identifier identifier, JsonObject jsonObject) {
             Ingredient output = Ingredient.fromJson(JsonHelper.getObject(jsonObject, "output"));
 
             JsonArray ingredients = JsonHelper.getArray(jsonObject, "ingredients");
@@ -108,11 +112,11 @@ public class LoopRitualRecipe implements IRitualRecipe {
                 inputs.set(i, Ingredient.fromJson(ingredients.get(i)));
             }
 
-            return new LoopRitualRecipe(identifier, output, inputs);
+            return new CircleRitualRecipe(identifier, output, inputs);
         }
 
         @Override
-        public void write(PacketByteBuf packetByteBuf, LoopRitualRecipe recipe) {
+        public void write(PacketByteBuf packetByteBuf, CircleRitualRecipe recipe) {
             packetByteBuf.writeInt(recipe.getIngredients().size());
             for (Ingredient ing : recipe.getIngredients()) {
                 ing.write(packetByteBuf);
@@ -122,7 +126,7 @@ public class LoopRitualRecipe implements IRitualRecipe {
 
         @Nullable
         @Override
-        public LoopRitualRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
+        public CircleRitualRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
             DefaultedList<Ingredient> inputs = DefaultedList.ofSize(packetByteBuf.readInt(), Ingredient.EMPTY);
 
             for (int i = 0; i < inputs.size(); i++) {
@@ -131,7 +135,7 @@ public class LoopRitualRecipe implements IRitualRecipe {
 
             Ingredient output = Ingredient.fromPacket(packetByteBuf);
 
-            return new LoopRitualRecipe(identifier, output, inputs);
+            return new CircleRitualRecipe(identifier, output, inputs);
         }
     }
 }

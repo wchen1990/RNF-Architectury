@@ -2,7 +2,10 @@ package com.rocketnotfound.rnf.data.recipes;
 
 import com.google.gson.*;
 import com.rocketnotfound.rnf.RNF;
+import com.rocketnotfound.rnf.data.Ritual;
 import dev.architectury.core.AbstractRecipeSerializer;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -21,19 +24,24 @@ import java.util.Random;
 import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
 public class RuneEngravementRecipe implements IRitualRecipe {
-    public static final Identifier TYPE = createIdentifier("rune_engravement");
-    public static final Identifier REQUIREMENTS = createIdentifier("rune_engravement/requirements");
+    public static final Identifier TYPE = createIdentifier("engraving_ritual");
 
     protected final Identifier id;
+    protected final Block base;
     protected final DefaultedList<Ingredient> recipeItems;
     protected final String output;
     protected final Random random;
 
-    public RuneEngravementRecipe(Identifier id, DefaultedList<Ingredient> recipeItems, String output) {
+    public RuneEngravementRecipe(Identifier id, Block base, DefaultedList<Ingredient> recipeItems, String output) {
         this.id = id;
+        this.base = base;
         this.recipeItems = recipeItems;
         this.output = output;
         this.random = new Random();
+    }
+
+    public Ritual getRitualType() {
+        return Ritual.ENGRAVING;
     }
 
     @Override
@@ -52,28 +60,44 @@ public class RuneEngravementRecipe implements IRitualRecipe {
         return false;
     }
 
-    @Override
-    public ItemStack craft(Inventory inventory) {
+    public Block engrave(Inventory inventory) {
         if (matches(inventory, null)) {
             Identifier id = Registry.ITEM.getId(inventory.getStack(recipeItems.size()).getItem());
             if (id != null) {
                 String validLetters = id.getPath().toLowerCase().replaceAll("[^a-z]", "");
-                return Registry.ITEM.get(
+                return Registry.BLOCK.get(
                     new Identifier(
                         String.format(
                             output,
                             validLetters.charAt(random.nextInt(validLetters.length()))
                         )
                     )
-                ).getDefaultStack();
+                );
             }
         }
+        return Blocks.AIR;
+    }
+
+    @Override
+    public ItemStack craft(Inventory inventory) {
         return ItemStack.EMPTY;
     }
 
     @Override
     public boolean fits(int i, int j) {
         return true;
+    }
+
+    public Block getBase() {
+        return base;
+    }
+
+    public Identifier getBaseIdentifier() {
+        return Registry.BLOCK.getId(base);
+    }
+
+    public String getBaseString() {
+        return getBaseIdentifier().toString();
     }
 
     @Override
@@ -103,12 +127,13 @@ public class RuneEngravementRecipe implements IRitualRecipe {
     public static class RuneEngravementRecipeType implements RecipeType<RuneEngravementRecipe> {
         @Override
         public String toString() {
-            return "rnf:rune_engravement";
+            return TYPE.toString();
         }
     }
     public static class Serializer extends AbstractRecipeSerializer<RuneEngravementRecipe> {
         @Override
         public RuneEngravementRecipe read(Identifier identifier, JsonObject jsonObject) {
+            Block base = Registry.BLOCK.get(new Identifier(JsonHelper.getString(jsonObject, "base")));
             String output = JsonHelper.getString(jsonObject, "output");
 
             JsonArray ingredients = JsonHelper.getArray(jsonObject, "requirements");
@@ -118,11 +143,12 @@ public class RuneEngravementRecipe implements IRitualRecipe {
                 inputs.set(i, Ingredient.fromJson(ingredients.get(i)));
             }
 
-            return new RuneEngravementRecipe(identifier, inputs, output);
+            return new RuneEngravementRecipe(identifier, base, inputs, output);
         }
 
         @Override
         public void write(PacketByteBuf packetByteBuf, RuneEngravementRecipe recipe) {
+            packetByteBuf.writeString(recipe.getBaseString());
             packetByteBuf.writeInt(recipe.getIngredients().size());
             for (Ingredient ing : recipe.getIngredients()) {
                 ing.write(packetByteBuf);
@@ -133,6 +159,7 @@ public class RuneEngravementRecipe implements IRitualRecipe {
         @Nullable
         @Override
         public RuneEngravementRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
+            Block base = Registry.BLOCK.get(new Identifier(packetByteBuf.readString()));
             DefaultedList<Ingredient> inputs = DefaultedList.ofSize(packetByteBuf.readInt(), Ingredient.EMPTY);
 
             for (int i = 0; i < inputs.size(); i++) {
@@ -141,7 +168,7 @@ public class RuneEngravementRecipe implements IRitualRecipe {
 
             String output = packetByteBuf.readString();
 
-            return new RuneEngravementRecipe(identifier, inputs, output);
+            return new RuneEngravementRecipe(identifier, base, inputs, output);
         }
     }
 }

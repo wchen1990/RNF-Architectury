@@ -1,8 +1,9 @@
 {
-  "type": "rnf:rune_engravement",
+  "type": "rnf:engraving_ritual",
+  "base": "rnf:drained_rune_block",
   "requirements": [
     {
-      "item": "rnf:rune_block"
+      "item": "rnf:luna"
     },
     {
       "item": "rnf:luna"

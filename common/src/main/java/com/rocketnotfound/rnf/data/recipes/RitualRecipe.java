@@ -2,6 +2,7 @@ package com.rocketnotfound.rnf.data.recipes;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.rocketnotfound.rnf.data.Ritual;
 import dev.architectury.core.AbstractRecipeSerializer;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -30,6 +31,10 @@ public class RitualRecipe implements IRitualRecipe {
         this.id = id;
         this.output = output;
         this.recipeItems = recipeItems;
+    }
+
+    public Ritual getRitualType() {
+        return Ritual.NORMAL;
     }
 
     @Override
@@ -80,7 +85,7 @@ public class RitualRecipe implements IRitualRecipe {
     public static class RitualRecipeType implements RecipeType<RitualRecipe> {
         @Override
         public String toString() {
-            return "rnf:ritual";
+            return TYPE.toString();
         }
     }
     public static class Serializer extends AbstractRecipeSerializer<RitualRecipe> {

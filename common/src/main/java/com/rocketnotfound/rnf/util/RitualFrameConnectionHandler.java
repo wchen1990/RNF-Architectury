@@ -1,14 +1,17 @@
 package com.rocketnotfound.rnf.util;
 
 import com.rocketnotfound.rnf.RNF;
+import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.data.recipes.RNFRecipes;
 import com.rocketnotfound.rnf.data.recipes.RuneEngravementRecipe;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.Pair;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -78,14 +81,23 @@ public class RitualFrameConnectionHandler {
 
     public static Pair<Optional<Recipe>, Inventory> checkForRecipe(RitualFrameBlockEntity blockEntity, ServerWorld serverWorld) {
         Inventory inv = getCombinedInventoryFrom(blockEntity);
-        Optional<Recipe> rec;
+        Optional<Recipe> rec = Optional.empty();
+
+        final BlockPos checkPos;
+        BlockState blockState = serverWorld.getBlockState(blockEntity.getPos());
+        if (blockState.isOf(RNFBlocks.RITUAL_FRAME.get())) {
+            checkPos = blockEntity.getPos().offset(blockState.get(Properties.FACING).getOpposite());
+        } else {
+            checkPos = blockEntity.getPos();
+        }
+        final BlockState checkState = serverWorld.getBlockState(checkPos);
 
         // Hardcode Rune Engraving check
         List<RuneEngravementRecipe> runeEngravements = serverWorld.getRecipeManager().getAllMatches(RNFRecipes.RUNE_ENGRAVEMENT_TYPE.get(), inv, serverWorld);
-        if (runeEngravements.size() > 0 && runeEngravements.stream().anyMatch((rune) -> rune.getId().compareTo(RuneEngravementRecipe.REQUIREMENTS) == 0)) {
-            rec = Optional.of(runeEngravements.stream().filter((rune) -> rune.getId().compareTo(RuneEngravementRecipe.REQUIREMENTS) == 0).findFirst().get());
+        if (!checkState.isOf(RNFBlocks.RITUAL_FRAME.get()) && runeEngravements.size() > 0 && runeEngravements.stream().anyMatch((rune) -> checkState.isOf(rune.getBase()))) {
+            rec = Optional.of(runeEngravements.stream().filter((rune) -> checkState.isOf(rune.getBase())).findFirst().get());
         } else if (isLoop(blockEntity)) {
-            rec = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.LOOP_RITUAL_TYPE.get(), inv, serverWorld);
+            rec = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.CIRCLE_RITUAL_TYPE.get(), inv, serverWorld);
         } else {
             rec = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), inv, serverWorld);
         }
