@@ -14,11 +14,17 @@ public class RNFRecipes {
     public static final RegistrySupplier<RecipeType> RITUAL_TYPE = RECIPE_TYPES.register(RitualRecipe.TYPE, RitualRecipe.RitualRecipeType::new);
     public static final RegistrySupplier<RecipeSerializer> RITUAL_SERIALIZER = RECIPE_SERIALIZERS.register(RitualRecipe.TYPE, RitualRecipe.Serializer::new);
 
-    public static final RegistrySupplier<RecipeType> CIRCLE_RITUAL_TYPE = RECIPE_TYPES.register(CircleRitualRecipe.TYPE, CircleRitualRecipe.LoopRitualRecipeType::new);
+    public static final RegistrySupplier<RecipeType> CIRCLE_RITUAL_TYPE = RECIPE_TYPES.register(CircleRitualRecipe.TYPE, CircleRitualRecipe.RitualRecipeType::new);
     public static final RegistrySupplier<RecipeSerializer> CIRCLE_RITUAL_SERIALIZER = RECIPE_SERIALIZERS.register(CircleRitualRecipe.TYPE, CircleRitualRecipe.Serializer::new);
 
-    public static final RegistrySupplier<RecipeType> RUNE_ENGRAVEMENT_TYPE = RECIPE_TYPES.register(RuneEngravementRecipe.TYPE, RuneEngravementRecipe.RuneEngravementRecipeType::new);
+    public static final RegistrySupplier<RecipeType> RUNE_ENGRAVEMENT_TYPE = RECIPE_TYPES.register(RuneEngravementRecipe.TYPE, RuneEngravementRecipe.RitualRecipeType::new);
     public static final RegistrySupplier<RecipeSerializer> RUNE_ENGRAVEMENT_SERIALIZER = RECIPE_SERIALIZERS.register(RuneEngravementRecipe.TYPE, RuneEngravementRecipe.Serializer::new);
+
+    public static final RegistrySupplier<RecipeType> TETHER_RITUAL_TYPE = RECIPE_TYPES.register(TetheredRitualRecipe.TYPE, TetheredRitualRecipe.RitualRecipeType::new);
+    public static final RegistrySupplier<RecipeSerializer> TETHER_RITUAL_SERIALIZER = RECIPE_SERIALIZERS.register(TetheredRitualRecipe.TYPE, TetheredRitualRecipe.Serializer::new);
+
+    public static final RegistrySupplier<RecipeType> ANCHOR_RITUAL_TYPE = RECIPE_TYPES.register(AnchorRitualRecipe.TYPE, AnchorRitualRecipe.RitualRecipeType::new);
+    public static final RegistrySupplier<RecipeSerializer> ANCHOR_RITUAL_SERIALIZER = RECIPE_SERIALIZERS.register(AnchorRitualRecipe.TYPE, AnchorRitualRecipe.Serializer::new);
 
     public static void register() {
         RECIPE_TYPES.register();

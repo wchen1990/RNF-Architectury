@@ -94,7 +94,7 @@ public class CircleRitualRecipe implements IRitualRecipe {
         return RNFRecipes.CIRCLE_RITUAL_TYPE.get();
     }
 
-    public static class LoopRitualRecipeType implements RecipeType<CircleRitualRecipe> {
+    public static class RitualRecipeType implements RecipeType<CircleRitualRecipe> {
         @Override
         public String toString() {
             return TYPE.toString();

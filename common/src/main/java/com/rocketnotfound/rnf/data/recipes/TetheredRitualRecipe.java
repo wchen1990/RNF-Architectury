@@ -23,18 +23,20 @@ import java.util.Random;
 
 import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
-public class RuneEngravementRecipe implements IRitualRecipe, IAlterBaseRitual {
-    public static final Identifier TYPE = createIdentifier("engraving_ritual");
+public class TetheredRitualRecipe implements IRitualRecipe, IAlterBaseRitual, IAlterAnchorRitual {
+    public static final Identifier TYPE = createIdentifier("tethering_ritual");
 
     protected final Identifier id;
     protected final Pair<Block, String> base;
+    protected final Pair<Block, String> anchor;
     protected final DefaultedList<Ingredient> recipeItems;
     protected final ItemStack output;
     protected final Random random;
 
-    public RuneEngravementRecipe(Identifier id, Pair<Block, String> base, DefaultedList<Ingredient> recipeItems, ItemStack output) {
+    public TetheredRitualRecipe(Identifier id, Pair<Block, String> base, Pair<Block, String> anchor, DefaultedList<Ingredient> recipeItems, ItemStack output) {
         this.id = id;
         this.base = base;
+        this.anchor = anchor;
         this.recipeItems = recipeItems;
         this.output = output;
         this.random = new Random();
@@ -81,6 +83,25 @@ public class RuneEngravementRecipe implements IRitualRecipe, IAlterBaseRitual {
     }
 
     @Override
+    public Block alterAnchor(Inventory inventory) {
+        if (matches(inventory, null)) {
+            Identifier id = Registry.ITEM.getId(inventory.getStack(0).getItem());
+            if (id != null) {
+                String validLetters = id.getPath().toLowerCase().replaceAll("[^a-z]", "");
+                return Registry.BLOCK.get(
+                    new Identifier(
+                        String.format(
+                            anchor.getRight(),
+                            validLetters.charAt(random.nextInt(validLetters.length()))
+                        )
+                    )
+                );
+            }
+        }
+        return anchor.getLeft();
+    }
+
+    @Override
     public ItemStack craft(Inventory inventory) {
         return output;
     }
@@ -101,6 +122,16 @@ public class RuneEngravementRecipe implements IRitualRecipe, IAlterBaseRitual {
     }
 
     @Override
+    public Pair<Block, String> getAnchor() {
+        return anchor;
+    }
+
+    @Override
+    public Pair<String, String> getAnchorStrings() {
+        return new Pair(Registry.BLOCK.getId(anchor.getLeft()).toString(), anchor.getRight());
+    }
+
+    @Override
     public ItemStack getOutput() {
         return output.copy();
     }
@@ -112,28 +143,35 @@ public class RuneEngravementRecipe implements IRitualRecipe, IAlterBaseRitual {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return RNFRecipes.RUNE_ENGRAVEMENT_SERIALIZER.get();
+        return RNFRecipes.TETHER_RITUAL_SERIALIZER.get();
     }
 
     @Override
     public RecipeType<?> getType() {
-        return RNFRecipes.RUNE_ENGRAVEMENT_TYPE.get();
+        return RNFRecipes.TETHER_RITUAL_TYPE.get();
     }
 
-    public static class RitualRecipeType implements RecipeType<RuneEngravementRecipe> {
+    public static class RitualRecipeType implements RecipeType<TetheredRitualRecipe> {
         @Override
         public String toString() {
             return TYPE.toString();
         }
     }
-    public static class Serializer extends AbstractRecipeSerializer<RuneEngravementRecipe> {
+    public static class Serializer extends AbstractRecipeSerializer<TetheredRitualRecipe> {
         @Override
-        public RuneEngravementRecipe read(Identifier identifier, JsonObject jsonObject) {
+        public TetheredRitualRecipe read(Identifier identifier, JsonObject jsonObject) {
             JsonObject baseJson = JsonHelper.getObject(jsonObject, "base");
-            String initial = JsonHelper.getString(baseJson, "initial");
+            String initialBase = JsonHelper.getString(baseJson, "initial");
             Pair<Block, String> base = new Pair<>(
-                    Registry.BLOCK.get(new Identifier(initial)),
-                    (baseJson.has("after")) ? JsonHelper.getString(baseJson, "after") : initial
+                Registry.BLOCK.get(new Identifier(initialBase)),
+                (baseJson.has("after")) ? JsonHelper.getString(baseJson, "after") : initialBase
+            );
+
+            JsonObject anchorJson = JsonHelper.getObject(jsonObject, "anchor");
+            String initialAnchor = JsonHelper.getString(anchorJson, "initial");
+            Pair<Block, String> anchor = new Pair<>(
+                    Registry.BLOCK.get(new Identifier(initialAnchor)),
+                    (anchorJson.has("after")) ? JsonHelper.getString(anchorJson, "after") : initialAnchor
             );
 
             ItemStack output = ShapedRecipe.outputFromJson(JsonHelper.getObject(jsonObject, "output"));
@@ -145,14 +183,18 @@ public class RuneEngravementRecipe implements IRitualRecipe, IAlterBaseRitual {
                 inputs.set(i, Ingredient.fromJson(ingredients.get(i)));
             }
 
-            return new RuneEngravementRecipe(identifier, base, inputs, output);
+            return new TetheredRitualRecipe(identifier, base, anchor, inputs, output);
         }
 
         @Override
-        public void write(PacketByteBuf packetByteBuf, RuneEngravementRecipe recipe) {
+        public void write(PacketByteBuf packetByteBuf, TetheredRitualRecipe recipe) {
             Pair<String, String> bases = recipe.getBaseStrings();
             packetByteBuf.writeString(bases.getLeft());
             packetByteBuf.writeString(bases.getRight());
+
+            Pair<String, String> anchors = recipe.getAnchorStrings();
+            packetByteBuf.writeString(anchors.getLeft());
+            packetByteBuf.writeString(anchors.getRight());
 
             packetByteBuf.writeInt(recipe.getIngredients().size());
             for (Ingredient ing : recipe.getIngredients()) {
@@ -164,10 +206,16 @@ public class RuneEngravementRecipe implements IRitualRecipe, IAlterBaseRitual {
 
         @Nullable
         @Override
-        public RuneEngravementRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
-            Block before = Registry.BLOCK.get(new Identifier(packetByteBuf.readString()));
-            String after = packetByteBuf.readString();
-            Pair<Block, String> base = new Pair<>(before, after);
+        public TetheredRitualRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
+            Pair<Block, String> base = new Pair<>(
+                Registry.BLOCK.get(new Identifier(packetByteBuf.readString())),
+                packetByteBuf.readString()
+            );
+
+            Pair<Block, String> anchor = new Pair<>(
+                Registry.BLOCK.get(new Identifier(packetByteBuf.readString())),
+                packetByteBuf.readString()
+            );
 
             DefaultedList<Ingredient> inputs = DefaultedList.ofSize(packetByteBuf.readInt(), Ingredient.EMPTY);
 
@@ -177,7 +225,7 @@ public class RuneEngravementRecipe implements IRitualRecipe, IAlterBaseRitual {
 
             ItemStack output = packetByteBuf.readItemStack();
 
-            return new RuneEngravementRecipe(identifier, base, inputs, output);
+            return new TetheredRitualRecipe(identifier, base, anchor, inputs, output);
         }
     }
 }

@@ -3,8 +3,9 @@ package com.rocketnotfound.rnf.blockentity;
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.data.Ritual;
+import com.rocketnotfound.rnf.data.recipes.IAlterAnchorRitual;
+import com.rocketnotfound.rnf.data.recipes.IAlterBaseRitual;
 import com.rocketnotfound.rnf.data.recipes.IRitualRecipe;
-import com.rocketnotfound.rnf.data.recipes.RuneEngravementRecipe;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.sound.RNFSounds;
@@ -173,16 +174,16 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
 
     protected static void performPhasedRituals(ServerWorld serverWorld, BlockPos origBlockPos, BlockState origBlockState, RitualFrameBlockEntity blockEntity) {
         if (blockEntity.isConductor()) {
-            final BlockPos blockPos;
+            final BlockPos headBlockPos;
             if (blockEntity.getRitual() == Ritual.ENGRAVING && origBlockState.isOf(RNFBlocks.RITUAL_FRAME.get())) {
-                blockPos = origBlockPos.offset(origBlockState.get(Properties.FACING).getOpposite());
+                headBlockPos = origBlockPos.offset(origBlockState.get(Properties.FACING).getOpposite());
             } else {
-                blockPos = origBlockPos;
+                headBlockPos = origBlockPos;
             }
 
             // Play ritual interrupt sound
             if ((blockEntity.prevPhase == Phase.PERFORMING || blockEntity.prevPhase == Phase.RITUAL_FOUND) && blockEntity.isDormant()) {
-                serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_INTERRUPT.get(), SoundCategory.BLOCKS, 1F, 1F);
+                serverWorld.playSound(null, headBlockPos.getX() + 0.5, headBlockPos.getY() + 0.5, headBlockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_INTERRUPT.get(), SoundCategory.BLOCKS, 1F, 1F);
             }
 
             // Keep track of phase changes
@@ -214,8 +215,8 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                 } else {
                     if (blockEntity.phaseTicks % 15 == 0) {
                         float volume = 0.3F * (blockEntity.phaseTicks / RNF.serverConfig().RITUAL.RECIPE_CRAFTING_DELAY_TICKS) + 0.5F;
-                        serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_PROGRESS.get(), SoundCategory.BLOCKS, volume, 1F);
-                        serverWorld.spawnParticles(ParticleTypes.END_ROD, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 3, 0, 0, 0, 0.1);
+                        serverWorld.playSound(null, headBlockPos.getX() + 0.5, headBlockPos.getY() + 0.5, headBlockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_PROGRESS.get(), SoundCategory.BLOCKS, volume, 1F);
+                        serverWorld.spawnParticles(ParticleTypes.END_ROD, headBlockPos.getX() + 0.5, headBlockPos.getY() + 0.5, headBlockPos.getZ() + 0.5, 3, 0, 0, 0, 0.1);
                     }
                 }
             } else if (blockEntity.isPerforming()) {
@@ -224,22 +225,25 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                     Pair<Optional<Recipe>, Inventory> pair = RitualFrameHelper.checkForRecipe(blockEntity, serverWorld);
                     pair.getLeft().ifPresent((ritualRecipe) -> {
                         RitualFrameHelper.clearInventoryStartingFrom(blockEntity);
-                        serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_COMPLETE.get(), SoundCategory.BLOCKS, 1F, 1F);
-                        serverWorld.spawnParticles(ParticleTypes.FLASH, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 0, 0, 0, 0, 0);
-                        serverWorld.spawnParticles(ParticleTypes.END_ROD, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 50, 0, 0, 0, 0.1);
+                        serverWorld.playSound(null, headBlockPos.getX() + 0.5, headBlockPos.getY() + 0.5, headBlockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_COMPLETE.get(), SoundCategory.BLOCKS, 1F, 1F);
+                        serverWorld.spawnParticles(ParticleTypes.FLASH, headBlockPos.getX() + 0.5, headBlockPos.getY() + 0.5, headBlockPos.getZ() + 0.5, 0, 0, 0, 0, 0);
+                        serverWorld.spawnParticles(ParticleTypes.END_ROD, headBlockPos.getX() + 0.5, headBlockPos.getY() + 0.5, headBlockPos.getZ() + 0.5, 50, 0, 0, 0, 0.1);
 
-                        if (ritualRecipe instanceof RuneEngravementRecipe) {
-                            serverWorld.setBlockState(blockPos, ((RuneEngravementRecipe) ritualRecipe).engrave(pair.getRight()).getDefaultState());
-                        } else {
-                            ItemScatterer.spawn(serverWorld, blockPos, DefaultedList.ofSize(1, ritualRecipe.craft(pair.getRight())));
+                        if (ritualRecipe instanceof IAlterBaseRitual) {
+                            serverWorld.setBlockState(headBlockPos, ((IAlterBaseRitual) ritualRecipe).alterBase(pair.getRight()).getDefaultState());
                         }
+                        if (ritualRecipe instanceof IAlterAnchorRitual) {
+                            BlockPos tailBlockPos = RitualFrameHelper.getLastActor(blockEntity).getPos();
+                            serverWorld.setBlockState(tailBlockPos, ((IAlterAnchorRitual) ritualRecipe).alterAnchor(pair.getRight()).getDefaultState());
+                        }
+                        ItemScatterer.spawn(serverWorld, origBlockPos, DefaultedList.ofSize(1, ritualRecipe.craft(pair.getRight())));
                     });
 
                     blockEntity.setPhase(Phase.PERFORMANCE_FINISHED);
                 } else {
                     if (blockEntity.phaseTicks % 15 == 0) {
-                        serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_PROGRESS.get(), SoundCategory.BLOCKS, 0.8F, 1F);
-                        serverWorld.spawnParticles(ParticleTypes.END_ROD, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 3, 0, 0, 0, 0.1);
+                        serverWorld.playSound(null, headBlockPos.getX() + 0.5, headBlockPos.getY() + 0.5, headBlockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_PROGRESS.get(), SoundCategory.BLOCKS, 0.8F, 1F);
+                        serverWorld.spawnParticles(ParticleTypes.END_ROD, headBlockPos.getX() + 0.5, headBlockPos.getY() + 0.5, headBlockPos.getZ() + 0.5, 3, 0, 0, 0, 0.1);
                     }
                 }
             } else if (blockEntity.isPerformanceDone()) {

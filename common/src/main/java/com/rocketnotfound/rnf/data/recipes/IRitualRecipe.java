@@ -6,6 +6,7 @@ import net.minecraft.recipe.Recipe;
 
 public interface IRitualRecipe extends Recipe<Inventory> {
     Ritual getRitualType();
+
     @Override
     default boolean isIgnoredInRecipeBook() {
         return true;

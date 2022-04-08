@@ -1,6 +1,9 @@
 {
   "type": "rnf:engraving_ritual",
-  "base": "rnf:drained_rune_block",
+  "base": {
+    "initial": "rnf:drained_rune_block",
+    "after": "rnf:rune_block_%s"
+  },
   "requirements": [
     {
       "item": "rnf:luna"
@@ -15,5 +18,7 @@
       "item": "minecraft:blaze_rod"
     }
   ],
-  "output": "rnf:rune_block_%s"
+  "output": {
+    "item": "minecraft:empty"
+  }
 }

@@ -3,13 +3,16 @@ package com.rocketnotfound.rnf.util;
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
+import com.rocketnotfound.rnf.data.recipes.AnchorRitualRecipe;
 import com.rocketnotfound.rnf.data.recipes.RNFRecipes;
 import com.rocketnotfound.rnf.data.recipes.RuneEngravementRecipe;
+import com.rocketnotfound.rnf.data.recipes.TetheredRitualRecipe;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Pair;
@@ -81,25 +84,60 @@ public class RitualFrameHelper {
 
     public static Pair<Optional<Recipe>, Inventory> checkForRecipe(RitualFrameBlockEntity blockEntity, ServerWorld serverWorld) {
         Inventory inv = getCombinedInventoryFrom(blockEntity);
-        Optional<Recipe> rec = Optional.empty();
+        List<RitualFrameBlockEntity> ordered = getOrderedActors(blockEntity);
 
-        final BlockPos checkPos;
+        final BlockPos conductorBasePos;
         BlockState blockState = serverWorld.getBlockState(blockEntity.getPos());
         if (blockState.isOf(RNFBlocks.RITUAL_FRAME.get())) {
-            checkPos = blockEntity.getPos().offset(blockState.get(Properties.FACING).getOpposite());
+            conductorBasePos = blockEntity.getPos().offset(blockState.get(Properties.FACING).getOpposite());
         } else {
-            checkPos = blockEntity.getPos();
+            conductorBasePos = blockEntity.getPos();
         }
-        final BlockState checkState = serverWorld.getBlockState(checkPos);
+        final BlockState checkBaseState = serverWorld.getBlockState(conductorBasePos);
 
-        // Hardcode Rune Engraving check
-        List<RuneEngravementRecipe> runeEngravements = serverWorld.getRecipeManager().getAllMatches(RNFRecipes.RUNE_ENGRAVEMENT_TYPE.get(), inv, serverWorld);
-        if (!checkState.isOf(RNFBlocks.RITUAL_FRAME.get()) && runeEngravements.size() > 0 && runeEngravements.stream().anyMatch((rune) -> checkState.isOf(rune.getBase()))) {
-            rec = Optional.of(runeEngravements.stream().filter((rune) -> checkState.isOf(rune.getBase())).findFirst().get());
-        } else if (isLoop(blockEntity)) {
-            rec = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.CIRCLE_RITUAL_TYPE.get(), inv, serverWorld);
+        final BlockPos tailBasePos;
+        BlockState tailBlockState = serverWorld.getBlockState(blockEntity.getPos());
+        if (blockState.isOf(RNFBlocks.RITUAL_FRAME.get())) {
+            tailBasePos = ordered.get(ordered.size() - 1).getPos().offset(tailBlockState.get(Properties.FACING).getOpposite());
         } else {
-            rec = serverWorld.getRecipeManager().getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), inv, serverWorld);
+            tailBasePos = blockEntity.getPos();
+        }
+        final BlockState checkAnchorState = serverWorld.getBlockState(tailBasePos);
+
+        RecipeManager manager = serverWorld.getRecipeManager();
+
+        Optional<Recipe> rec = Optional.empty();
+        List<TetheredRitualRecipe> tethers;
+        List<RuneEngravementRecipe> runeEngravements;
+        List<AnchorRitualRecipe> anchors;
+
+        if (
+            !checkBaseState.isOf(RNFBlocks.RITUAL_FRAME.get())
+            && !checkAnchorState.isOf(RNFBlocks.RITUAL_FRAME.get())
+            && (tethers = manager.getAllMatches(RNFRecipes.TETHER_RITUAL_TYPE.get(), inv, serverWorld)).size() > 0
+            && tethers.stream().anyMatch(
+                (rune) -> checkBaseState.isOf(rune.getBase().getLeft()) && checkAnchorState.isOf(rune.getAnchor().getLeft())
+            )
+        ) {
+            rec = Optional.of(tethers.stream().filter(
+                    (rune) -> checkBaseState.isOf(rune.getBase().getLeft()) && checkAnchorState.isOf(rune.getAnchor().getLeft())
+            ).findFirst().get());
+        } else if (
+            !checkBaseState.isOf(RNFBlocks.RITUAL_FRAME.get())
+            && (runeEngravements = manager.getAllMatches(RNFRecipes.RUNE_ENGRAVEMENT_TYPE.get(), inv, serverWorld)).size() > 0
+            && runeEngravements.stream().anyMatch((rune) -> checkBaseState.isOf(rune.getBase().getLeft()))
+        ) {
+            rec = Optional.of(runeEngravements.stream().filter((rune) -> checkBaseState.isOf(rune.getBase().getLeft())).findFirst().get());
+        } else if (
+            !checkAnchorState.isOf(RNFBlocks.RITUAL_FRAME.get())
+            && (anchors = manager.getAllMatches(RNFRecipes.ANCHOR_RITUAL_TYPE.get(), inv, serverWorld)).size() > 0
+            && anchors.stream().anyMatch((rune) -> checkAnchorState.isOf(rune.getAnchor().getLeft()))
+        ) {
+            rec = Optional.of(anchors.stream().filter((rune) -> checkAnchorState.isOf(rune.getAnchor().getLeft())).findFirst().get());
+        } else if (isLoop(blockEntity)) {
+            rec = manager.getFirstMatch(RNFRecipes.CIRCLE_RITUAL_TYPE.get(), inv, serverWorld);
+        } else {
+            rec = manager.getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), inv, serverWorld);
         }
         return new Pair<>(rec, inv);
     }
@@ -164,13 +202,13 @@ public class RitualFrameHelper {
     }
 
     @CheckForNull
-    public static List<RitualFrameBlockEntity> getOrderedActors(RitualFrameBlockEntity conductor) {
-        if (conductor == null || !(conductor.getWorld() instanceof ServerWorld)) return null;
+    public static List<RitualFrameBlockEntity> getOrderedActors(RitualFrameBlockEntity start) {
+        if (start == null || !(start.getWorld() instanceof ServerWorld)) return null;
 
-        List<RitualFrameBlockEntity> list = conductorActorsCache.get(conductor.getPos());
+        List<RitualFrameBlockEntity> list = conductorActorsCache.get(start.getPos());
         if (list == null) {
             list = new ArrayList<>();
-            RitualFrameBlockEntity targettedBy = conductor.getTargettedByBE();
+            RitualFrameBlockEntity targettedBy = start.getTargettedByBE();
             while (targettedBy != null) {
                 if (list.contains(targettedBy)) {
                     break;
@@ -178,8 +216,17 @@ public class RitualFrameHelper {
                 list.add(targettedBy);
                 targettedBy = targettedBy.getTargettedByBE();
             }
+
+            if (start.isConductor() && list.size() > 0) {
+                conductorActorsCache.put(start.getPos(), list);
+            }
         }
         return list;
+    }
+
+    public static RitualFrameBlockEntity getLastActor(RitualFrameBlockEntity start) {
+        List<RitualFrameBlockEntity> ordered = getOrderedActors(start.getConductorBE());
+        return (ordered.size() > 0) ? ordered.get(ordered.size() - 1) : start;
     }
 
     /**
