@@ -97,7 +97,7 @@ public class RitualFrameHelper {
 
         final BlockPos tailBasePos;
         BlockState tailBlockState = serverWorld.getBlockState(blockEntity.getPos());
-        if (blockState.isOf(RNFBlocks.RITUAL_FRAME.get())) {
+        if (blockState.isOf(RNFBlocks.RITUAL_FRAME.get()) && ordered.size() > 0) {
             tailBasePos = ordered.get(ordered.size() - 1).getPos().offset(tailBlockState.get(Properties.FACING).getOpposite());
         } else {
             tailBasePos = blockEntity.getPos();
@@ -227,6 +227,12 @@ public class RitualFrameHelper {
     public static RitualFrameBlockEntity getLastActor(RitualFrameBlockEntity start) {
         List<RitualFrameBlockEntity> ordered = getOrderedActors(start.getConductorBE());
         return (ordered.size() > 0) ? ordered.get(ordered.size() - 1) : start;
+    }
+
+    public static BlockPos getSupportingBlockPos(RitualFrameBlockEntity start) {
+        BlockState bs = start.getCachedState();
+        BlockPos pos = start.getPos();
+        return pos.offset(bs.get(Properties.FACING).getOpposite());
     }
 
     /**

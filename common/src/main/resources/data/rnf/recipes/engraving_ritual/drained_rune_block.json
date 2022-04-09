@@ -17,8 +17,5 @@
     {
       "item": "minecraft:blaze_rod"
     }
-  ],
-  "output": {
-    "item": "minecraft:empty"
-  }
+  ]
 }

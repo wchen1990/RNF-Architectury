@@ -2,10 +2,10 @@
   "type": "rnf:ritual",
   "ingredients": [
     {
-      "item": "rnf:luna"
+      "item": "minecraft:deepslate"
     },
     {
-      "item": "minecraft:deepslate"
+      "item": "rnf:luna"
     }
   ],
   "output": {

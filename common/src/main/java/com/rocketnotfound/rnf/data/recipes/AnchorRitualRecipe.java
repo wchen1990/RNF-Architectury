@@ -137,7 +137,8 @@ public class AnchorRitualRecipe implements IRitualRecipe, IAlterAnchorRitual {
                 (anchorJson.has("after")) ? JsonHelper.getString(anchorJson, "after") : initial
             );
 
-            ItemStack output = ShapedRecipe.outputFromJson(JsonHelper.getObject(jsonObject, "output"));
+            ItemStack output = (JsonHelper.hasJsonObject(jsonObject,"output")) ?
+                ShapedRecipe.outputFromJson(JsonHelper.getObject(jsonObject, "output")) : ItemStack.EMPTY;
 
             JsonArray ingredients = JsonHelper.getArray(jsonObject, "requirements");
             DefaultedList<Ingredient> inputs = DefaultedList.ofSize(ingredients.size(), Ingredient.EMPTY);

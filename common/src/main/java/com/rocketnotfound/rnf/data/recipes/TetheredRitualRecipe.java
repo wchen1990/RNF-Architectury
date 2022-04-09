@@ -170,11 +170,12 @@ public class TetheredRitualRecipe implements IRitualRecipe, IAlterBaseRitual, IA
             JsonObject anchorJson = JsonHelper.getObject(jsonObject, "anchor");
             String initialAnchor = JsonHelper.getString(anchorJson, "initial");
             Pair<Block, String> anchor = new Pair<>(
-                    Registry.BLOCK.get(new Identifier(initialAnchor)),
-                    (anchorJson.has("after")) ? JsonHelper.getString(anchorJson, "after") : initialAnchor
+                Registry.BLOCK.get(new Identifier(initialAnchor)),
+                (anchorJson.has("after")) ? JsonHelper.getString(anchorJson, "after") : initialAnchor
             );
 
-            ItemStack output = ShapedRecipe.outputFromJson(JsonHelper.getObject(jsonObject, "output"));
+            ItemStack output = (JsonHelper.hasJsonObject(jsonObject,"output")) ?
+                ShapedRecipe.outputFromJson(JsonHelper.getObject(jsonObject, "output")) : ItemStack.EMPTY;
 
             JsonArray ingredients = JsonHelper.getArray(jsonObject, "requirements");
             DefaultedList<Ingredient> inputs = DefaultedList.ofSize(ingredients.size(), Ingredient.EMPTY);

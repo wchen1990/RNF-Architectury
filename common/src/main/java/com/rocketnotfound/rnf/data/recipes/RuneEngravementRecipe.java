@@ -132,11 +132,12 @@ public class RuneEngravementRecipe implements IRitualRecipe, IAlterBaseRitual {
             JsonObject baseJson = JsonHelper.getObject(jsonObject, "base");
             String initial = JsonHelper.getString(baseJson, "initial");
             Pair<Block, String> base = new Pair<>(
-                    Registry.BLOCK.get(new Identifier(initial)),
-                    (baseJson.has("after")) ? JsonHelper.getString(baseJson, "after") : initial
+                Registry.BLOCK.get(new Identifier(initial)),
+                (baseJson.has("after")) ? JsonHelper.getString(baseJson, "after") : initial
             );
 
-            ItemStack output = ShapedRecipe.outputFromJson(JsonHelper.getObject(jsonObject, "output"));
+            ItemStack output = (JsonHelper.hasJsonObject(jsonObject,"output")) ?
+                ShapedRecipe.outputFromJson(JsonHelper.getObject(jsonObject, "output")) : ItemStack.EMPTY;
 
             JsonArray ingredients = JsonHelper.getArray(jsonObject, "requirements");
             DefaultedList<Ingredient> inputs = DefaultedList.ofSize(ingredients.size(), Ingredient.EMPTY);
