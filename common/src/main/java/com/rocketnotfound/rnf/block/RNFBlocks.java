@@ -6,10 +6,13 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.block.*;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.property.Properties;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.registry.Registry;
 
 import java.util.List;
 import java.util.function.ToIntFunction;
+
+import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
 public class RNFBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(RNF.MOD_ID, Registry.BLOCK_KEY);
@@ -19,6 +22,8 @@ public class RNFBlocks {
     public static final RegistrySupplier<Block> RITUAL_FRAME = BLOCKS.register("ritual_frame", () -> new RitualFrameBlock(AbstractBlock.Settings.of(Material.DECORATION, MapColor.TERRACOTTA_WHITE).nonOpaque().requiresTool().luminance(blockLuminance(6)).sounds(BlockSoundGroup.AMETHYST_CLUSTER).strength(1.5f, 6.0f)));
 
     public static final RegistrySupplier<Block> DRAINED_RUNE_BLOCK = BLOCKS.register("drained_rune_block", () -> new DrainedRuneBlock());
+
+    public static final TagKey<Block> ACTIVE_RUNE_BLOCKS = TagKey.of(Registry.BLOCK_KEY, createIdentifier("active_rune_blocks"));
 
     public static final RegistrySupplier<Block> RUNE_BLOCK = BLOCKS.register("rune_block", () -> new RuneBlock());
     public static final RegistrySupplier<Block> RUNE_BLOCK_A = BLOCKS.register("rune_block_a", () -> new RuneBlock());

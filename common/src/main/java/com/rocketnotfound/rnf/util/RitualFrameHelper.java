@@ -29,6 +29,14 @@ public class RitualFrameHelper {
     public static void invalidateCache() {
         conductorActorsCache.clear();
     }
+    public static void cleanUpCache() {
+        Iterator<BlockPos> iter = conductorActorsCache.keySet().iterator();
+        while (iter.hasNext()) {
+            if (conductorActorsCache.get(iter.next()).size() == 0) {
+                iter.remove();
+            }
+        }
+    }
 
     public static void updateAllBlocksFor(RitualFrameBlockEntity start) {
         List<RitualFrameBlockEntity> ordered = getOrderedActors(start.getConductorBE());
@@ -83,8 +91,10 @@ public class RitualFrameHelper {
     }
 
     public static Pair<Optional<Recipe>, Inventory> checkForRecipe(RitualFrameBlockEntity blockEntity, ServerWorld serverWorld) {
-        Inventory inv = getCombinedInventoryFrom(blockEntity);
         List<RitualFrameBlockEntity> ordered = getOrderedActors(blockEntity);
+        if (ordered.size() == 0) return new Pair<>(Optional.empty(), null);
+
+        Inventory inv = getCombinedInventoryFrom(blockEntity);
 
         final BlockPos conductorBasePos;
         BlockState blockState = serverWorld.getBlockState(blockEntity.getPos());
@@ -209,7 +219,7 @@ public class RitualFrameHelper {
         if (list == null) {
             list = new ArrayList<>();
             RitualFrameBlockEntity targettedBy = start.getTargettedByBE();
-            while (targettedBy != null) {
+            while (targettedBy != null && targettedBy != start.getConductorBE()) {
                 if (list.contains(targettedBy)) {
                     break;
                 }

@@ -12,6 +12,7 @@ import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.ShapedRecipe;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.Pair;
@@ -25,7 +26,7 @@ import java.util.Random;
 import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
 public class AnchorRitualRecipe implements IRitualRecipe, IAlterAnchorRitual {
-    public static final Identifier TYPE = createIdentifier("anchor_ritual");
+    public static final Identifier TYPE = createIdentifier("anchoring_ritual");
 
     protected final Identifier id;
     protected final Pair<Block, String> anchor;
