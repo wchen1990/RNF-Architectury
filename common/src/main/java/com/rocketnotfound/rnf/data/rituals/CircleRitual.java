@@ -1,4 +1,4 @@
-package com.rocketnotfound.rnf.data.recipes;
+package com.rocketnotfound.rnf.data.rituals;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -21,7 +21,7 @@ import java.util.Random;
 
 import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
-public class CircleRitualRecipe implements IRitualRecipe {
+public class CircleRitual implements IRitual {
     public static final Identifier TYPE = createIdentifier("circle_ritual");
 
     protected final Identifier id;
@@ -30,7 +30,7 @@ public class CircleRitualRecipe implements IRitualRecipe {
 
     protected final Random random;
 
-    public CircleRitualRecipe(Identifier id, Ingredient output, DefaultedList<Ingredient> recipeItems) {
+    public CircleRitual(Identifier id, Ingredient output, DefaultedList<Ingredient> recipeItems) {
         this.id = id;
         this.output = output;
         this.recipeItems = recipeItems;
@@ -86,23 +86,23 @@ public class CircleRitualRecipe implements IRitualRecipe {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return RNFRecipes.CIRCLE_RITUAL_SERIALIZER.get();
+        return RNFRituals.CIRCLE_RITUAL_SERIALIZER.get();
     }
 
     @Override
     public RecipeType<?> getType() {
-        return RNFRecipes.CIRCLE_RITUAL_TYPE.get();
+        return RNFRituals.CIRCLE_RITUAL_TYPE.get();
     }
 
-    public static class RitualRecipeType implements RecipeType<CircleRitualRecipe> {
+    public static class RitualType implements RecipeType<CircleRitual> {
         @Override
         public String toString() {
             return TYPE.toString();
         }
     }
-    public static class Serializer extends AbstractRecipeSerializer<CircleRitualRecipe> {
+    public static class Serializer extends AbstractRecipeSerializer<CircleRitual> {
         @Override
-        public CircleRitualRecipe read(Identifier identifier, JsonObject jsonObject) {
+        public CircleRitual read(Identifier identifier, JsonObject jsonObject) {
             Ingredient output = Ingredient.fromJson(JsonHelper.getObject(jsonObject, "output"));
 
             JsonArray ingredients = JsonHelper.getArray(jsonObject, "ingredients");
@@ -112,11 +112,11 @@ public class CircleRitualRecipe implements IRitualRecipe {
                 inputs.set(i, Ingredient.fromJson(ingredients.get(i)));
             }
 
-            return new CircleRitualRecipe(identifier, output, inputs);
+            return new CircleRitual(identifier, output, inputs);
         }
 
         @Override
-        public void write(PacketByteBuf packetByteBuf, CircleRitualRecipe recipe) {
+        public void write(PacketByteBuf packetByteBuf, CircleRitual recipe) {
             packetByteBuf.writeInt(recipe.getIngredients().size());
             for (Ingredient ing : recipe.getIngredients()) {
                 ing.write(packetByteBuf);
@@ -126,7 +126,7 @@ public class CircleRitualRecipe implements IRitualRecipe {
 
         @Nullable
         @Override
-        public CircleRitualRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
+        public CircleRitual read(Identifier identifier, PacketByteBuf packetByteBuf) {
             DefaultedList<Ingredient> inputs = DefaultedList.ofSize(packetByteBuf.readInt(), Ingredient.EMPTY);
 
             for (int i = 0; i < inputs.size(); i++) {
@@ -135,7 +135,7 @@ public class CircleRitualRecipe implements IRitualRecipe {
 
             Ingredient output = Ingredient.fromPacket(packetByteBuf);
 
-            return new CircleRitualRecipe(identifier, output, inputs);
+            return new CircleRitual(identifier, output, inputs);
         }
     }
 }

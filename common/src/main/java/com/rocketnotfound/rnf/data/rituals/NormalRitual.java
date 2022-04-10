@@ -1,4 +1,4 @@
-package com.rocketnotfound.rnf.data.recipes;
+package com.rocketnotfound.rnf.data.rituals;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -20,14 +20,14 @@ import javax.annotation.Nullable;
 
 import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
-public class RitualRecipe implements IRitualRecipe {
+public class NormalRitual implements IRitual {
     public static final Identifier TYPE = createIdentifier("ritual");
 
     protected final Identifier id;
     protected final ItemStack output;
     protected final DefaultedList<Ingredient> recipeItems;
 
-    public RitualRecipe(Identifier id, ItemStack output, DefaultedList<Ingredient> recipeItems) {
+    public NormalRitual(Identifier id, ItemStack output, DefaultedList<Ingredient> recipeItems) {
         this.id = id;
         this.output = output;
         this.recipeItems = recipeItems;
@@ -74,23 +74,23 @@ public class RitualRecipe implements IRitualRecipe {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return RNFRecipes.RITUAL_SERIALIZER.get();
+        return RNFRituals.RITUAL_SERIALIZER.get();
     }
 
     @Override
     public RecipeType<?> getType() {
-        return RNFRecipes.RITUAL_TYPE.get();
+        return RNFRituals.RITUAL_TYPE.get();
     }
 
-    public static class RitualRecipeType implements RecipeType<RitualRecipe> {
+    public static class RitualType implements RecipeType<NormalRitual> {
         @Override
         public String toString() {
             return TYPE.toString();
         }
     }
-    public static class Serializer extends AbstractRecipeSerializer<RitualRecipe> {
+    public static class Serializer extends AbstractRecipeSerializer<NormalRitual> {
         @Override
-        public RitualRecipe read(Identifier identifier, JsonObject jsonObject) {
+        public NormalRitual read(Identifier identifier, JsonObject jsonObject) {
             ItemStack output = ShapedRecipe.outputFromJson(JsonHelper.getObject(jsonObject, "output"));
 
             JsonArray ingredients = JsonHelper.getArray(jsonObject, "ingredients");
@@ -100,11 +100,11 @@ public class RitualRecipe implements IRitualRecipe {
                 inputs.set(i, Ingredient.fromJson(ingredients.get(i)));
             }
 
-            return new RitualRecipe(identifier, output, inputs);
+            return new NormalRitual(identifier, output, inputs);
         }
 
         @Override
-        public void write(PacketByteBuf packetByteBuf, RitualRecipe recipe) {
+        public void write(PacketByteBuf packetByteBuf, NormalRitual recipe) {
             packetByteBuf.writeInt(recipe.getIngredients().size());
             for (Ingredient ing : recipe.getIngredients()) {
                 ing.write(packetByteBuf);
@@ -114,7 +114,7 @@ public class RitualRecipe implements IRitualRecipe {
 
         @Nullable
         @Override
-        public RitualRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
+        public NormalRitual read(Identifier identifier, PacketByteBuf packetByteBuf) {
             DefaultedList<Ingredient> inputs = DefaultedList.ofSize(packetByteBuf.readInt(), Ingredient.EMPTY);
 
             for (int i = 0; i < inputs.size(); i++) {
@@ -123,7 +123,7 @@ public class RitualRecipe implements IRitualRecipe {
 
             ItemStack output = packetByteBuf.readItemStack();
 
-            return new RitualRecipe(identifier, output, inputs);
+            return new NormalRitual(identifier, output, inputs);
         }
     }
 }

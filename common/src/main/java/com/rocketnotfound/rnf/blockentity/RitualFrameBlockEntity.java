@@ -3,9 +3,9 @@ package com.rocketnotfound.rnf.blockentity;
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.data.Ritual;
-import com.rocketnotfound.rnf.data.recipes.IAlterAnchorRitual;
-import com.rocketnotfound.rnf.data.recipes.IAlterBaseRitual;
-import com.rocketnotfound.rnf.data.recipes.IRitualRecipe;
+import com.rocketnotfound.rnf.data.rituals.IAlterAnchorRitual;
+import com.rocketnotfound.rnf.data.rituals.IAlterBaseRitual;
+import com.rocketnotfound.rnf.data.rituals.IRitual;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.sound.RNFSounds;
@@ -24,7 +24,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.Pair;
 import net.minecraft.util.collection.DefaultedList;
@@ -194,8 +193,8 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                     if (blockEntity.getItemStack() != ItemStack.EMPTY) {
                         Pair<Optional<Recipe>, Inventory> pair = RitualFrameHelper.checkForRecipe(blockEntity, serverWorld);
                         pair.getLeft().ifPresent((ritualRecipe) -> {
-                            if (ritualRecipe instanceof IRitualRecipe) {
-                                blockEntity.setRitual(((IRitualRecipe) ritualRecipe).getRitualType());
+                            if (ritualRecipe instanceof IRitual) {
+                                blockEntity.setRitual(((IRitual) ritualRecipe).getRitualType());
                             }
                             blockEntity.ritualHasOutput = (ritualRecipe.getOutput() != null && !ritualRecipe.getOutput().isEmpty());
                             blockEntity.setPhase(Phase.RITUAL_FOUND);

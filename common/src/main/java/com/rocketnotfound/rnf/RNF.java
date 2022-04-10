@@ -4,7 +4,8 @@ import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.config.ClientConfig;
 import com.rocketnotfound.rnf.config.ServerConfig;
-import com.rocketnotfound.rnf.data.recipes.RNFRecipes;
+import com.rocketnotfound.rnf.data.RitualManager;
+import com.rocketnotfound.rnf.data.rituals.RNFRituals;
 import com.rocketnotfound.rnf.network.RNFNetwork;
 import com.rocketnotfound.rnf.network.SyncConfigMessage;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
@@ -15,9 +16,11 @@ import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameHelper;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
+import dev.architectury.registry.ReloadListenerRegistry;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -57,9 +60,11 @@ public class RNF {
         RNFItems.ITEMS.register();
         RNFParticleTypes.PARTICLES.register();
         RNFSounds.SOUND_EVENTS.register();
-        RNFRecipes.register();
+        RNFRituals.register();
 
         RNFNetwork.init();
+
+        ReloadListenerRegistry.register(ResourceType.SERVER_DATA, RitualManager.getInstance());
 
         // Lifecycle events
         LifecycleEvent.SERVER_LEVEL_LOAD.register((world) -> {

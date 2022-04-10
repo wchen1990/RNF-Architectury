@@ -3,16 +3,16 @@ package com.rocketnotfound.rnf.util;
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
-import com.rocketnotfound.rnf.data.recipes.AnchorRitualRecipe;
-import com.rocketnotfound.rnf.data.recipes.RNFRecipes;
-import com.rocketnotfound.rnf.data.recipes.RuneEngravementRecipe;
-import com.rocketnotfound.rnf.data.recipes.TetheredRitualRecipe;
+import com.rocketnotfound.rnf.data.RitualManager;
+import com.rocketnotfound.rnf.data.rituals.AnchorRitual;
+import com.rocketnotfound.rnf.data.rituals.RNFRituals;
+import com.rocketnotfound.rnf.data.rituals.RuneEngravement;
+import com.rocketnotfound.rnf.data.rituals.TetheredRitual;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Pair;
@@ -114,17 +114,17 @@ public class RitualFrameHelper {
         }
         final BlockState checkAnchorState = serverWorld.getBlockState(tailBasePos);
 
-        RecipeManager manager = serverWorld.getRecipeManager();
+        RitualManager manager = RitualManager.getInstance();
 
         Optional<Recipe> rec = Optional.empty();
-        List<TetheredRitualRecipe> tethers;
-        List<RuneEngravementRecipe> runeEngravements;
-        List<AnchorRitualRecipe> anchors;
+        List<TetheredRitual> tethers;
+        List<RuneEngravement> runeEngravements;
+        List<AnchorRitual> anchors;
 
         if (
             !checkBaseState.isOf(RNFBlocks.RITUAL_FRAME.get())
             && !checkAnchorState.isOf(RNFBlocks.RITUAL_FRAME.get())
-            && (tethers = manager.getAllMatches(RNFRecipes.TETHER_RITUAL_TYPE.get(), inv, serverWorld)).size() > 0
+            && (tethers = manager.getAllMatches(RNFRituals.TETHER_RITUAL_TYPE.get(), inv, serverWorld)).size() > 0
             && tethers.stream().anyMatch(
                 (rune) -> checkBaseState.isOf(rune.getBase().getLeft()) && checkAnchorState.isOf(rune.getAnchor().getLeft())
             )
@@ -134,20 +134,20 @@ public class RitualFrameHelper {
             ).findFirst().get());
         } else if (
             !checkBaseState.isOf(RNFBlocks.RITUAL_FRAME.get())
-            && (runeEngravements = manager.getAllMatches(RNFRecipes.RUNE_ENGRAVEMENT_TYPE.get(), inv, serverWorld)).size() > 0
+            && (runeEngravements = manager.getAllMatches(RNFRituals.RUNE_ENGRAVEMENT_TYPE.get(), inv, serverWorld)).size() > 0
             && runeEngravements.stream().anyMatch((rune) -> checkBaseState.isOf(rune.getBase().getLeft()))
         ) {
             rec = Optional.of(runeEngravements.stream().filter((rune) -> checkBaseState.isOf(rune.getBase().getLeft())).findFirst().get());
         } else if (
             !checkAnchorState.isOf(RNFBlocks.RITUAL_FRAME.get())
-            && (anchors = manager.getAllMatches(RNFRecipes.ANCHOR_RITUAL_TYPE.get(), inv, serverWorld)).size() > 0
+            && (anchors = manager.getAllMatches(RNFRituals.ANCHOR_RITUAL_TYPE.get(), inv, serverWorld)).size() > 0
             && anchors.stream().anyMatch((rune) -> checkAnchorState.isOf(rune.getAnchor().getLeft()))
         ) {
             rec = Optional.of(anchors.stream().filter((rune) -> checkAnchorState.isOf(rune.getAnchor().getLeft())).findFirst().get());
         } else if (isLoop(blockEntity)) {
-            rec = manager.getFirstMatch(RNFRecipes.CIRCLE_RITUAL_TYPE.get(), inv, serverWorld);
+            rec = manager.getFirstMatch(RNFRituals.CIRCLE_RITUAL_TYPE.get(), inv, serverWorld);
         } else {
-            rec = manager.getFirstMatch(RNFRecipes.RITUAL_TYPE.get(), inv, serverWorld);
+            rec = manager.getFirstMatch(RNFRituals.RITUAL_TYPE.get(), inv, serverWorld);
         }
         return new Pair<>(rec, inv);
     }

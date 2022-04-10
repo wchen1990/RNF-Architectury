@@ -1,4 +1,4 @@
-package com.rocketnotfound.rnf.data.recipes;
+package com.rocketnotfound.rnf.data.rituals;
 
 import com.google.gson.*;
 import com.rocketnotfound.rnf.data.Ritual;
@@ -23,19 +23,17 @@ import java.util.Random;
 
 import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
-public class TetheredRitualRecipe implements IRitualRecipe, IAlterBaseRitual, IAlterAnchorRitual {
-    public static final Identifier TYPE = createIdentifier("tethering_ritual");
+public class AnchorRitual implements IRitual, IAlterAnchorRitual {
+    public static final Identifier TYPE = createIdentifier("anchoring_ritual");
 
     protected final Identifier id;
-    protected final Pair<Block, String> base;
     protected final Pair<Block, String> anchor;
     protected final DefaultedList<Ingredient> recipeItems;
     protected final ItemStack output;
     protected final Random random;
 
-    public TetheredRitualRecipe(Identifier id, Pair<Block, String> base, Pair<Block, String> anchor, DefaultedList<Ingredient> recipeItems, ItemStack output) {
+    public AnchorRitual(Identifier id, Pair<Block, String> anchor, DefaultedList<Ingredient> recipeItems, ItemStack output) {
         this.id = id;
-        this.base = base;
         this.anchor = anchor;
         this.recipeItems = recipeItems;
         this.output = output;
@@ -44,7 +42,7 @@ public class TetheredRitualRecipe implements IRitualRecipe, IAlterBaseRitual, IA
 
     @Override
     public Ritual getRitualType() {
-        return Ritual.ENGRAVING;
+        return Ritual.TETHER;
     }
 
     @Override
@@ -61,25 +59,6 @@ public class TetheredRitualRecipe implements IRitualRecipe, IAlterBaseRitual, IA
         }
 
         return false;
-    }
-
-    @Override
-    public Block alterBase(Inventory inventory) {
-        if (matches(inventory, null)) {
-            Identifier id = Registry.ITEM.getId(inventory.getStack(recipeItems.size()).getItem());
-            if (id != null) {
-                String validLetters = id.getPath().toLowerCase().replaceAll("[^a-z]", "");
-                return Registry.BLOCK.get(
-                    new Identifier(
-                        String.format(
-                            base.getRight(),
-                            validLetters.charAt(random.nextInt(validLetters.length()))
-                        )
-                    )
-                );
-            }
-        }
-        return base.getLeft();
     }
 
     @Override
@@ -112,16 +91,6 @@ public class TetheredRitualRecipe implements IRitualRecipe, IAlterBaseRitual, IA
     }
 
     @Override
-    public Pair<Block, String> getBase() {
-        return base;
-    }
-
-    @Override
-    public Pair<String, String> getBaseStrings() {
-        return new Pair<>(Registry.BLOCK.getId(base.getLeft()).toString(), base.getRight());
-    }
-
-    @Override
     public Pair<Block, String> getAnchor() {
         return anchor;
     }
@@ -143,35 +112,28 @@ public class TetheredRitualRecipe implements IRitualRecipe, IAlterBaseRitual, IA
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return RNFRecipes.TETHER_RITUAL_SERIALIZER.get();
+        return RNFRituals.ANCHOR_RITUAL_SERIALIZER.get();
     }
 
     @Override
     public RecipeType<?> getType() {
-        return RNFRecipes.TETHER_RITUAL_TYPE.get();
+        return RNFRituals.ANCHOR_RITUAL_TYPE.get();
     }
 
-    public static class RitualRecipeType implements RecipeType<TetheredRitualRecipe> {
+    public static class RitualType implements RecipeType<AnchorRitual> {
         @Override
         public String toString() {
             return TYPE.toString();
         }
     }
-    public static class Serializer extends AbstractRecipeSerializer<TetheredRitualRecipe> {
+    public static class Serializer extends AbstractRecipeSerializer<AnchorRitual> {
         @Override
-        public TetheredRitualRecipe read(Identifier identifier, JsonObject jsonObject) {
-            JsonObject baseJson = JsonHelper.getObject(jsonObject, "base");
-            String initialBase = JsonHelper.getString(baseJson, "initial");
-            Pair<Block, String> base = new Pair<>(
-                Registry.BLOCK.get(new Identifier(initialBase)),
-                (baseJson.has("after")) ? JsonHelper.getString(baseJson, "after") : initialBase
-            );
-
+        public AnchorRitual read(Identifier identifier, JsonObject jsonObject) {
             JsonObject anchorJson = JsonHelper.getObject(jsonObject, "anchor");
-            String initialAnchor = JsonHelper.getString(anchorJson, "initial");
+            String initial = JsonHelper.getString(anchorJson, "initial");
             Pair<Block, String> anchor = new Pair<>(
-                Registry.BLOCK.get(new Identifier(initialAnchor)),
-                (anchorJson.has("after")) ? JsonHelper.getString(anchorJson, "after") : initialAnchor
+                Registry.BLOCK.get(new Identifier(initial)),
+                (anchorJson.has("after")) ? JsonHelper.getString(anchorJson, "after") : initial
             );
 
             ItemStack output = (JsonHelper.hasJsonObject(jsonObject,"output")) ?
@@ -184,39 +146,27 @@ public class TetheredRitualRecipe implements IRitualRecipe, IAlterBaseRitual, IA
                 inputs.set(i, Ingredient.fromJson(ingredients.get(i)));
             }
 
-            return new TetheredRitualRecipe(identifier, base, anchor, inputs, output);
+            return new AnchorRitual(identifier, anchor, inputs, output);
         }
 
         @Override
-        public void write(PacketByteBuf packetByteBuf, TetheredRitualRecipe recipe) {
-            Pair<String, String> bases = recipe.getBaseStrings();
-            packetByteBuf.writeString(bases.getLeft());
-            packetByteBuf.writeString(bases.getRight());
-
+        public void write(PacketByteBuf packetByteBuf, AnchorRitual recipe) {
             Pair<String, String> anchors = recipe.getAnchorStrings();
             packetByteBuf.writeString(anchors.getLeft());
             packetByteBuf.writeString(anchors.getRight());
-
             packetByteBuf.writeInt(recipe.getIngredients().size());
             for (Ingredient ing : recipe.getIngredients()) {
                 ing.write(packetByteBuf);
             }
-
             packetByteBuf.writeItemStack(recipe.getOutput());
         }
 
         @Nullable
         @Override
-        public TetheredRitualRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
-            Pair<Block, String> base = new Pair<>(
-                Registry.BLOCK.get(new Identifier(packetByteBuf.readString())),
-                packetByteBuf.readString()
-            );
-
-            Pair<Block, String> anchor = new Pair<>(
-                Registry.BLOCK.get(new Identifier(packetByteBuf.readString())),
-                packetByteBuf.readString()
-            );
+        public AnchorRitual read(Identifier identifier, PacketByteBuf packetByteBuf) {
+            Block before = Registry.BLOCK.get(new Identifier(packetByteBuf.readString()));
+            String after = packetByteBuf.readString();
+            Pair<Block, String> anchor = new Pair<>(before, after);
 
             DefaultedList<Ingredient> inputs = DefaultedList.ofSize(packetByteBuf.readInt(), Ingredient.EMPTY);
 
@@ -226,7 +176,7 @@ public class TetheredRitualRecipe implements IRitualRecipe, IAlterBaseRitual, IA
 
             ItemStack output = packetByteBuf.readItemStack();
 
-            return new TetheredRitualRecipe(identifier, base, anchor, inputs, output);
+            return new AnchorRitual(identifier, anchor, inputs, output);
         }
     }
 }

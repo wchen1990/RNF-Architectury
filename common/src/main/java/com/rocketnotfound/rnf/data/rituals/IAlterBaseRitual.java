@@ -1,4 +1,4 @@
-package com.rocketnotfound.rnf.data.recipes;
+package com.rocketnotfound.rnf.data.rituals;
 
 import net.minecraft.block.Block;
 import net.minecraft.inventory.Inventory;
