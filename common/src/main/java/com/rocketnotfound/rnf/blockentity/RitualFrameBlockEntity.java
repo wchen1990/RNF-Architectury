@@ -2,7 +2,7 @@ package com.rocketnotfound.rnf.blockentity;
 
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
-import com.rocketnotfound.rnf.data.Ritual;
+import com.rocketnotfound.rnf.data.rituals.Ritual;
 import com.rocketnotfound.rnf.data.rituals.IAlterAnchorRitual;
 import com.rocketnotfound.rnf.data.rituals.IAlterBaseRitual;
 import com.rocketnotfound.rnf.data.rituals.IRitual;

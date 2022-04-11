@@ -6,14 +6,14 @@ import net.minecraft.item.ItemStack;
 
 import java.util.List;
 
-public class RitualInventoryHelper implements Inventory {
+public class SimpleInventoryHelper implements Inventory {
     private List<ItemStack> inventory;
 
-    public static RitualInventoryHelper of(List<ItemStack> list) {
-        return new RitualInventoryHelper(list);
+    public static SimpleInventoryHelper of(List<ItemStack> list) {
+        return new SimpleInventoryHelper(list);
     }
 
-    protected RitualInventoryHelper(List<ItemStack> list) {
+    protected SimpleInventoryHelper(List<ItemStack> list) {
         inventory = list;
     }
 

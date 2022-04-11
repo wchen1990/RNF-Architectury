@@ -3,7 +3,7 @@ package com.rocketnotfound.rnf.util;
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
-import com.rocketnotfound.rnf.data.RitualManager;
+import com.rocketnotfound.rnf.data.managers.RitualManager;
 import com.rocketnotfound.rnf.data.rituals.AnchorRitual;
 import com.rocketnotfound.rnf.data.rituals.RNFRituals;
 import com.rocketnotfound.rnf.data.rituals.RuneEngravement;
@@ -186,7 +186,7 @@ public class RitualFrameHelper {
             });
         }
 
-        return RitualInventoryHelper.of(inventory);
+        return SimpleInventoryHelper.of(inventory);
     }
 
     @CheckForNull

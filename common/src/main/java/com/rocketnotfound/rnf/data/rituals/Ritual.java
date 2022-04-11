@@ -1,4 +1,4 @@
-package com.rocketnotfound.rnf.data;
+package com.rocketnotfound.rnf.data.rituals;
 
 public enum Ritual {
     UNKNOWN,

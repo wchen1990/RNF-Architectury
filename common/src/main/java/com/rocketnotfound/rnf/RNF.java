@@ -4,8 +4,10 @@ import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.config.ClientConfig;
 import com.rocketnotfound.rnf.config.ServerConfig;
-import com.rocketnotfound.rnf.data.RitualManager;
+import com.rocketnotfound.rnf.data.managers.RitualManager;
+import com.rocketnotfound.rnf.data.managers.SpellManager;
 import com.rocketnotfound.rnf.data.rituals.RNFRituals;
+import com.rocketnotfound.rnf.data.spells.RNFSpells;
 import com.rocketnotfound.rnf.network.RNFNetwork;
 import com.rocketnotfound.rnf.network.SyncConfigMessage;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
@@ -61,10 +63,13 @@ public class RNF {
         RNFParticleTypes.PARTICLES.register();
         RNFSounds.SOUND_EVENTS.register();
         RNFRituals.register();
+        RNFSpells.register();
 
         RNFNetwork.init();
 
+        // Datapack managers
         ReloadListenerRegistry.register(ResourceType.SERVER_DATA, RitualManager.getInstance());
+        ReloadListenerRegistry.register(ResourceType.SERVER_DATA, SpellManager.getInstance());
 
         // Lifecycle events
         LifecycleEvent.SERVER_LEVEL_LOAD.register((world) -> {

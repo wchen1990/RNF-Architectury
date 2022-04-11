@@ -2,7 +2,6 @@ package com.rocketnotfound.rnf.data.rituals;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.rocketnotfound.rnf.data.Ritual;
 import dev.architectury.core.AbstractRecipeSerializer;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;

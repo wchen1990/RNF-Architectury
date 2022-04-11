@@ -6,7 +6,7 @@ import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameHelper;
-import com.rocketnotfound.rnf.util.RitualInventoryHelper;
+import com.rocketnotfound.rnf.util.SimpleInventoryHelper;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -176,7 +176,7 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
     public int getComparatorOutput(BlockState blockState, World world, BlockPos blockPos) {
         BlockEntity be = world.getBlockEntity(blockPos);
         if (be instanceof RitualFrameBlockEntity) {
-            return ScreenHandler.calculateComparatorOutput(RitualInventoryHelper.of(((RitualFrameBlockEntity) be).getInventory()));
+            return ScreenHandler.calculateComparatorOutput(SimpleInventoryHelper.of(((RitualFrameBlockEntity) be).getInventory()));
         }
         return 0;
     }

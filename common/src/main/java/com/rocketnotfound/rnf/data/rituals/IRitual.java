@@ -1,6 +1,5 @@
 package com.rocketnotfound.rnf.data.rituals;
 
-import com.rocketnotfound.rnf.data.Ritual;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.recipe.Recipe;
 

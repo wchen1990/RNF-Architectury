@@ -1,4 +1,4 @@
-package com.rocketnotfound.rnf.data;
+package com.rocketnotfound.rnf.data.managers;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -36,7 +36,7 @@ public class RitualManager extends JsonDataLoader {
     private Map<Identifier, Recipe<?>> recipesById = ImmutableMap.of();
     private boolean errored;
 
-    public RitualManager() {
+    private RitualManager() {
         super(GSON, "rituals");
     }
 
