@@ -333,10 +333,7 @@ public class RitualFrameHelper {
                 ordered.clear();
             }
 
-            // Update caches
-            if (ordered.size() == 0) {
-                conductorActorsCache.remove(remove.getConductor());
-            }
+            // Update cache
             if (temp != null && temp.size() > 0) {
                 conductorActorsCache.put(targettedBy.getPos(), temp);
             }
@@ -345,6 +342,11 @@ public class RitualFrameHelper {
             targettedBy.setTarget(null);
             targettedBy.removeConductor();
             targettedBy.markDirty();
+        }
+
+        // Update cache
+        if (ordered.size() == 0) {
+            conductorActorsCache.remove(remove.getConductor());
         }
 
         // Remove is a conductor now

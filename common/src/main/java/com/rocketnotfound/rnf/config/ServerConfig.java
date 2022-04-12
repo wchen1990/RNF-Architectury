@@ -14,6 +14,10 @@ public class ServerConfig implements ConfigData {
     @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
     public InfusionConfig INFUSE = new InfusionConfig();
 
+    @ConfigEntry.Category("Transcribe")
+    @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+    public TranscribeConfig TRANSCRIBE = new TranscribeConfig();
+
     public static class RitualConfig {
         public int MAX_RANGE = 16;
         public int CHECK_RECIPE_INTERVAL_TICKS = 60;
@@ -27,5 +31,9 @@ public class ServerConfig implements ConfigData {
         public int INFUSE_PER_LUNA = 8;
         public int CHECK_INFUSING_TARGET_INTERVAL_TICKS = 60;
         public int INFUSING_COMPLETION_TICKS = 60;
+    }
+
+    public static class TranscribeConfig {
+        public int SEARCH_LIMIT = 16;
     }
 }

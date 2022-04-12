@@ -1,10 +1,16 @@
 package com.rocketnotfound.rnf.block;
 
+import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
+import com.rocketnotfound.rnf.blockentity.RitualTranscriberBlockEntity;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.BlockMirror;
@@ -19,13 +25,15 @@ import java.util.Random;
 
 import static com.rocketnotfound.rnf.block.RNFBlocks.blockLuminanceWithProperty;
 
-public class RitualTranscriber extends FacingBlock {
+public class RitualTranscriberBlock extends BlockWithEntity {
+    public static final DirectionProperty FACING;
     public static final BooleanProperty POWERED;
     static {
+        FACING = Properties.FACING;
         POWERED = Properties.POWERED;
     }
 
-    public RitualTranscriber() {
+    public RitualTranscriberBlock() {
         this(
             AbstractBlock.Settings.of(Material.STONE, MapColor.BLACK)
                 .requiresTool()
@@ -34,9 +42,25 @@ public class RitualTranscriber extends FacingBlock {
         );
     }
 
-    public RitualTranscriber(Settings settings) {
+    public RitualTranscriberBlock(Settings settings) {
         super(settings);
         this.setDefaultState(this.getDefaultState().with(FACING, Direction.NORTH).with(POWERED, false));
+    }
+
+    @Override
+    public BlockRenderType getRenderType(BlockState blockState) {
+        return BlockRenderType.MODEL;
+    }
+
+    @Override
+    public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new RitualTranscriberBlockEntity(blockPos, blockState);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState blockState, BlockEntityType<T> blockEntityType) {
+        return checkType(blockEntityType, RNFBlockEntities.RITUAL_TRANSCRIBER.get(), RitualTranscriberBlockEntity::tick);
     }
 
     @Override
@@ -66,7 +90,7 @@ public class RitualTranscriber extends FacingBlock {
     @Override
     public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
         return this.getDefaultState()
-            .with(FACING, itemPlacementContext.getSide())
+            .with(FACING, itemPlacementContext.getSide().getOpposite())
             .with(POWERED, itemPlacementContext.getWorld().isReceivingRedstonePower(itemPlacementContext.getBlockPos()));
     }
 

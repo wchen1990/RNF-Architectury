@@ -22,7 +22,7 @@ public class RNFBlocks {
     public static final RegistrySupplier<Block> DEEP_MOONSTONE = BLOCKS.register("deep_moonstone", () -> new MoonstoneBlock(AbstractBlock.Settings.copy(MOONSTONE.get()).mapColor(MapColor.DEEPSLATE_GRAY).sounds(BlockSoundGroup.DEEPSLATE)));
     public static final RegistrySupplier<Block> RITUAL_FRAME = BLOCKS.register("ritual_frame", () -> new RitualFrameBlock(AbstractBlock.Settings.of(Material.DECORATION, MapColor.TERRACOTTA_WHITE).nonOpaque().requiresTool().luminance(blockLuminance(6)).sounds(BlockSoundGroup.AMETHYST_CLUSTER).strength(1.5f, 6.0f)));
 
-    public static final RegistrySupplier<Block> RITUAL_TRANSCRIBER = BLOCKS.register("ritual_transcriber", () -> new RitualTranscriber());
+    public static final RegistrySupplier<Block> RITUAL_TRANSCRIBER = BLOCKS.register("ritual_transcriber", () -> new RitualTranscriberBlock());
 
     public static final RegistrySupplier<Block> DRAINED_RUNE_BLOCK = BLOCKS.register("drained_rune_block", () -> new DrainedRuneBlock());
 
