@@ -66,7 +66,7 @@ public class RitualTranscriber extends FacingBlock {
     @Override
     public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
         return this.getDefaultState()
-            .with(FACING, itemPlacementContext.getPlayerFacing().getOpposite())
+            .with(FACING, itemPlacementContext.getSide())
             .with(POWERED, itemPlacementContext.getWorld().isReceivingRedstonePower(itemPlacementContext.getBlockPos()));
     }
 

@@ -8,13 +8,14 @@ import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nullable;
 
 import static com.rocketnotfound.rnf.block.RNFBlocks.blockLuminance;
 
-public class RuneBlock extends TransparentBlock {
+public class RuneBlock extends TransparentBlock implements Stainable {
     public static final DirectionProperty FACING;
     static {
         FACING = Properties.HORIZONTAL_FACING;
@@ -55,5 +56,10 @@ public class RuneBlock extends TransparentBlock {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(FACING);
+    }
+
+    @Override
+    public DyeColor getColor() {
+        return DyeColor.WHITE;
     }
 }
