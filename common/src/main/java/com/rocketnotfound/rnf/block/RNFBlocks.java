@@ -5,6 +5,7 @@ import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.block.*;
 import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.registry.Registry;
@@ -20,6 +21,8 @@ public class RNFBlocks {
     public static final RegistrySupplier<Block> MOONSTONE = BLOCKS.register("moonstone", () -> new MoonstoneBlock(AbstractBlock.Settings.of(Material.STONE, MapColor.TERRACOTTA_WHITE).requiresTool().ticksRandomly().luminance(litBlockLuminance(9)).sounds(BlockSoundGroup.STONE).strength(1.5f, 6.0f)));
     public static final RegistrySupplier<Block> DEEP_MOONSTONE = BLOCKS.register("deep_moonstone", () -> new MoonstoneBlock(AbstractBlock.Settings.copy(MOONSTONE.get()).mapColor(MapColor.DEEPSLATE_GRAY).sounds(BlockSoundGroup.DEEPSLATE)));
     public static final RegistrySupplier<Block> RITUAL_FRAME = BLOCKS.register("ritual_frame", () -> new RitualFrameBlock(AbstractBlock.Settings.of(Material.DECORATION, MapColor.TERRACOTTA_WHITE).nonOpaque().requiresTool().luminance(blockLuminance(6)).sounds(BlockSoundGroup.AMETHYST_CLUSTER).strength(1.5f, 6.0f)));
+
+    public static final RegistrySupplier<Block> RITUAL_TRANSCRIBER = BLOCKS.register("ritual_transcriber", () -> new RitualTranscriber());
 
     public static final RegistrySupplier<Block> DRAINED_RUNE_BLOCK = BLOCKS.register("drained_rune_block", () -> new DrainedRuneBlock());
 
@@ -89,5 +92,9 @@ public class RNFBlocks {
 
     public static ToIntFunction<BlockState> litBlockLuminance(int luminance) {
         return (blockState) -> blockState.get(Properties.LIT) ? luminance : 0;
+    }
+
+    public static ToIntFunction<BlockState> blockLuminanceWithProperty(int luminance, BooleanProperty property, int defaultValue) {
+        return (blockState) -> blockState.get(property) ? luminance : defaultValue;
     }
 }

@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import net.minecraft.recipe.Ingredient;
 
 import java.util.Iterator;
 import java.util.Map;

@@ -15,6 +15,7 @@ import net.minecraft.recipe.ShapedRecipe;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -70,7 +71,11 @@ public class SingleSpell implements ISpell {
     public static class Serializer extends AbstractRecipeSerializer<SingleSpell> {
         @Override
         public SingleSpell read(Identifier identifier, JsonObject jsonObject) {
-            Map<String, Block> map = RecipeHelper.readSymbols(JsonHelper.getObject(jsonObject, "key"), (jsonElement) -> Blocks.AIR, Blocks.AIR);
+            Map<String, Block> map = RecipeHelper.readSymbols(JsonHelper.getObject(jsonObject, "key"), (jsonElement) -> {
+                if (jsonElement.isJsonPrimitive())
+                    return Registry.BLOCK.get(new Identifier(jsonElement.getAsString()));
+                return Blocks.AIR;
+            }, Blocks.AIR);
             ItemStack output = ShapedRecipe.outputFromJson(JsonHelper.getObject(jsonObject, "output"));
 
             JsonArray ingredients = JsonHelper.getArray(jsonObject, "ingredients");

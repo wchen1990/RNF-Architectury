@@ -1,0 +1,10 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "rnf:block/ritual_transcriber",
+  "textures": {
+    "0": "rnf:block/ritual_transcriber_fb_lit",
+    "1": "rnf:block/ritual_transcriber_side_lit",
+    "2": "rnf:block/ritual_transcriber_tb_lit",
+    "particle": "rnf:block/ritual_transcriber_fb_lit"
+  }
+}

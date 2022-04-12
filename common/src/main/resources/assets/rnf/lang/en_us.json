@@ -26,6 +26,9 @@
   "ritual_staff.attune.break": "%s's attunement breaks",
   "ritual_staff.attune.dormant": "%s becomes dormant",
 
+  "item.rnf.ritual_transcriber": "Ritual Transcriber",
+  "block.rnf.ritual_transcriber": "Ritual Transcriber",
+
   "item.rnf.drained_rune_block": "Drained Rune",
   "block.rnf.drained_rune_block": "Drained Rune Block",
 

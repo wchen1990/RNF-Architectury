@@ -30,6 +30,8 @@ public class RNFItems {
     public static final RegistrySupplier<Item> RITUAL_FRAME = ITEMS.register("ritual_frame", () -> new RitualFrameItem(new Item.Settings().maxCount(1).group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> RITUAL_STAFF = ITEMS.register("ritual_staff", () -> new RitualStaffItem(new Item.Settings().maxCount(1).group(CREATIVE_TAB)));
 
+    public static final RegistrySupplier<Item> RITUAL_TRANSCRIBER = ITEMS.register("ritual_transcriber", () -> new BlockItem(RNFBlocks.RITUAL_TRANSCRIBER.get(), new Item.Settings().group(CREATIVE_TAB)));
+
     public static final RegistrySupplier<Item> DRAINED_RUNE_BLOCK = ITEMS.register("drained_rune_block", () -> new BlockItem(RNFBlocks.DRAINED_RUNE_BLOCK.get(), new Item.Settings().group(CREATIVE_TAB)));
 
     public static final TagKey<Item> ACTIVE_RUNE_BLOCKS = TagKey.of(Registry.ITEM_KEY, createIdentifier("active_rune_blocks"));

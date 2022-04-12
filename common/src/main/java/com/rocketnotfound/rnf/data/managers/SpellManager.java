@@ -124,15 +124,15 @@ public class SpellManager extends JsonDataLoader {
 
     public void setSpells(Iterable<ISpell> iterable) {
         this.errored = false;
-        Map<ISpellType, Map<Identifier, ISpell>> map = Maps.newHashMap();
+        Map<ISpellType<?>, Map<Identifier, ISpell>> map = Maps.newHashMap();
         ImmutableMap.Builder<Identifier, ISpell> builder = ImmutableMap.builder();
-        iterable.forEach((recipe) -> {
-            Map<Identifier, ISpell> map2 = (Map)map.computeIfAbsent((ISpellType) recipe.getType(), (recipeType) -> {
+        iterable.forEach((spell) -> {
+            Map<Identifier, ISpell> map2 = (Map)map.computeIfAbsent((ISpellType) spell.getType(), (recipeType) -> {
                 return Maps.newHashMap();
             });
-            Identifier identifier = recipe.getId();
-            ISpell recipe2 = (ISpell)map2.put(identifier, recipe);
-            builder.put(identifier, recipe);
+            Identifier identifier = spell.getId();
+            ISpell recipe2 = (ISpell)map2.put(identifier, spell);
+            builder.put(identifier, spell);
             if (recipe2 != null) {
                 throw new IllegalStateException("Duplicate spell ignored with ID " + identifier);
             }

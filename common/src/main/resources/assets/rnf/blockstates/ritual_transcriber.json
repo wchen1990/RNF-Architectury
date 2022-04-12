@@ -1,0 +1,50 @@
+{
+  "variants": {
+    "facing=down,powered=false": {
+      "model": "rnf:block/ritual_transcriber",
+      "x": 90
+    },
+    "facing=down,powered=true": {
+      "model": "rnf:block/ritual_transcriber_active",
+      "x": 90
+    },
+    "facing=east,powered=false": {
+      "model": "rnf:block/ritual_transcriber",
+      "y": 90
+    },
+    "facing=east,powered=true": {
+      "model": "rnf:block/ritual_transcriber_active",
+      "y": 90
+    },
+    "facing=north,powered=false": {
+      "model": "rnf:block/ritual_transcriber"
+    },
+    "facing=north,powered=true": {
+      "model": "rnf:block/ritual_transcriber_active"
+    },
+    "facing=south,powered=false": {
+      "model": "rnf:block/ritual_transcriber",
+      "y": 180
+    },
+    "facing=south,powered=true": {
+      "model": "rnf:block/ritual_transcriber_active",
+      "y": 180
+    },
+    "facing=up,powered=false": {
+      "model": "rnf:block/ritual_transcriber",
+      "x": 270
+    },
+    "facing=up,powered=true": {
+      "model": "rnf:block/ritual_transcriber_active",
+      "x": 270
+    },
+    "facing=west,powered=false": {
+      "model": "rnf:block/ritual_transcriber",
+      "y": 270
+    },
+    "facing=west,powered=true": {
+      "model": "rnf:block/ritual_transcriber_active",
+      "y": 270
+    }
+  }
+}
