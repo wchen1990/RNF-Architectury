@@ -6,18 +6,16 @@ import com.google.gson.*;
 import com.mojang.logging.LogUtils;
 import com.rocketnotfound.rnf.data.spells.ISpell;
 import com.rocketnotfound.rnf.data.spells.ISpellType;
-import net.minecraft.block.Block;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.resource.JsonDataLoader;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
 import org.slf4j.Logger;
 
 import java.util.*;
@@ -75,9 +73,9 @@ public class SpellManager extends JsonDataLoader {
         return this.errored;
     }
 
-    public <T extends ISpell> Optional<T> getFirstMatch(ISpellType<T> spellType, List<Block> blocks, World world) {
+    public <T extends ISpell> Optional<T> getFirstMatch(ISpellType<T> spellType, List<BlockPos> positions, ServerWorld world) {
         return this.getAllOfType(spellType).values().stream().flatMap((spell) -> {
-            return spellType.match((T) spell, world, blocks).stream();
+            return spellType.match((T) spell, world, positions).stream();
         }).findFirst();
     }
 
@@ -87,11 +85,11 @@ public class SpellManager extends JsonDataLoader {
         }).collect(Collectors.toList());
     }
 
-    public <T extends ISpell> List<T> getAllMatches(ISpellType<T> spellType, List<Block> blocks, World world) {
+    public <T extends ISpell> List<T> getAllMatches(ISpellType<T> spellType, List<BlockPos> positions, ServerWorld world) {
         return (List)this.getAllOfType(spellType).values().stream().flatMap((spell) -> {
-            return spellType.match((T) spell, world, blocks).stream();
+            return spellType.match((T) spell, world, positions).stream();
         }).sorted(Comparator.comparing((spell) -> {
-            return spell.getId();
+            return spell.getLength();
         })).collect(Collectors.toList());
     }
 

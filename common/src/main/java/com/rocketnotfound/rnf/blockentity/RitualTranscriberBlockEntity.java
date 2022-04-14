@@ -1,6 +1,9 @@
 package com.rocketnotfound.rnf.blockentity;
 
 import com.rocketnotfound.rnf.RNF;
+import com.rocketnotfound.rnf.data.managers.SpellManager;
+import com.rocketnotfound.rnf.data.spells.ISpell;
+import com.rocketnotfound.rnf.data.spells.RNFSpells;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
@@ -11,6 +14,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class RitualTranscriberBlockEntity extends BaseBlockEntity {
@@ -36,7 +40,12 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
             double yOff = search * (facing.getOffsetY());
             double zOff = search * (facing.getOffsetZ());
             Box box = new Box(x, y, z, x + xOff, y + yOff, z + zOff);
-            List<BlockState> list = serverWorld.getStatesInBox(box).collect(Collectors.toList());
+            List<BlockPos> positions = BlockPos.stream(box).map((sPos) -> sPos.toImmutable()).collect(Collectors.toList());
+
+            Optional<ISpell> optSpell = SpellManager.getInstance().getFirstMatch(RNFSpells.SINGLE_SPELL_TYPE.get(), positions, serverWorld);
+            optSpell.ifPresent((spell) -> {
+                spell.cast(positions, serverWorld);
+            });
         } else if (!powered && blockEntity.onlyOnce) {
             blockEntity.onlyOnce = false;
         }
@@ -51,9 +60,9 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
         final int count = 1;
         final float speed = 0.25f;
 
-        double x = blockPos.getX() + 0.5 + (facing.getOffsetX());
-        double y = blockPos.getY() + 0.5 + (facing.getOffsetY());
-        double z = blockPos.getZ() + 0.5 + (facing.getOffsetZ());
+        double x = blockPos.getX() + 0.5 - (facing.getOffsetX() * 0.5) + (facing.getOffsetX());
+        double y = blockPos.getY() + 0.5 - (facing.getOffsetY() * 0.5) + (facing.getOffsetY());
+        double z = blockPos.getZ() + 0.5 - (facing.getOffsetZ() * 0.5) + (facing.getOffsetZ());
 
         serverWorld.spawnParticles(powered ? RNFParticleTypes.END_ROD.get() : RNFParticleTypes.ENCHANT_NG.get(), x, y, z, count, 0, 0, 0, speed);
     }

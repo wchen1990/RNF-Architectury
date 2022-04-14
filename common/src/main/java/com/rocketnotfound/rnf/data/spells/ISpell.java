@@ -1,23 +1,22 @@
 package com.rocketnotfound.rnf.data.spells;
 
-import com.google.common.collect.Maps;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import net.minecraft.block.Block;
+import net.minecraft.command.argument.BlockStateArgument;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Pair;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public interface ISpell extends Recipe<Inventory> {
+    int getLength();
     Spell getSpellType();
-    boolean matches(List<Block> blocks, World world);
+    List<Pair<String, BlockStateArgument>> getInitialState();
+    boolean matches(List<BlockPos> blocks, ServerWorld world);
+    void cast(List<BlockPos> blocks, ServerWorld world);
 
     // The following default overrides are an abuse of the recipe and recipe type registries
     // since we haven't created our own registries for these things

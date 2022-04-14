@@ -1,0 +1,16 @@
+{
+  "type": "rnf:single_spell",
+  "key": {
+    "X": "rnf:drained_rune_block",
+    "L": "rnf:rune_block_l",
+    "A": "rnf:rune_block_a",
+    "U": "rnf:rune_block_u",
+    "N": "rnf:rune_block_n",
+    "C": "rnf:rune_block_c",
+    "H": "rnf:rune_block_h"
+  },
+  "pattern": {
+    "initial": "LAUNCH",
+    "after": "XXXXXX"
+  }
+}
