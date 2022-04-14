@@ -20,20 +20,23 @@ public class ServerConfig implements ConfigData {
 
     public static class RitualConfig {
         public int MAX_RANGE = 16;
-        public int CHECK_RECIPE_INTERVAL_TICKS = 60;
-        public int RECIPE_CRAFTING_DELAY_TICKS = 60;
-        public int CRAFTING_TICKS_PER_FRAME = 30;
-        public int CRAFTING_COOLDOWN = 60;
+        public int CHECK_REQUIREMENTS_INTERVAL_TICKS = 60;
+        public int ACTION_DELAY_TICKS = 60;
+        public int ACTION_TICKS_PER_FRAME = 30;
+        public int ACTION_COOLDOWN = 60;
     }
 
     public static class InfusionConfig {
         public int INFUSING_RADIUS = 2;
         public int INFUSE_PER_LUNA = 8;
-        public int CHECK_INFUSING_TARGET_INTERVAL_TICKS = 60;
-        public int INFUSING_COMPLETION_TICKS = 60;
+        public int CHECK_REQUIREMENTS_INTERVAL_TICKS = 60;
+        public int ACTION_COMPLETION_TICKS = 60;
     }
 
     public static class TranscribeConfig {
         public int SEARCH_LIMIT = 16;
+        public int CHECK_REQUIREMENTS_INTERVAL_TICKS = 60;
+        public int ACTION_TICKS_PER_LENGTH = 10;
+        public int ACTION_COOLDOWN = 60;
     }
 }

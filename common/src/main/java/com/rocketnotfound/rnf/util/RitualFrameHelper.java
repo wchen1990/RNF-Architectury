@@ -87,7 +87,7 @@ public class RitualFrameHelper {
             listSize = ordered.subList(idx, size).size();
         }
 
-        return listSize * RNF.serverConfig().RITUAL.CRAFTING_TICKS_PER_FRAME;
+        return listSize * RNF.serverConfig().RITUAL.ACTION_TICKS_PER_FRAME;
     }
 
     public static Pair<Optional<Recipe>, Inventory> checkForRecipe(RitualFrameBlockEntity blockEntity, ServerWorld serverWorld) {
