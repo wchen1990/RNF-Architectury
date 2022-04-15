@@ -81,7 +81,7 @@ public class AnchorRitual implements IRitual, IAlterAnchorRitual {
 
     @Override
     public ItemStack craft(Inventory inventory) {
-        return output;
+        return getOutput();
     }
 
     @Override

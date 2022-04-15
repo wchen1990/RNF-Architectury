@@ -53,7 +53,7 @@ public class NormalRitual implements IRitual {
 
     @Override
     public ItemStack craft(Inventory inventory) {
-        return output;
+        return getOutput();
     }
 
     @Override

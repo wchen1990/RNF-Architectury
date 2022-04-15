@@ -1,0 +1,16 @@
+{
+  "type": "rnf:single_spell",
+  "key": {
+    "S": "rnf:rune_block_s",
+    "T": "rnf:rune_block_t",
+    "O": "rnf:rune_block_o",
+    "N": "rnf:rune_block_n",
+    "E": "rnf:rune_block_e"
+  },
+  "pattern": {
+    "initial": "STONE"
+  },
+  "output": {
+    "item": "minecraft:stone"
+  }
+}

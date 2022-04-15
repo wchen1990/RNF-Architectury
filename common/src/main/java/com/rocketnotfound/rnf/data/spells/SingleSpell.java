@@ -9,6 +9,7 @@ import dev.architectury.core.AbstractRecipeSerializer;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.BlockStateArgument;
 import net.minecraft.command.argument.BlockStateArgumentType;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.RecipeSerializer;
@@ -84,7 +85,7 @@ public class SingleSpell implements ISpell {
 
     @Override
     public void cast(List<BlockPos> positions, ServerWorld world) {
-        if (matches(positions, world)) {
+        if (matches(positions, world) && finalState.size() > 0) {
             List<BlockPos> posCopy = new ArrayList<>(positions);
             if(world.getBlockState(posCopy.get(posCopy.size() - 1)).isOf(RNFBlocks.RITUAL_TRANSCRIBER.get())) {
                 Collections.reverse(posCopy);
@@ -94,6 +95,16 @@ public class SingleSpell implements ISpell {
                 world.setBlockState(posCopy.get(idx + 1), finalState.get(idx).getRight());
             }
         }
+    }
+
+    @Override
+    public ItemStack craft(Inventory inventory) {
+        return getOutput();
+    }
+
+    @Override
+    public ItemStack getOutput() {
+        return output.copy();
     }
 
     @Override
@@ -146,10 +157,12 @@ public class SingleSpell implements ISpell {
             }
 
             List<Pair<String, BlockState>> outputs = new ArrayList<>();
-            String after = JsonHelper.getString(pattern, "after");
-            for (int i = 0; i < after.length(); ++i) {
-                String req = String.valueOf(after.charAt(i));
-                outputs.add(new Pair<String, BlockState>(map.get(req).getLeft(), map.get(req).getRight().getBlockState()));
+            if (JsonHelper.hasString(pattern,"after")) {
+                String after = JsonHelper.getString(pattern, "after");
+                for (int i = 0; i < after.length(); ++i) {
+                    String req = String.valueOf(after.charAt(i));
+                    outputs.add(new Pair<String, BlockState>(map.get(req).getLeft(), map.get(req).getRight().getBlockState()));
+                }
             }
 
             return new SingleSpell(identifier, output, inputs, outputs);

@@ -102,7 +102,7 @@ public class TetheredRitual implements IRitual, IAlterBaseRitual, IAlterAnchorRi
 
     @Override
     public ItemStack craft(Inventory inventory) {
-        return output;
+        return getOutput();
     }
 
     @Override

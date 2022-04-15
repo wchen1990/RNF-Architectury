@@ -81,7 +81,7 @@ public class RuneEngravement implements IRitual, IAlterBaseRitual {
 
     @Override
     public ItemStack craft(Inventory inventory) {
-        return output;
+        return getOutput();
     }
 
     @Override

@@ -5,9 +5,12 @@ import com.rocketnotfound.rnf.data.managers.SpellManager;
 import com.rocketnotfound.rnf.data.spells.ISpell;
 import com.rocketnotfound.rnf.data.spells.RNFSpells;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
+import com.rocketnotfound.rnf.sound.RNFSounds;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
@@ -32,6 +35,7 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
     protected Phase prevPhase;
     protected int phaseTicks = 0;
 
+    protected int spellLength = 0;
     protected int castTime = 0;
 
     protected boolean hasOutput = false;
@@ -68,6 +72,7 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
                     List<BlockPos> positions = BlockPos.stream(box).map((sPos) -> sPos.toImmutable()).collect(Collectors.toList());
                     Optional<ISpell> optSpell = SpellManager.getInstance().getFirstMatch(RNFSpells.SINGLE_SPELL_TYPE.get(), positions, serverWorld);
                     optSpell.ifPresent((spell) -> {
+                        blockEntity.spellLength = spell.getLength();
                         blockEntity.castTime = RNF.serverConfig().TRANSCRIBE.ACTION_TICKS_PER_LENGTH * spell.getLength();
                         blockEntity.hasOutput = (spell.getOutput() != null && !spell.getOutput().isEmpty());
                         blockEntity.setPhase(Phase.TRANSCRIBING);
@@ -81,8 +86,13 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
                     optSpell.ifPresent((spell) -> {
                         spell.cast(positions, serverWorld);
                         ItemScatterer.spawn(serverWorld, blockPos.offset(facing.getOpposite()), DefaultedList.ofSize(1, spell.craft(null)));
+
+                        doCompletionFX(serverWorld, blockPos, blockState, blockEntity);
+
                         blockEntity.setPhase(Phase.RESTING);
                     });
+                } else {
+                    doTranscribeFX(serverWorld, blockPos, blockState, blockEntity);
                 }
             } else if (blockEntity.isResting()) {
                 blockEntity.phaseTicks++;
@@ -94,11 +104,45 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
             blockEntity.becomeDormant();
         }
 
-        spawnParticles(serverWorld, blockPos, blockState, blockEntity);
+        if (!blockEntity.isResting()) {
+            spawnParticles(serverWorld, blockPos, blockState, blockEntity);
+        }
+    }
+
+    protected static void doTranscribeFX(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualTranscriberBlockEntity blockEntity) {
+        if (blockEntity.phaseTicks % RNF.serverConfig().TRANSCRIBE.ACTION_TICKS_PER_LENGTH == 0) {
+            Direction facing = blockState.get(Properties.FACING);
+            int offset = blockEntity.phaseTicks / RNF.serverConfig().TRANSCRIBE.ACTION_TICKS_PER_LENGTH;
+            BlockPos offsetPos = blockPos.offset(facing, offset);
+
+            double x = offsetPos.getX() + 0.5;
+            double y = offsetPos.getY() + 0.5;
+            double z = offsetPos.getZ() + 0.5;
+
+            serverWorld.playSound(null, x, y, z, RNFSounds.RITUAL_GENERIC_PROGRESS.get(), SoundCategory.BLOCKS, 1F, 1F);
+            serverWorld.spawnParticles(ParticleTypes.END_ROD, x, y, z, 3, 0, 0, 0, 0.1);
+            serverWorld.spawnParticles(ParticleTypes.FLASH, x, y, z, 0, 0, 0, 0, 0);
+        }
+    }
+
+    protected static void doCompletionFX(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualTranscriberBlockEntity blockEntity) {
+        int spellLength = blockEntity.spellLength;
+        Direction facing = blockState.get(Properties.FACING).getOpposite();
+
+        BlockPos flash = blockPos.offset(facing);
+        BlockPos target = blockPos.offset(facing, spellLength).subtract(blockPos);
+
+        double x = blockPos.getX() + 0.5;
+        double y = blockPos.getY() + 0.5;
+        double z = blockPos.getZ() + 0.5;
+
+        int scale = 3;
+        serverWorld.playSound(null, x, y, z, RNFSounds.RITUAL_GENERIC_COMPLETE.get(), SoundCategory.BLOCKS, 1F, 1F);
+        serverWorld.spawnParticles(ParticleTypes.FLASH, flash.getX() + 0.5, flash.getY() + 0.5, flash.getZ() + 0.5, 0, 0, 0, 0, 0);
+        serverWorld.spawnParticles(RNFParticleTypes.END_ROD_REV.get(), x, y, z, 50, (target.getX() / scale), (target.getY() / scale), (target.getZ() / scale), 0.1);
     }
 
     protected static void spawnParticles(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualTranscriberBlockEntity blockEntity) {
-        Boolean powered = blockState.get(Properties.POWERED);
         Direction facing = blockState.get(Properties.FACING).getOpposite();
 
         final int count = 1;
@@ -108,7 +152,7 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
         double y = blockPos.getY() + 0.5 - (facing.getOffsetY() * 0.5) + (facing.getOffsetY());
         double z = blockPos.getZ() + 0.5 - (facing.getOffsetZ() * 0.5) + (facing.getOffsetZ());
 
-        serverWorld.spawnParticles(powered ? RNFParticleTypes.END_ROD.get() : RNFParticleTypes.ENCHANT_NG.get(), x, y, z, count, 0, 0, 0, speed);
+        serverWorld.spawnParticles(blockEntity.isTranscribing() ? RNFParticleTypes.END_ROD_REV.get() : RNFParticleTypes.ENCHANT_NG_REV.get(), x, y, z, count, 0, 0, 0, speed);
     }
 
     public boolean isDormant() { return getPhase() == Phase.DORMANT; }
@@ -125,6 +169,7 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
     }
     public void becomeDormant() {
         setPhase(Phase.DORMANT);
+        this.spellLength = 0;
         this.castTime = 0;
         this.hasOutput = false;
     }
@@ -138,6 +183,8 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
             phase = Phase.valueOf(nbtCompound.getString("Phase"));
         if (nbtCompound.contains("PhaseTicks"))
             phaseTicks = nbtCompound.getInt("PhaseTicks");
+        if (nbtCompound.contains("SpellLength"))
+            spellLength = nbtCompound.getInt("SpellLength");
         if (nbtCompound.contains("CastTime"))
             castTime = nbtCompound.getInt("CastTime");
         if (nbtCompound.contains("HasOutput"))
@@ -152,6 +199,8 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
             nbtCompound.putString("Phase", phase.toString());
         if (phaseTicks >= 0)
             nbtCompound.putInt("PhaseTicks", phaseTicks);
+        if (spellLength >= 0)
+            nbtCompound.putInt("SpellLength", spellLength);
         if (castTime >= 0)
             nbtCompound.putInt("CastTime", castTime);
         if (hasOutput)
