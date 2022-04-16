@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.rocketnotfound.rnf.block.RNFBlocks;
+import com.rocketnotfound.rnf.data.spells.SpellEffects.SpellEffectDeserialize;
 import com.rocketnotfound.rnf.util.RecipeHelper;
 import dev.architectury.core.AbstractRecipeSerializer;
 import net.minecraft.block.BlockState;
@@ -12,6 +13,7 @@ import net.minecraft.command.argument.BlockStateArgumentType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
@@ -23,10 +25,7 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
@@ -87,14 +86,26 @@ public class NormalSpell implements ISpell {
 
     @Override
     public void cast(@Nullable LivingEntity livingEntity, List<BlockPos> positions, ServerWorld world) {
-        if (matches(positions, world) && finalState.size() > 0) {
-            List<BlockPos> posCopy = new ArrayList<>(positions);
-            if(world.getBlockState(posCopy.get(posCopy.size() - 1)).isOf(RNFBlocks.RITUAL_TRANSCRIBER.get())) {
-                Collections.reverse(posCopy);
+        if (matches(positions, world)) {
+            if (finalState.size() > 0) {
+                List<BlockPos> posCopy = new ArrayList<>(positions);
+                if (world.getBlockState(posCopy.get(posCopy.size() - 1)).isOf(RNFBlocks.RITUAL_TRANSCRIBER.get())) {
+                    Collections.reverse(posCopy);
+                }
+
+                for (int idx = 0; idx < finalState.size(); ++idx) {
+                    world.setBlockState(posCopy.get(idx + 1), finalState.get(idx).getRight());
+                }
             }
 
-            for (int idx = 0; idx < finalState.size(); ++idx) {
-                world.setBlockState(posCopy.get(idx + 1), finalState.get(idx).getRight());
+            if (livingEntity != null) {
+                for (Pair<String, Optional<NbtCompound>> effect : getEffects()) {
+                    SpellEffectDeserialize spell = SpellEffects.TYPE_MAP.getOrDefault(effect.getLeft(), null);
+                    if (spell != null) {
+                        NbtCompound nbt = effect.getRight().orElseGet(() -> new NbtCompound());
+                        spell.deserialize(nbt).cast(world, livingEntity);
+                    }
+                }
             }
         }
     }
@@ -130,9 +141,9 @@ public class NormalSpell implements ISpell {
             return TYPE.toString();
         }
     }
-    public static class Serializer<T extends NormalSpell> extends AbstractRecipeSerializer<T> {
+    public static class Serializer extends AbstractRecipeSerializer<NormalSpell> {
         @Override
-        public T read(Identifier identifier, JsonObject jsonObject) {
+        public NormalSpell read(Identifier identifier, JsonObject jsonObject) {
             BlockStateArgumentType bsat = BlockStateArgumentType.blockState();
             Map<String, Pair<String, BlockStateArgument>> map = RecipeHelper.readSymbols(JsonHelper.getObject(jsonObject, "key"), (jsonElement) -> {
                 if (jsonElement.isJsonPrimitive()) {
@@ -167,29 +178,33 @@ public class NormalSpell implements ISpell {
                 }
             }
 
-            return (T) new NormalSpell(identifier, output, inputs, outputs);
+            return new NormalSpell(identifier, output, inputs, outputs);
         }
 
         @Override
-        public void write(PacketByteBuf packetByteBuf, T recipe) {
+        public void write(PacketByteBuf packetByteBuf, NormalSpell recipe) {
             packetByteBuf.writeInt(recipe.getLength());
             for (Pair<String, BlockStateArgument> pair : recipe.getInitialState()) {
                 packetByteBuf.writeString(pair.getLeft());
             }
+
+            packetByteBuf.writeInt(recipe.getFinalState() != null ? recipe.getFinalState().size() : 0);
             for (Pair<String, BlockState> pair : recipe.getFinalState()) {
                 packetByteBuf.writeString(pair.getLeft());
             }
+
             packetByteBuf.writeItemStack(recipe.getOutput());
         }
 
         @Nullable
         @Override
-        public T read(Identifier identifier, PacketByteBuf packetByteBuf) {
+        public NormalSpell read(Identifier identifier, PacketByteBuf packetByteBuf) {
             BlockStateArgumentType bsat = BlockStateArgumentType.blockState();
 
+            int inputSize = packetByteBuf.readInt();
             List<Pair<String, BlockStateArgument>> inputs = new ArrayList<>();
             try {
-                for (int i = 0; i < inputs.size(); ++i) {
+                for (int i = 0; i < inputSize; ++i) {
                     String req = packetByteBuf.readString();
                     inputs.add(new Pair(req, bsat.parse(new StringReader(req))));
                 }
@@ -197,9 +212,10 @@ public class NormalSpell implements ISpell {
                 e.printStackTrace();
             }
 
+            int outputSize = packetByteBuf.readInt();
             List<Pair<String, BlockState>> outputs = new ArrayList<>();
             try {
-                for (int i = 0; i < outputs.size(); ++i) {
+                for (int i = 0; i < outputSize; ++i) {
                     String req = packetByteBuf.readString();
                     outputs.add(new Pair(req, bsat.parse(new StringReader(req)).getBlockState()));
                 }
@@ -209,7 +225,7 @@ public class NormalSpell implements ISpell {
 
             ItemStack output = packetByteBuf.readItemStack();
 
-            return (T) new NormalSpell(identifier, output, inputs, outputs);
+            return new NormalSpell(identifier, output, inputs, outputs);
         }
     }
 }

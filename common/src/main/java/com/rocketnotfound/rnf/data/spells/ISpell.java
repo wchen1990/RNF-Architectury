@@ -5,6 +5,7 @@ import net.minecraft.command.argument.BlockStateArgument;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
@@ -14,6 +15,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public interface ISpell extends Recipe<Inventory> {
     int getLength();
@@ -23,7 +25,7 @@ public interface ISpell extends Recipe<Inventory> {
     boolean matches(List<BlockPos> blocks, ServerWorld world);
     void cast(@Nullable LivingEntity livingEntity, List<BlockPos> blocks, ServerWorld world);
 
-    default List<ISpellEffects> getEffects() {
+    default List<Pair<String, Optional<NbtCompound>>> getEffects() {
         return Collections.emptyList();
     }
 

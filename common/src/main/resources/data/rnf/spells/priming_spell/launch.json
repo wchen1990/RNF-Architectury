@@ -1,7 +1,6 @@
 {
   "type": "rnf:priming_spell",
   "key": {
-    "X": "rnf:drained_rune_block",
     "L": "rnf:rune_block_l",
     "A": "rnf:rune_block_a",
     "U": "rnf:rune_block_u",
@@ -10,7 +9,18 @@
     "H": "rnf:rune_block_h"
   },
   "pattern": {
-    "initial": "LAUNCH",
-    "after": "XXXXXX"
-  }
+    "initial": "LAUNCH"
+  },
+  "effects": [
+    {
+      "type": "add_velocity",
+      "variables": {
+        "vector": {
+          "x": 0,
+          "y": 10,
+          "z": 0
+        }
+      }
+    }
+  ]
 }

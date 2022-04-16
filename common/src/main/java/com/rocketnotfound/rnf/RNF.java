@@ -72,7 +72,7 @@ public class RNF {
         ReloadListenerRegistry.register(ResourceType.SERVER_DATA, SpellManager.getInstance());
 
         // Lifecycle events
-        LifecycleEvent.SERVER_LEVEL_LOAD.register((world) -> {
+        LifecycleEvent.SERVER_STARTED.register((obj) -> {
             RitualFrameHelper.invalidateCache();
         });
 

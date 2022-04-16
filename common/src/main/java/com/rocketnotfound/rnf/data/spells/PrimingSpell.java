@@ -1,42 +1,50 @@
 package com.rocketnotfound.rnf.data.spells;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.rocketnotfound.rnf.data.spells.SpellEffects.SpellEffectDeserialize;
 import com.rocketnotfound.rnf.util.RecipeHelper;
 import dev.architectury.core.AbstractRecipeSerializer;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.BlockStateArgument;
 import net.minecraft.command.argument.BlockStateArgumentType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.ShapedRecipe;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
 public class PrimingSpell extends NormalSpell {
     public static final Identifier TYPE = createIdentifier("priming_spell");
 
-    public PrimingSpell(Identifier id, ItemStack output, List<Pair<String, BlockStateArgument>> initialState, List<Pair<String, BlockState>> finalState) {
+    protected final List<Pair<String, Optional<NbtCompound>>> effects;
+
+    public PrimingSpell(Identifier id, ItemStack output, List<Pair<String, BlockStateArgument>> initialState, List<Pair<String, BlockState>> finalState, List<Pair<String, Optional<NbtCompound>>> effects) {
         super(id, output, initialState, finalState);
+        this.effects = effects;
     }
 
     @Override
     public Spell getSpellType() {
         return Spell.PRIMING;
+    }
+
+    @Override
+    public List<Pair<String, Optional<NbtCompound>>> getEffects() {
+        return effects;
     }
 
     @Override
@@ -92,7 +100,29 @@ public class PrimingSpell extends NormalSpell {
                 }
             }
 
-            return new PrimingSpell(identifier, output, inputs, outputs);
+            List<Pair<String, Optional<NbtCompound>>> effects = new ArrayList<>();
+            JsonArray effectsObj = JsonHelper.getArray(jsonObject, "effects");
+            for (JsonElement effect : effectsObj) {
+                if (effect.isJsonObject()) {
+                    JsonObject effectObj = effect.getAsJsonObject();
+                    String type = JsonHelper.getString(effectObj, "type");
+
+                    SpellEffectDeserialize spellDeserialize = SpellEffects.TYPE_MAP.getOrDefault(type, null);
+                    if (spellDeserialize != null) {
+                        NbtCompound variables = null;
+                        if (JsonHelper.hasJsonObject(effectObj, "variables")) {
+                            try {
+                                variables = StringNbtReader.parse(JsonHelper.getObject(effectObj, "variables").toString());
+                            } catch (CommandSyntaxException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        effects.add(new Pair<String, Optional<NbtCompound>>(type, Optional.ofNullable(variables)));
+                    }
+                }
+            }
+
+            return new PrimingSpell(identifier, output, inputs, outputs, effects);
         }
 
         @Override
@@ -101,9 +131,18 @@ public class PrimingSpell extends NormalSpell {
             for (Pair<String, BlockStateArgument> pair : recipe.getInitialState()) {
                 packetByteBuf.writeString(pair.getLeft());
             }
+
+            packetByteBuf.writeInt(recipe.getFinalState() != null ? recipe.getFinalState().size() : 0);
             for (Pair<String, BlockState> pair : recipe.getFinalState()) {
                 packetByteBuf.writeString(pair.getLeft());
             }
+
+            packetByteBuf.writeInt(recipe.getEffects() != null ? recipe.getEffects().size() : 0);
+            for (Pair<String, Optional<NbtCompound>> pair : recipe.getEffects()) {
+                packetByteBuf.writeString(pair.getLeft());
+                packetByteBuf.writeNbt(pair.getRight().isPresent() ? pair.getRight().get() : null);
+            }
+
             packetByteBuf.writeItemStack(recipe.getOutput());
         }
 
@@ -112,9 +151,10 @@ public class PrimingSpell extends NormalSpell {
         public PrimingSpell read(Identifier identifier, PacketByteBuf packetByteBuf) {
             BlockStateArgumentType bsat = BlockStateArgumentType.blockState();
 
+            int inputSize = packetByteBuf.readInt();
             List<Pair<String, BlockStateArgument>> inputs = new ArrayList<>();
             try {
-                for (int i = 0; i < inputs.size(); ++i) {
+                for (int i = 0; i < inputSize; ++i) {
                     String req = packetByteBuf.readString();
                     inputs.add(new Pair(req, bsat.parse(new StringReader(req))));
                 }
@@ -122,9 +162,10 @@ public class PrimingSpell extends NormalSpell {
                 e.printStackTrace();
             }
 
+            int outputSize = packetByteBuf.readInt();
             List<Pair<String, BlockState>> outputs = new ArrayList<>();
             try {
-                for (int i = 0; i < outputs.size(); ++i) {
+                for (int i = 0; i < outputSize; ++i) {
                     String req = packetByteBuf.readString();
                     outputs.add(new Pair(req, bsat.parse(new StringReader(req)).getBlockState()));
                 }
@@ -132,9 +173,16 @@ public class PrimingSpell extends NormalSpell {
                 e.printStackTrace();
             }
 
+            int effectSize = packetByteBuf.readInt();
+            List<Pair<String, Optional<NbtCompound>>> effects = new ArrayList<>();
+            for (int i = 0; i < effectSize; ++i) {
+                String type = packetByteBuf.readString();
+                effects.add(new Pair<String, Optional<NbtCompound>>(type, Optional.ofNullable(packetByteBuf.readNbt())));
+            }
+
             ItemStack output = packetByteBuf.readItemStack();
 
-            return new PrimingSpell(identifier, output, inputs, outputs);
+            return new PrimingSpell(identifier, output, inputs, outputs, effects);
         }
     }
 }
