@@ -6,7 +6,9 @@ import com.rocketnotfound.rnf.data.spells.ISpell;
 import com.rocketnotfound.rnf.data.spells.RNFSpells;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.sound.RNFSounds;
+import com.rocketnotfound.rnf.util.ItemEntityHelper;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
@@ -17,6 +19,7 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -85,7 +88,10 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
                     Optional<ISpell> optSpell = SpellManager.getInstance().getFirstMatch(RNFSpells.SINGLE_SPELL_TYPE.get(), positions, serverWorld);
                     optSpell.ifPresent((spell) -> {
                         spell.cast(positions, serverWorld);
-                        ItemScatterer.spawn(serverWorld, blockPos.offset(facing.getOpposite()), DefaultedList.ofSize(1, spell.craft(null)));
+
+                        Vec3d offPos = Vec3d.of(blockPos.offset(facing.getOpposite()));
+                        Vec3d vec = offPos.subtract(Vec3d.of(blockPos)).multiply(blockEntity.spellLength / 3);
+                        ItemEntityHelper.spawnItem(serverWorld, offPos.add(0.5, 0.5, 0.5), spell.craft(null), vec);
 
                         doCompletionFX(serverWorld, blockPos, blockState, blockEntity);
 
