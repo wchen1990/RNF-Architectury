@@ -1,5 +1,5 @@
 {
-  "type": "rnf:single_spell",
+  "type": "rnf:priming_spell",
   "key": {
     "X": "rnf:drained_rune_block",
     "L": "rnf:rune_block_l",

@@ -35,6 +35,7 @@ public class ServerConfig implements ConfigData {
 
     public static class TranscribeConfig {
         public int SEARCH_LIMIT = 16;
+        public int PRIMED_TRIGGER_DISTANCE = 3;
         public int CHECK_REQUIREMENTS_INTERVAL_TICKS = 60;
         public int ACTION_TICKS_PER_LENGTH = 10;
         public int ACTION_COOLDOWN = 60;

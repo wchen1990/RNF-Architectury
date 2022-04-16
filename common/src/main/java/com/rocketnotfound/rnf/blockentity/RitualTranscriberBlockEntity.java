@@ -3,19 +3,18 @@ package com.rocketnotfound.rnf.blockentity;
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.data.managers.SpellManager;
 import com.rocketnotfound.rnf.data.spells.ISpell;
-import com.rocketnotfound.rnf.data.spells.RNFSpells;
+import com.rocketnotfound.rnf.data.spells.Spell;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.ItemEntityHelper;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -31,6 +30,8 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
         DORMANT,
         ACTIVE,
         TRANSCRIBING,
+        PRIMED,
+        COMPLETE,
         RESTING
     }
 
@@ -55,6 +56,7 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
         }
 
         Direction facing = blockState.get(Properties.FACING);
+        Direction opposite = facing.getOpposite();
         Boolean powered = blockState.get(Properties.POWERED);
 
         if (powered) {
@@ -72,12 +74,15 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
             } else if (blockEntity.isActive()) {
                 blockEntity.phaseTicks++;
                 if (blockEntity.phaseTicks > RNF.serverConfig().TRANSCRIBE.CHECK_REQUIREMENTS_INTERVAL_TICKS) {
+                    blockEntity.phaseTicks = 0;
+
                     List<BlockPos> positions = BlockPos.stream(box).map((sPos) -> sPos.toImmutable()).collect(Collectors.toList());
-                    Optional<ISpell> optSpell = SpellManager.getInstance().getFirstMatch(RNFSpells.SINGLE_SPELL_TYPE.get(), positions, serverWorld);
+                    Optional<ISpell> optSpell = SpellManager.getInstance().getFirstMatch(positions, serverWorld);
                     optSpell.ifPresent((spell) -> {
                         blockEntity.spellLength = spell.getLength();
                         blockEntity.castTime = RNF.serverConfig().TRANSCRIBE.ACTION_TICKS_PER_LENGTH * spell.getLength();
                         blockEntity.hasOutput = (spell.getOutput() != null && !spell.getOutput().isEmpty());
+
                         blockEntity.setPhase(Phase.TRANSCRIBING);
                     });
                 }
@@ -85,21 +90,57 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
                 blockEntity.phaseTicks++;
                 if (blockEntity.phaseTicks > blockEntity.castTime) {
                     List<BlockPos> positions = BlockPos.stream(box).map((sPos) -> sPos.toImmutable()).collect(Collectors.toList());
-                    Optional<ISpell> optSpell = SpellManager.getInstance().getFirstMatch(RNFSpells.SINGLE_SPELL_TYPE.get(), positions, serverWorld);
+                    Optional<ISpell> optSpell = SpellManager.getInstance().getFirstMatch(positions, serverWorld);
                     optSpell.ifPresent((spell) -> {
-                        spell.cast(positions, serverWorld);
-
-                        Vec3d offPos = Vec3d.of(blockPos.offset(facing.getOpposite()));
-                        Vec3d vec = offPos.subtract(Vec3d.of(blockPos)).multiply(blockEntity.spellLength / 3);
-                        ItemEntityHelper.spawnItem(serverWorld, offPos.add(0.5, 0.5, 0.5), spell.craft(null), vec);
-
-                        doCompletionFX(serverWorld, blockPos, blockState, blockEntity);
-
-                        blockEntity.setPhase(Phase.RESTING);
+                        blockEntity.setPhase(getPhaseForSpellType(spell.getSpellType()));
                     });
+
+                    if (optSpell.isEmpty()) {
+                        blockEntity.setPhase(Phase.RESTING);
+                    }
                 } else {
                     doTranscribeFX(serverWorld, blockPos, blockState, blockEntity);
                 }
+            } else if (blockEntity.isPrimed()) {
+                LivingEntity entity = serverWorld.getClosestEntity(
+                    LivingEntity.class,
+                    TargetPredicate.createNonAttackable(),
+                    null,
+                    blockPos.getX(),
+                    blockPos.getY(),
+                    blockPos.getZ(),
+                    new Box(blockPos).stretch(Vec3d.of(opposite.getVector().multiply(RNF.serverConfig().TRANSCRIBE.PRIMED_TRIGGER_DISTANCE)))
+                );
+
+                if (entity != null) {
+                    blockEntity.setPhase(Phase.COMPLETE);
+                } else {
+                    doPrimedFX(serverWorld, blockPos, blockState, blockEntity);
+                }
+            } else if (blockEntity.isCompleting()) {
+                LivingEntity entity = serverWorld.getClosestEntity(
+                    LivingEntity.class,
+                    TargetPredicate.createNonAttackable(),
+                    null,
+                    blockPos.getX(),
+                    blockPos.getY(),
+                    blockPos.getZ(),
+                    new Box(blockPos).stretch(Vec3d.of(opposite.getVector().multiply(RNF.serverConfig().TRANSCRIBE.PRIMED_TRIGGER_DISTANCE)))
+                );
+
+                List<BlockPos> positions = BlockPos.stream(box).map((sPos) -> sPos.toImmutable()).collect(Collectors.toList());
+                Optional<ISpell> optSpell = SpellManager.getInstance().getFirstMatch(positions, serverWorld);
+                optSpell.ifPresent((spell) -> {
+                    spell.cast(entity, positions, serverWorld);
+
+                    Vec3d offPos = Vec3d.of(blockPos.offset(facing.getOpposite()));
+                    Vec3d vec = offPos.subtract(Vec3d.of(blockPos)).multiply(blockEntity.spellLength / 3);
+                    ItemEntityHelper.spawnItem(serverWorld, offPos.add(0.5, 0.5, 0.5), spell.craft(null), vec);
+
+                    doCompletionFX(serverWorld, blockPos, blockState, blockEntity);
+                });
+
+                blockEntity.setPhase(Phase.RESTING);
             } else if (blockEntity.isResting()) {
                 blockEntity.phaseTicks++;
                 if (blockEntity.phaseTicks > RNF.serverConfig().TRANSCRIBE.ACTION_COOLDOWN) {
@@ -129,6 +170,19 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
             serverWorld.spawnParticles(ParticleTypes.END_ROD, x, y, z, 3, 0, 0, 0, 0.1);
             serverWorld.spawnParticles(ParticleTypes.FLASH, x, y, z, 0, 0, 0, 0, 0);
         }
+    }
+
+    protected static void doPrimedFX(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualTranscriberBlockEntity blockEntity) {
+        Direction facing = blockState.get(Properties.FACING).getOpposite();
+
+        BlockPos target = blockPos.offset(facing, RNF.serverConfig().TRANSCRIBE.PRIMED_TRIGGER_DISTANCE).subtract(blockPos);
+
+        double x = blockPos.getX() + 0.5;
+        double y = blockPos.getY() + 0.5;
+        double z = blockPos.getZ() + 0.5;
+
+        int scale = 3;
+        serverWorld.spawnParticles(RNFParticleTypes.END_ROD_REV.get(), x, y, z, 10, (target.getX() / scale), (target.getY() / scale), (target.getZ() / scale), 0.1);
     }
 
     protected static void doCompletionFX(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualTranscriberBlockEntity blockEntity) {
@@ -161,9 +215,23 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
         serverWorld.spawnParticles(blockEntity.isTranscribing() ? RNFParticleTypes.END_ROD_REV.get() : RNFParticleTypes.ENCHANT_NG_REV.get(), x, y, z, count, 0, 0, 0, speed);
     }
 
+    public static Phase getPhaseForSpellType(Spell spellType) {
+        Phase phase;
+        switch (spellType) {
+            case PRIMING:
+                phase = Phase.PRIMED;
+                break;
+            default:
+                phase = Phase.COMPLETE;
+        };
+        return phase;
+    }
+
     public boolean isDormant() { return getPhase() == Phase.DORMANT; }
     public boolean isActive() { return getPhase() == Phase.ACTIVE; }
     public boolean isTranscribing() { return getPhase() == Phase.TRANSCRIBING; }
+    public boolean isPrimed() { return getPhase() == Phase.PRIMED; }
+    public boolean isCompleting() { return getPhase() == Phase.COMPLETE; }
     public boolean isResting() { return getPhase() == Phase.RESTING; }
 
     public Phase getPhase() {

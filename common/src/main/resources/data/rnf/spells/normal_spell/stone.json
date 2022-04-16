@@ -1,5 +1,5 @@
 {
-  "type": "rnf:single_spell",
+  "type": "rnf:normal_spell",
   "key": {
     "S": "rnf:rune_block_s",
     "T": "rnf:rune_block_t",

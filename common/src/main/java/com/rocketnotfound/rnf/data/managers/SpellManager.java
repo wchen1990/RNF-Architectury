@@ -73,6 +73,15 @@ public class SpellManager extends JsonDataLoader {
         return this.errored;
     }
 
+    public Optional<ISpell> getFirstMatch(List<BlockPos> positions, ServerWorld world) {
+        return getFirstMatch(positions, world, true);
+    }
+    public Optional<ISpell> getFirstMatch(List<BlockPos> positions, ServerWorld world, boolean reverseOrder) {
+        return this.values().stream().sorted(Comparator.comparing((spell) -> {
+            return spell.getLength() * (reverseOrder ? -1 : 1);
+        })).filter((spell) -> spell.matches(positions, world)).findFirst();
+    }
+
     public <T extends ISpell> Optional<T> getFirstMatch(ISpellType<T> spellType, List<BlockPos> positions, ServerWorld world) {
         return this.getAllOfType(spellType).values().stream().flatMap((spell) -> {
             return spellType.match((T) spell, world, positions).stream();
