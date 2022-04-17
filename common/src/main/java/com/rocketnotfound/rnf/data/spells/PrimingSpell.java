@@ -30,21 +30,13 @@ import static com.rocketnotfound.rnf.RNF.createIdentifier;
 public class PrimingSpell extends NormalSpell {
     public static final Identifier TYPE = createIdentifier("priming_spell");
 
-    protected final List<Pair<String, Optional<NbtCompound>>> effects;
-
     public PrimingSpell(Identifier id, ItemStack output, List<Pair<String, BlockStateArgument>> initialState, List<Pair<String, BlockState>> finalState, List<Pair<String, Optional<NbtCompound>>> effects) {
-        super(id, output, initialState, finalState);
-        this.effects = effects;
+        super(id, output, initialState, finalState, effects);
     }
 
     @Override
     public Spell getSpellType() {
         return Spell.PRIMING;
-    }
-
-    @Override
-    public List<Pair<String, Optional<NbtCompound>>> getEffects() {
-        return effects;
     }
 
     @Override
@@ -101,23 +93,25 @@ public class PrimingSpell extends NormalSpell {
             }
 
             List<Pair<String, Optional<NbtCompound>>> effects = new ArrayList<>();
-            JsonArray effectsObj = JsonHelper.getArray(jsonObject, "effects");
-            for (JsonElement effect : effectsObj) {
-                if (effect.isJsonObject()) {
-                    JsonObject effectObj = effect.getAsJsonObject();
-                    String type = JsonHelper.getString(effectObj, "type");
+            if (JsonHelper.hasArray(jsonObject, "effects")) {
+                JsonArray effectsObj = JsonHelper.getArray(jsonObject, "effects");
+                for (JsonElement effect : effectsObj) {
+                    if (effect.isJsonObject()) {
+                        JsonObject effectObj = effect.getAsJsonObject();
+                        String type = JsonHelper.getString(effectObj, "type");
 
-                    SpellEffectDeserialize spellDeserialize = SpellEffects.TYPE_MAP.getOrDefault(type, null);
-                    if (spellDeserialize != null) {
-                        NbtCompound variables = null;
-                        if (JsonHelper.hasJsonObject(effectObj, "variables")) {
-                            try {
-                                variables = StringNbtReader.parse(JsonHelper.getObject(effectObj, "variables").toString());
-                            } catch (CommandSyntaxException e) {
-                                e.printStackTrace();
+                        SpellEffectDeserialize spellDeserialize = SpellEffects.TYPE_MAP.getOrDefault(type, null);
+                        if (spellDeserialize != null) {
+                            NbtCompound variables = null;
+                            if (JsonHelper.hasJsonObject(effectObj, "variables")) {
+                                try {
+                                    variables = StringNbtReader.parse(JsonHelper.getObject(effectObj, "variables").toString());
+                                } catch (CommandSyntaxException e) {
+                                    e.printStackTrace();
+                                }
                             }
+                            effects.add(new Pair<String, Optional<NbtCompound>>(type, Optional.ofNullable(variables)));
                         }
-                        effects.add(new Pair<String, Optional<NbtCompound>>(type, Optional.ofNullable(variables)));
                     }
                 }
             }

@@ -1,6 +1,9 @@
 package com.rocketnotfound.rnf.data.spells;
 
 import com.rocketnotfound.rnf.util.SpellHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
@@ -25,19 +28,26 @@ import java.util.Optional;
 public class SpellEffects {
     public static final Map<String, SpellEffectDeserialize> TYPE_MAP = new HashMap<>();
 
-    public static final VectorAffectedSpell ADD_VELOCITY = (vec) -> (world, entity) -> {
+    public static final VectorAffectedSpellRequires ADD_VELOCITY = (vec) -> (world, entity) -> {
         // Apparently, this won't actually add any velocity unless you're off the ground
         // So, we cancel out any negative Y velocity and add a small amount to the Y axis
+        // We should only do this when we're adding >= 0 Y velocity
         double offsetY = entity.getVelocity().getY() < 0 ? entity.getVelocity().getY() * -1 : 0;
-        entity.addVelocity(vec.getX(), vec.getY() + offsetY + 0.25, vec.getZ());
+        entity.addVelocity(vec.getX(), vec.getY() + (vec.getY() >= 0 ? offsetY + 0.25 : 0), vec.getZ());
         entity.velocityModified = true;
         return entity;
     };
-    public static final BlockPosAffectedSpellWith1F EXPLOSION = (vec, f) -> (world, entity) -> {
+    public static final BlockPosAffectedSpellWith1FNoEntity EXPLOSION = (vec, f) -> (world, entity) -> {
         world.createExplosion(null, vec.getX(), vec.getY(), vec.getZ(), f, Explosion.DestructionType.NONE);
         return entity;
     };
-    public static final NonAffectedSpell KILL = () -> (world, entity) -> {
+    public static final BlockPosAffectedSpellNoEntity LIGHTNING = (vec) -> (world, entity) -> {
+        Entity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
+        lightning.setPosition(Vec3d.of(vec));
+        world.spawnEntity(lightning);
+        return entity;
+    };
+    public static final NonAffectedSpellRequires KILL = () -> (world, entity) -> {
         entity.damage(DamageSource.MAGIC, Float.MAX_VALUE);
         return entity;
     };
@@ -45,12 +55,12 @@ public class SpellEffects {
         entity.addStatusEffect(new StatusEffectInstance(statusEffect, (int) duration * (statusEffect.isInstant() ? 1 : 20), (int) amplifier));
         return entity;
     };
-    public static final BlockPosAffectedSpell WARP = (vec) -> (world, entity) -> {
+    public static final BlockPosAffectedSpellRequires WARP = (vec) -> (world, entity) -> {
         entity.setPosition(Vec3d.of(vec));
         world.getChunkManager().sendToNearbyPlayers(entity, new EntityPositionS2CPacket(entity));
         return entity;
     };
-    public static final BlockPosAffectedSpellWithDim WARP_DIM = (vec, dimKey) -> (world, entity) -> {
+    public static final BlockPosAffectedSpellWithDimRequires WARP_DIM = (vec, dimKey) -> (world, entity) -> {
         MinecraftServer server = world.getServer();
         Optional<RegistryKey<World>> worldRegKey = server
             .getWorldRegistryKeys().stream()
@@ -72,6 +82,7 @@ public class SpellEffects {
     static {
         TYPE_MAP.put("add_velocity", ADD_VELOCITY);
         TYPE_MAP.put("explosion", EXPLOSION);
+        TYPE_MAP.put("lightning", LIGHTNING);
         TYPE_MAP.put("kill", KILL);
         TYPE_MAP.put("give_status", GIVE_STATUS);
         TYPE_MAP.put("warp", WARP);
@@ -81,9 +92,23 @@ public class SpellEffects {
     interface SpellEffect {
         LivingEntity cast(ServerWorld world, LivingEntity entity);
     }
-    interface SpellEffectDeserialize {
+
+    interface EntityRequirement {
+        boolean requiresEntity();
+    }
+    interface RequiresEntity extends EntityRequirement {
+        @Override
+        default boolean requiresEntity() { return true; }
+    }
+    interface DoesNotRequiresEntity extends EntityRequirement {
+        @Override
+        default boolean requiresEntity() { return false; }
+    }
+
+    interface SpellEffectDeserialize extends EntityRequirement {
         SpellEffect deserialize(NbtCompound nbt);
     }
+
     interface NonAffectedSpell extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
@@ -92,7 +117,10 @@ public class SpellEffects {
 
         SpellEffect create();
     }
-    interface StatusEffectSpell extends SpellEffectDeserialize {
+    interface NonAffectedSpellRequires extends NonAffectedSpell, RequiresEntity { }
+    interface NonAffectedSpellNoEntity extends NonAffectedSpell, DoesNotRequiresEntity { }
+
+    interface StatusEffectSpell extends SpellEffectDeserialize, RequiresEntity {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             StatusEffect effect = Registry.STATUS_EFFECT.get(new Identifier(nbt.getString("status")));
@@ -103,6 +131,7 @@ public class SpellEffects {
 
         SpellEffect create(StatusEffect statusEffect, float duration, float amplifier);
     }
+
     interface BlockPosAffectedSpell extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
@@ -111,6 +140,9 @@ public class SpellEffects {
 
         SpellEffect create(BlockPos pos);
     }
+    interface BlockPosAffectedSpellRequires extends BlockPosAffectedSpell, RequiresEntity {}
+    interface BlockPosAffectedSpellNoEntity extends BlockPosAffectedSpell, DoesNotRequiresEntity {}
+
     interface BlockPosAffectedSpellWith1F extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
@@ -120,6 +152,9 @@ public class SpellEffects {
 
         SpellEffect create(BlockPos pos, float f);
     }
+    interface BlockPosAffectedSpellWith1FRequires extends BlockPosAffectedSpellWith1F, RequiresEntity {}
+    interface BlockPosAffectedSpellWith1FNoEntity extends BlockPosAffectedSpellWith1F, DoesNotRequiresEntity {}
+
     interface BlockPosAffectedSpellWithDim extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
@@ -129,6 +164,9 @@ public class SpellEffects {
 
         SpellEffect create(BlockPos pos, String dimKey);
     }
+    interface BlockPosAffectedSpellWithDimRequires extends BlockPosAffectedSpellWithDim, RequiresEntity {}
+    interface BlockPosAffectedSpellWithDimNoEntity extends BlockPosAffectedSpellWithDim, DoesNotRequiresEntity {}
+
     interface VectorAffectedSpell extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
@@ -137,4 +175,6 @@ public class SpellEffects {
 
         SpellEffect create(Vec3d vec);
     }
+    interface VectorAffectedSpellRequires extends VectorAffectedSpell, RequiresEntity {}
+    interface VectorAffectedSpellNoEntity extends VectorAffectedSpell, DoesNotRequiresEntity {}
 }

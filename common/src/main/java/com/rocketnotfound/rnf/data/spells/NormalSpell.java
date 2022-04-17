@@ -1,5 +1,7 @@
 package com.rocketnotfound.rnf.data.spells;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -11,11 +13,11 @@ import dev.architectury.core.AbstractRecipeSerializer;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.BlockStateArgument;
 import net.minecraft.command.argument.BlockStateArgumentType;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
@@ -38,12 +40,14 @@ public class NormalSpell implements ISpell {
     protected final ItemStack output;
     protected final List<Pair<String, BlockStateArgument>> initialState;
     protected final List<Pair<String, BlockState>> finalState;
+    protected final List<Pair<String, Optional<NbtCompound>>> effects;
 
-    public NormalSpell(Identifier id, ItemStack output, List<Pair<String, BlockStateArgument>> initialState, List<Pair<String, BlockState>> finalState) {
+    public NormalSpell(Identifier id, ItemStack output, List<Pair<String, BlockStateArgument>> initialState, List<Pair<String, BlockState>> finalState, List<Pair<String, Optional<NbtCompound>>> effects) {
         this.id = id;
         this.output = output;
         this.initialState = initialState;
         this.finalState = finalState;
+        this.effects = effects;
     }
 
     @Override
@@ -64,6 +68,11 @@ public class NormalSpell implements ISpell {
     @Override
     public int getLength() {
         return this.initialState.size();
+    }
+
+    @Override
+    public List<Pair<String, Optional<NbtCompound>>> getEffects() {
+        return effects;
     }
 
     @Override
@@ -111,13 +120,16 @@ public class NormalSpell implements ISpell {
             }
 
             LivingEntity targetEntity = livingEntity;
-            if (targetEntity != null) {
-                for (Pair<String, Optional<NbtCompound>> effect : getEffects()) {
-                    SpellEffectDeserialize spell = SpellEffects.TYPE_MAP.getOrDefault(effect.getLeft(), null);
-                    if (spell != null) {
-                        NbtCompound nbt = effect.getRight().orElseGet(() -> new NbtCompound()).copy();
-                        SpellHelper.processNbtForDeserialization(nbt, world, this, transcriberPosition);
+            for (Pair<String, Optional<NbtCompound>> effect : getEffects()) {
+                SpellEffectDeserialize spell = SpellEffects.TYPE_MAP.getOrDefault(effect.getLeft(), null);
+                if (spell != null) {
+                    NbtCompound nbt = effect.getRight().orElseGet(() -> new NbtCompound()).copy();
+                    SpellHelper.processNbtForDeserialization(nbt, world, this, transcriberPosition);
+
+                    if (spell.requiresEntity()) {
                         targetEntity = spell.deserialize(nbt).cast(world, targetEntity);
+                    } else {
+                        spell.deserialize(nbt).cast(world, null);
                     }
                 }
             }
@@ -192,7 +204,31 @@ public class NormalSpell implements ISpell {
                 }
             }
 
-            return new NormalSpell(identifier, output, inputs, outputs);
+            List<Pair<String, Optional<NbtCompound>>> effects = new ArrayList<>();
+            if (JsonHelper.hasArray(jsonObject, "effects")) {
+                JsonArray effectsObj = JsonHelper.getArray(jsonObject, "effects");
+                for (JsonElement effect : effectsObj) {
+                    if (effect.isJsonObject()) {
+                        JsonObject effectObj = effect.getAsJsonObject();
+                        String type = JsonHelper.getString(effectObj, "type");
+
+                        SpellEffectDeserialize spellDeserialize = SpellEffects.TYPE_MAP.getOrDefault(type, null);
+                        if (spellDeserialize != null) {
+                            NbtCompound variables = null;
+                            if (JsonHelper.hasJsonObject(effectObj, "variables")) {
+                                try {
+                                    variables = StringNbtReader.parse(JsonHelper.getObject(effectObj, "variables").toString());
+                                } catch (CommandSyntaxException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            effects.add(new Pair<String, Optional<NbtCompound>>(type, Optional.ofNullable(variables)));
+                        }
+                    }
+                }
+            }
+
+            return new NormalSpell(identifier, output, inputs, outputs, effects);
         }
 
         @Override
@@ -205,6 +241,12 @@ public class NormalSpell implements ISpell {
             packetByteBuf.writeInt(recipe.getFinalState() != null ? recipe.getFinalState().size() : 0);
             for (Pair<String, BlockState> pair : recipe.getFinalState()) {
                 packetByteBuf.writeString(pair.getLeft());
+            }
+
+            packetByteBuf.writeInt(recipe.getEffects() != null ? recipe.getEffects().size() : 0);
+            for (Pair<String, Optional<NbtCompound>> pair : recipe.getEffects()) {
+                packetByteBuf.writeString(pair.getLeft());
+                packetByteBuf.writeNbt(pair.getRight().isPresent() ? pair.getRight().get() : null);
             }
 
             packetByteBuf.writeItemStack(recipe.getOutput());
@@ -237,9 +279,16 @@ public class NormalSpell implements ISpell {
                 e.printStackTrace();
             }
 
+            int effectSize = packetByteBuf.readInt();
+            List<Pair<String, Optional<NbtCompound>>> effects = new ArrayList<>();
+            for (int i = 0; i < effectSize; ++i) {
+                String type = packetByteBuf.readString();
+                effects.add(new Pair<String, Optional<NbtCompound>>(type, Optional.ofNullable(packetByteBuf.readNbt())));
+            }
+
             ItemStack output = packetByteBuf.readItemStack();
 
-            return new NormalSpell(identifier, output, inputs, outputs);
+            return new NormalSpell(identifier, output, inputs, outputs, effects);
         }
     }
 }

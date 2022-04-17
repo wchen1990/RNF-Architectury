@@ -1,18 +1,20 @@
 package com.rocketnotfound.rnf.util;
 
 import com.rocketnotfound.rnf.data.spells.ISpell;
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.*;
+import net.minecraft.util.registry.Registry;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SpellHelper {
     public static void processNbtForDeserialization(NbtCompound nbt, ServerWorld world, ISpell spell, BlockPos transcriberPosition) {
@@ -37,9 +39,28 @@ public class SpellHelper {
                                 modifier = Vec3d.of(facing.getVector());
                             } else if (type.equals("facing_opposite")) {
                                 modifier = Vec3d.of(opposite.getVector());
+                            } else if (type.equals("num_blocks")) {
+                                int radius = compoundAffect.getInt("searchRadius");
+                                Optional<Block> searchBlock = Registry.BLOCK.getOrEmpty(new Identifier(compoundAffect.getString("block")));
+                                if (searchBlock.isPresent()) {
+                                    int numBlocks = (int) world.getStatesInBox(new Box(transcriberPosition).expand(radius))
+                                        .filter((blockState) -> blockState.isOf(searchBlock.get()))
+                                        .count();
+                                    modifier = new Vec3d(numBlocks, numBlocks, numBlocks);
+                                }
                             }
 
                             if (modifier != null) {
+                                if (compoundAffect.contains("fields")) {
+                                    NbtList fields = compoundAffect.getList("fields", NbtCompound.STRING_TYPE);
+                                    Set fieldSet = fields.stream().map((field) -> field.asString()).collect(Collectors.toSet());
+                                    modifier = modifier.multiply(
+                                        fieldSet.contains("x") ? 1 : 0,
+                                        fieldSet.contains("y") ? 1 : 0,
+                                        fieldSet.contains("z") ? 1 : 0
+                                    );
+                                }
+
                                 if (operation.equals("add")) {
                                     vec = vec.add(modifier);
                                 } else if (operation.equals("subtract")) {
@@ -58,6 +79,15 @@ public class SpellHelper {
 
                             if (type.equals("length")) {
                                 modifier = Optional.of((float) spell.getLength());
+                            } else if (type.equals("num_blocks")) {
+                                int radius = compoundAffect.getInt("searchRadius");
+                                Optional<Block> searchBlock = Registry.BLOCK.getOrEmpty(new Identifier(compoundAffect.getString("block")));
+                                if (searchBlock.isPresent()) {
+                                    float numBlocks = (float) world.getStatesInBox(new Box(transcriberPosition).expand(radius))
+                                            .filter((blockState) -> blockState.isOf(searchBlock.get()))
+                                            .count();
+                                    modifier = Optional.of(numBlocks);
+                                }
                             }
 
                             if (modifier.isPresent()) {

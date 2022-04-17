@@ -1,29 +1,34 @@
 {
   "type": "rnf:priming_spell",
   "key": {
-    "L": "rnf:rune_block_l",
-    "A": "rnf:rune_block_a",
+    "J": "rnf:rune_block_j",
     "U": "rnf:rune_block_u",
-    "N": "rnf:rune_block_n",
-    "C": "rnf:rune_block_c",
-    "H": "rnf:rune_block_h"
+    "M": "rnf:rune_block_m",
+    "P": "rnf:rune_block_p"
   },
   "pattern": {
-    "initial": "LAUNCH"
+    "initial": "JUMP"
   },
   "effects": [
     {
       "type": "add_velocity",
       "variables": {
         "vector": {
-          "x": 3,
-          "y": 3,
-          "z": 3
+          "x": 1,
+          "y": 1,
+          "z": 1
         },
         "isPosition": false,
         "affectedBy": [
           {
             "type": "facing_opposite",
+            "target": "vector",
+            "operation": "multiply"
+          },
+          {
+            "type": "num_blocks",
+            "block": "minecraft:slime_block",
+            "searchRadius": 1,
             "target": "vector",
             "operation": "multiply"
           }

@@ -1,0 +1,24 @@
+{
+  "type": "rnf:priming_spell",
+  "key": {
+    "Z": "rnf:rune_block_z",
+    "A": "rnf:rune_block_a",
+    "P": "rnf:rune_block_p"
+  },
+  "pattern": {
+    "initial": "ZAP"
+  },
+  "effects": [
+    {
+      "type": "lightning",
+      "variables": {
+        "vector": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "isPosition": false
+      }
+    }
+  ]
+}
