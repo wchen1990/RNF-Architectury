@@ -16,10 +16,18 @@
       "type": "add_velocity",
       "variables": {
         "vector": {
-          "x": 0,
-          "y": 10,
-          "z": 0
-        }
+          "x": 5,
+          "y": 5,
+          "z": 5
+        },
+        "isPosition": false,
+        "affectedBy": [
+          {
+            "type": "facing",
+            "target": "vector",
+            "operation": "multiply"
+          }
+        ]
       }
     }
   ]

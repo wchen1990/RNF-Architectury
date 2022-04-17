@@ -1,0 +1,44 @@
+{
+  "type": "rnf:priming_spell",
+  "key": {
+    "#": "rnf:drained_rune_block",
+    "E": "rnf:rune_block_e",
+    "X": "rnf:rune_block_x",
+    "P": "rnf:rune_block_p",
+    "L": "rnf:rune_block_l",
+    "O": "rnf:rune_block_o",
+    "S": "rnf:rune_block_s",
+    "I": "rnf:rune_block_i",
+    "N": "rnf:rune_block_n"
+  },
+  "pattern": {
+    "initial": "EXPLOSION",
+    "after": "#########"
+  },
+  "effects": [
+    {
+      "type": "explosion",
+      "variables": {
+        "vector": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "isPosition": false,
+        "value": 1,
+        "affectedBy": [
+          {
+            "type": "facing",
+            "target": "vector",
+            "operation": "multiply"
+          },
+          {
+            "type": "length",
+            "target": "value",
+            "operation": "multiply"
+          }
+        ]
+      }
+    }
+  ]
+}

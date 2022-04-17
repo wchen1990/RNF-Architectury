@@ -24,9 +24,8 @@ import java.util.Optional;
 public class SpellEffects {
     public static final Map<String, SpellEffectDeserialize> TYPE_MAP = new HashMap<>();
 
-    public static final VectorAffectedSpellWithBool ADD_VELOCITY = (vec) -> (world, entity) -> {
-        Vec3d entityVelocity = entity.getVelocity();
-        entity.setVelocity(entityVelocity.add(vec));
+    public static final VectorAffectedSpell ADD_VELOCITY = (vec) -> (world, entity) -> {
+        entity.addVelocity(vec.getX(), vec.getY(), vec.getZ());
         entity.velocityModified = true;
     };
     public static final BlockPosAffectedSpellWith1F EXPLOSION = (vec, f) -> (world, entity) -> {
@@ -38,11 +37,11 @@ public class SpellEffects {
     public static final StatusEffectSpell GIVE_STATUS = (statusEffect, duration, amplifier) -> (world, entity) -> {
         entity.addStatusEffect(new StatusEffectInstance(statusEffect, duration, amplifier));
     };
-    public static final BlockPosAffectedSpell WARP = (pos) -> (world, entity) -> {
-        entity.setPosition(Vec3d.of(pos));
+    public static final BlockPosAffectedSpell WARP = (vec) -> (world, entity) -> {
+        entity.setPosition(Vec3d.of(vec));
         world.getChunkManager().sendToNearbyPlayers(entity, new EntityPositionS2CPacket(entity));
     };
-    public static final BlockPosAffectedSpellWithDim WARP_DIM = (dimKey, pos) -> (world, entity) -> {
+    public static final BlockPosAffectedSpellWithDim WARP_DIM = (vec, dimKey) -> (world, entity) -> {
         MinecraftServer server = world.getServer();
         Optional<RegistryKey<World>> worldRegKey = server
             .getWorldRegistryKeys().stream()
@@ -51,7 +50,7 @@ public class SpellEffects {
 
         worldRegKey.ifPresent((worldKey) -> {
             entity.moveToWorld(server.getWorld(worldKey));
-            entity.setPosition(Vec3d.of(pos));
+            entity.setPosition(Vec3d.of(vec));
             world.getChunkManager().sendToNearbyPlayers(entity, new EntityPositionS2CPacket(entity));
         });
     };
@@ -63,6 +62,20 @@ public class SpellEffects {
         TYPE_MAP.put("give_status", GIVE_STATUS);
         TYPE_MAP.put("warp", WARP);
         TYPE_MAP.put("warp_dim", WARP_DIM);
+    }
+
+    public static Vec3d vectorFromNbt(NbtCompound vector) {
+        double x = vector.getDouble("x");
+        double y = vector.getDouble("y");
+        double z = vector.getDouble("z");
+        return new Vec3d(x, y, z);
+    }
+    public static NbtCompound nbtFromVector(Vec3d vector) {
+        NbtCompound nbt = new NbtCompound();
+        nbt.putDouble("x", vector.getX());
+        nbt.putDouble("y", vector.getY());
+        nbt.putDouble("z", vector.getZ());
+        return nbt;
     }
 
     interface SpellEffect {
@@ -101,7 +114,7 @@ public class SpellEffects {
     interface BlockPosAffectedSpellWith1F extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
-            float f = nbt.getFloat("floatValue");
+            float f = nbt.getFloat("value");
             return create(NbtHelper.toBlockPos(nbt.getCompound("blockPos")), f);
         }
 
@@ -111,19 +124,15 @@ public class SpellEffects {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             String str = nbt.getString("dimension");
-            return create(str, NbtHelper.toBlockPos(nbt.getCompound("blockPos")));
+            return create(NbtHelper.toBlockPos(nbt.getCompound("blockPos")), str);
         }
 
-        SpellEffect create(String dimKey, BlockPos pos);
+        SpellEffect create(BlockPos pos, String dimKey);
     }
-    interface VectorAffectedSpellWithBool extends SpellEffectDeserialize {
+    interface VectorAffectedSpell extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
-            NbtCompound vector = nbt.getCompound("vector");
-            float x = vector.getFloat("x");
-            float y = vector.getFloat("y");
-            float z = vector.getFloat("z");
-            return create(new Vec3d(x, y, z));
+            return create(vectorFromNbt(nbt.getCompound("vector")));
         }
 
         SpellEffect create(Vec3d vec);

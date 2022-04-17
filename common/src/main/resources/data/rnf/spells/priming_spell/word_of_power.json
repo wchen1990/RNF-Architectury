@@ -1,0 +1,25 @@
+{
+  "type": "rnf:priming_spell",
+  "key": {
+    "#": "minecraft:lava",
+    "W": "rnf:rune_block_w",
+    "O": "rnf:rune_block_o",
+    "R": "rnf:rune_block_r",
+    "D": "rnf:rune_block_d",
+    "F": "rnf:rune_block_f",
+    "P": "rnf:rune_block_p",
+    "E": "rnf:rune_block_e",
+    "K": "rnf:rune_block_k",
+    "I": "rnf:rune_block_i",
+    "L": "rnf:rune_block_l"
+  },
+  "pattern": {
+    "initial": "WORDOFPOWERKILL",
+    "after": "###############"
+  },
+  "effects": [
+    {
+      "type": "kill"
+    }
+  ]
+}
