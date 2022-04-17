@@ -1,5 +1,6 @@
 package com.rocketnotfound.rnf.data.spells;
 
+import com.rocketnotfound.rnf.util.SpellHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
@@ -25,21 +26,29 @@ public class SpellEffects {
     public static final Map<String, SpellEffectDeserialize> TYPE_MAP = new HashMap<>();
 
     public static final VectorAffectedSpell ADD_VELOCITY = (vec) -> (world, entity) -> {
-        entity.addVelocity(vec.getX(), vec.getY(), vec.getZ());
+        // Apparently, this won't actually add any velocity unless you're off the ground
+        // So, we cancel out any negative Y velocity and add a small amount to the Y axis
+        double offsetY = entity.getVelocity().getY() < 0 ? entity.getVelocity().getY() * -1 : 0;
+        entity.addVelocity(vec.getX(), vec.getY() + offsetY + 0.25, vec.getZ());
         entity.velocityModified = true;
+        return entity;
     };
     public static final BlockPosAffectedSpellWith1F EXPLOSION = (vec, f) -> (world, entity) -> {
         world.createExplosion(null, vec.getX(), vec.getY(), vec.getZ(), f, Explosion.DestructionType.NONE);
+        return entity;
     };
     public static final NonAffectedSpell KILL = () -> (world, entity) -> {
         entity.damage(DamageSource.MAGIC, Float.MAX_VALUE);
+        return entity;
     };
     public static final StatusEffectSpell GIVE_STATUS = (statusEffect, duration, amplifier) -> (world, entity) -> {
-        entity.addStatusEffect(new StatusEffectInstance(statusEffect, duration, amplifier));
+        entity.addStatusEffect(new StatusEffectInstance(statusEffect, (int) duration * (statusEffect.isInstant() ? 1 : 20), (int) amplifier));
+        return entity;
     };
     public static final BlockPosAffectedSpell WARP = (vec) -> (world, entity) -> {
         entity.setPosition(Vec3d.of(vec));
         world.getChunkManager().sendToNearbyPlayers(entity, new EntityPositionS2CPacket(entity));
+        return entity;
     };
     public static final BlockPosAffectedSpellWithDim WARP_DIM = (vec, dimKey) -> (world, entity) -> {
         MinecraftServer server = world.getServer();
@@ -48,11 +57,16 @@ public class SpellEffects {
             .filter((regKey) -> regKey.getValue().equals(new Identifier(dimKey)))
             .findFirst();
 
+        final LivingEntity[] returnEntity = new LivingEntity[1];
         worldRegKey.ifPresent((worldKey) -> {
-            entity.moveToWorld(server.getWorld(worldKey));
-            entity.setPosition(Vec3d.of(vec));
-            world.getChunkManager().sendToNearbyPlayers(entity, new EntityPositionS2CPacket(entity));
+            ServerWorld changedWorld = server.getWorld(worldKey);
+            LivingEntity movedEntity = (LivingEntity) entity.moveToWorld(changedWorld);
+            movedEntity.setPosition(Vec3d.of(vec));
+            changedWorld.getChunkManager().sendToNearbyPlayers(movedEntity, new EntityPositionS2CPacket(movedEntity));
+            returnEntity[0] = movedEntity;
         });
+
+        return returnEntity[0] != null ? returnEntity[0] : entity;
     };
 
     static {
@@ -64,22 +78,8 @@ public class SpellEffects {
         TYPE_MAP.put("warp_dim", WARP_DIM);
     }
 
-    public static Vec3d vectorFromNbt(NbtCompound vector) {
-        double x = vector.getDouble("x");
-        double y = vector.getDouble("y");
-        double z = vector.getDouble("z");
-        return new Vec3d(x, y, z);
-    }
-    public static NbtCompound nbtFromVector(Vec3d vector) {
-        NbtCompound nbt = new NbtCompound();
-        nbt.putDouble("x", vector.getX());
-        nbt.putDouble("y", vector.getY());
-        nbt.putDouble("z", vector.getZ());
-        return nbt;
-    }
-
     interface SpellEffect {
-        void cast(ServerWorld world, LivingEntity entity);
+        LivingEntity cast(ServerWorld world, LivingEntity entity);
     }
     interface SpellEffectDeserialize {
         SpellEffect deserialize(NbtCompound nbt);
@@ -96,12 +96,12 @@ public class SpellEffects {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             StatusEffect effect = Registry.STATUS_EFFECT.get(new Identifier(nbt.getString("status")));
-            int d = nbt.getInt("duration");
-            int a = nbt.getInt("amplifier");
+            float d = nbt.getFloat("duration");
+            float a = nbt.getFloat("amplifier");
             return create(effect, d, a);
         }
 
-        SpellEffect create(StatusEffect statusEffect, int duration, int amplifier);
+        SpellEffect create(StatusEffect statusEffect, float duration, float amplifier);
     }
     interface BlockPosAffectedSpell extends SpellEffectDeserialize {
         @Override
@@ -132,7 +132,7 @@ public class SpellEffects {
     interface VectorAffectedSpell extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
-            return create(vectorFromNbt(nbt.getCompound("vector")));
+            return create(SpellHelper.vectorFromNbt(nbt.getCompound("vector")));
         }
 
         SpellEffect create(Vec3d vec);

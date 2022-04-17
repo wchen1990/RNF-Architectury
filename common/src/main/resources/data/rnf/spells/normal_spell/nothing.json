@@ -1,0 +1,14 @@
+{
+  "type": "rnf:normal_spell",
+  "key": {
+    "N": "rnf:rune_block_n",
+    "O": "rnf:rune_block_o",
+    "T": "rnf:rune_block_t",
+    "H": "rnf:rune_block_h",
+    "I": "rnf:rune_block_i",
+    "G": "rnf:rune_block_g"
+  },
+  "pattern": {
+    "initial": "NOTHING"
+  }
+}

@@ -6,30 +6,25 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.data.spells.SpellEffects.SpellEffectDeserialize;
 import com.rocketnotfound.rnf.util.RecipeHelper;
+import com.rocketnotfound.rnf.util.SpellHelper;
 import dev.architectury.core.AbstractRecipeSerializer;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.BlockStateArgument;
 import net.minecraft.command.argument.BlockStateArgumentType;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.ShapedRecipe;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -104,9 +99,6 @@ public class NormalSpell implements ISpell {
                 transcriberPosition = positions.get(0);
             }
 
-            Direction facing = world.getBlockState(transcriberPosition).get(Properties.FACING);
-            Direction opposite = world.getBlockState(transcriberPosition).get(Properties.FACING).getOpposite();
-
             if (finalState.size() > 0) {
                 List<BlockPos> posCopy = new ArrayList<>(positions);
                 if (reverse) {
@@ -118,83 +110,14 @@ public class NormalSpell implements ISpell {
                 }
             }
 
-            if (livingEntity != null) {
+            LivingEntity targetEntity = livingEntity;
+            if (targetEntity != null) {
                 for (Pair<String, Optional<NbtCompound>> effect : getEffects()) {
                     SpellEffectDeserialize spell = SpellEffects.TYPE_MAP.getOrDefault(effect.getLeft(), null);
                     if (spell != null) {
                         NbtCompound nbt = effect.getRight().orElseGet(() -> new NbtCompound()).copy();
-
-                        if (nbt.contains("affectedBy")) {
-                            NbtList affectedBy = nbt.getList("affectedBy", NbtCompound.COMPOUND_TYPE);
-                            for (NbtElement affect : affectedBy) {
-                                if (affect.getType() == NbtCompound.COMPOUND_TYPE) {
-                                    NbtCompound compoundAffect = (NbtCompound) affect;
-                                    String type = compoundAffect.getString("type");
-                                    String target = compoundAffect.getString("target");
-                                    String operation = compoundAffect.getString("operation");
-
-                                    if (nbt.contains(target)) {
-                                        if (target.equals("vector")) {
-                                            Vec3d vec = SpellEffects.vectorFromNbt(nbt.getCompound("vector"));
-                                            Vec3d modifier = null;
-
-                                            if (type.equals("facing")) {
-                                                modifier = Vec3d.of(facing.getVector());
-                                            } else if (type.equals("facing_opposite")) {
-                                                modifier = Vec3d.of(opposite.getVector());
-                                            }
-
-                                            if (modifier != null) {
-                                                if (operation.equals("add")) {
-                                                    vec = vec.add(modifier);
-                                                } else if (operation.equals("subtract")) {
-                                                    vec = vec.subtract(modifier);
-                                                } else if (operation.equals("multiply")) {
-                                                    vec = vec.multiply(modifier);
-                                                } else if (operation.equals("divide")) {
-                                                    vec = vec.multiply(1/modifier.getX(), 1/modifier.getY(), 1/modifier.getZ());
-                                                }
-                                            }
-
-                                            nbt.put("vector", SpellEffects.nbtFromVector(vec));
-                                        } else if (target.equals("value")) {
-                                            float value = nbt.getFloat("value");
-                                            Optional<Float> modifier = Optional.empty();
-
-                                            if (type.equals("length")) {
-                                                modifier = Optional.of((float) getLength());
-                                            }
-
-                                            if (modifier.isPresent()) {
-                                                float mod = modifier.get();
-                                                if (operation.equals("add")) {
-                                                    value = value + mod;
-                                                } else if (operation.equals("subtract")) {
-                                                    value = value - mod;
-                                                } else if (operation.equals("multiply")) {
-                                                    value = value * mod;
-                                                } else if (operation.equals("divide")) {
-                                                    value = value / mod;
-                                                }
-                                            }
-
-                                            nbt.putFloat("value", value);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        if (nbt.contains("vector")) {
-                            Vec3d vec = SpellEffects.vectorFromNbt(nbt.getCompound("vector"));
-                            if (nbt.contains("isPosition") && nbt.getBoolean("isPosition")) {
-                                nbt.put("blockPos", NbtHelper.fromBlockPos(new BlockPos(vec)));
-                            } else {
-                                nbt.put("blockPos", NbtHelper.fromBlockPos(transcriberPosition.add(new Vec3i(vec.getX(), vec.getY(), vec.getZ()))));
-                            }
-                        }
-
-                        spell.deserialize(nbt).cast(world, livingEntity);
+                        SpellHelper.processNbtForDeserialization(nbt, world, this, transcriberPosition);
+                        targetEntity = spell.deserialize(nbt).cast(world, targetEntity);
                     }
                 }
             }
