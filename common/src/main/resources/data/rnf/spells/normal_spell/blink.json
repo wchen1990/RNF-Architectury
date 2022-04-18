@@ -23,7 +23,7 @@
         "affectedBy": [
           {
             "type": "check_pos",
-            "block": "minecraft:air"
+            "isCollidable": false
           },
           {
             "type": "num_blocks",

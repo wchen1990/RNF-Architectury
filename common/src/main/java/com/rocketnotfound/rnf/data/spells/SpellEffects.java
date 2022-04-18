@@ -13,6 +13,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -64,11 +65,12 @@ public class SpellEffects {
         Vec3d entPos = entity.getPos();
         Vec3d offset = entPos
             .subtract(entPos.floorAlongAxes(EnumSet.of(Axis.X, Axis.Y, Axis.Z)));
+        Vec3d toPos = Vec3d.of(vec).add(offset);
 
-        entity.setPosition(Vec3d.of(vec).add(offset));
-
-        if (entity instanceof PlayerEntity) {
-            world.getChunkManager().sendToNearbyPlayers(entity, new EntityPositionS2CPacket(entity));
+        if (entity instanceof ServerPlayerEntity) {
+            ((ServerPlayerEntity)entity).teleport(world, toPos.getX(), toPos.getY(), toPos.getZ(), entity.getYaw(), entity.getPitch());
+        } else {
+            entity.setPosition(toPos);
         }
 
         return entity;

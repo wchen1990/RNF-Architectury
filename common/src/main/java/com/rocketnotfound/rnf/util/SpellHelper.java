@@ -2,6 +2,7 @@ package com.rocketnotfound.rnf.util;
 
 import com.rocketnotfound.rnf.data.spells.ISpell;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
@@ -13,6 +14,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
 
 import java.util.Optional;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 public class SpellHelper {
     public static boolean processNbtForDeserialization(NbtCompound nbt, ServerWorld world, ISpell spell, BlockPos transcriberPosition) {
         boolean checkPos = false;
+        boolean checkCollision = false;
+        boolean isCollidable = false;
         Optional<Block> checkPosBlock = Optional.empty();
 
         Direction facing = world.getBlockState(transcriberPosition).get(Properties.FACING);
@@ -38,7 +42,16 @@ public class SpellHelper {
 
                     if (type.equals("check_pos")) {
                         checkPos = true;
-                        checkPosBlock = Registry.BLOCK.getOrEmpty(new Identifier(compoundAffect.getString("block")));
+
+                        if (compoundAffect.contains("block")) {
+                            checkPosBlock = Registry.BLOCK.getOrEmpty(new Identifier(compoundAffect.getString("block")));
+                        }
+
+                        if (compoundAffect.contains("isCollidable")) {
+                            checkCollision = true;
+                            isCollidable = compoundAffect.getBoolean("isCollidable");
+                        }
+
                         continue;
                     }
 
@@ -131,7 +144,7 @@ public class SpellHelper {
             }
         }
 
-        if (checkPos && checkPosBlock.isPresent() && nbt.contains("blockPos")) {
+        if (checkPos && nbt.contains("blockPos")) {
             ServerWorld worldToCheckIn;
             if (nbt.contains("dimension")) {
                 MinecraftServer server = world.getServer();
@@ -149,7 +162,22 @@ public class SpellHelper {
                 worldToCheckIn = world;
             }
 
-            return worldToCheckIn.getBlockState(NbtHelper.toBlockPos(nbt.getCompound("blockPos"))).isOf(checkPosBlock.get());
+            boolean blockChecks = true;
+            BlockPos posToCheck = NbtHelper.toBlockPos(nbt.getCompound("blockPos"));
+            BlockState stateToCheck = worldToCheckIn.getBlockState(posToCheck);
+            if (checkPosBlock.isPresent()) {
+                blockChecks = blockChecks && stateToCheck.isOf(checkPosBlock.get());
+            }
+
+            if (checkCollision) {
+                if (isCollidable) {
+                    blockChecks = blockChecks && stateToCheck.getCollisionShape(world, posToCheck) != VoxelShapes.empty();
+                } else {
+                    blockChecks = blockChecks && stateToCheck.getCollisionShape(world, posToCheck) == VoxelShapes.empty();
+                }
+            }
+
+             return blockChecks;
         }
 
         return true;
