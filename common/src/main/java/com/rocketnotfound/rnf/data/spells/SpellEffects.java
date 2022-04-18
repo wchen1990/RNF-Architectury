@@ -8,6 +8,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
@@ -15,12 +16,15 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
+import javax.annotation.Nullable;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -39,12 +43,12 @@ public class SpellEffects {
         return entity;
     };
     public static final BlockPosAffectedSpellWith1FNoEntity EXPLOSION = (vec, f) -> (world, entity) -> {
-        world.createExplosion(null, vec.getX(), vec.getY(), vec.getZ(), f, Explosion.DestructionType.NONE);
+        world.createExplosion(null, vec.getX() + 0.5, vec.getY(), vec.getZ() + 0.5, f, Explosion.DestructionType.NONE);
         return entity;
     };
     public static final BlockPosAffectedSpellNoEntity LIGHTNING = (vec) -> (world, entity) -> {
         Entity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
-        lightning.setPosition(Vec3d.of(vec));
+        lightning.setPosition(Vec3d.of(vec).add(0.5, 0, 0.5));
         world.spawnEntity(lightning);
         return entity;
     };
@@ -57,8 +61,16 @@ public class SpellEffects {
         return entity;
     };
     public static final BlockPosAffectedSpellRequires WARP = (vec) -> (world, entity) -> {
-        entity.setPosition(Vec3d.of(vec));
-        world.getChunkManager().sendToNearbyPlayers(entity, new EntityPositionS2CPacket(entity));
+        Vec3d entPos = entity.getPos();
+        Vec3d offset = entPos
+            .subtract(entPos.floorAlongAxes(EnumSet.of(Axis.X, Axis.Y, Axis.Z)));
+
+        entity.setPosition(Vec3d.of(vec).add(offset));
+
+        if (entity instanceof PlayerEntity) {
+            world.getChunkManager().sendToNearbyPlayers(entity, new EntityPositionS2CPacket(entity));
+        }
+
         return entity;
     };
     public static final BlockPosAffectedSpellWithDimRequires WARP_DIM = (vec, dimKey) -> (world, entity) -> {
@@ -71,9 +83,14 @@ public class SpellEffects {
         final LivingEntity[] returnEntity = new LivingEntity[1];
         worldRegKey.ifPresent((worldKey) -> {
             ServerWorld changedWorld = server.getWorld(worldKey);
+
             LivingEntity movedEntity = (LivingEntity) entity.moveToWorld(changedWorld);
-            movedEntity.setPosition(Vec3d.of(vec));
-            changedWorld.getChunkManager().sendToNearbyPlayers(movedEntity, new EntityPositionS2CPacket(movedEntity));
+            movedEntity.setPosition(Vec3d.of(vec).add(0.5, 0, 0.5));
+
+            if (entity instanceof PlayerEntity) {
+                changedWorld.getChunkManager().sendToNearbyPlayers(movedEntity, new EntityPositionS2CPacket(movedEntity));
+            }
+
             returnEntity[0] = movedEntity;
         });
 
@@ -94,7 +111,7 @@ public class SpellEffects {
 
     // Boilerplate interfaces that were defined so that we can _lazily_ define spell effects
     interface SpellEffect {
-        LivingEntity cast(ServerWorld world, LivingEntity entity);
+        LivingEntity cast(ServerWorld world, @Nullable LivingEntity entity);
     }
 
     interface EntityRequirement {

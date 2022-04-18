@@ -124,12 +124,16 @@ public class NormalSpell implements ISpell {
                 SpellEffectDeserialize spell = SpellEffects.TYPE_MAP.getOrDefault(effect.getLeft(), null);
                 if (spell != null) {
                     NbtCompound nbt = effect.getRight().orElseGet(() -> new NbtCompound()).copy();
-                    SpellHelper.processNbtForDeserialization(nbt, world, this, transcriberPosition);
-
-                    if (spell.requiresEntity()) {
-                        targetEntity = spell.deserialize(nbt).cast(world, targetEntity);
+                    if (SpellHelper.processNbtForDeserialization(nbt, world, this, transcriberPosition)) {
+                        if (spell.requiresEntity()) {
+                            if (targetEntity != null) {
+                                targetEntity = spell.deserialize(nbt).cast(world, targetEntity);
+                            }
+                        } else {
+                            spell.deserialize(nbt).cast(world, null);
+                        }
                     } else {
-                        spell.deserialize(nbt).cast(world, null);
+                        return false;
                     }
                 }
             }

@@ -6,18 +6,24 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SpellHelper {
-    public static void processNbtForDeserialization(NbtCompound nbt, ServerWorld world, ISpell spell, BlockPos transcriberPosition) {
+    public static boolean processNbtForDeserialization(NbtCompound nbt, ServerWorld world, ISpell spell, BlockPos transcriberPosition) {
+        boolean checkPos = false;
+        Optional<Block> checkPosBlock = Optional.empty();
+
         Direction facing = world.getBlockState(transcriberPosition).get(Properties.FACING);
         Direction opposite = world.getBlockState(transcriberPosition).get(Properties.FACING).getOpposite();
 
@@ -29,6 +35,12 @@ public class SpellHelper {
                     String type = compoundAffect.getString("type");
                     String target = compoundAffect.getString("target");
                     String operation = compoundAffect.getString("operation");
+
+                    if (type.equals("check_pos")) {
+                        checkPos = true;
+                        checkPosBlock = Registry.BLOCK.getOrEmpty(new Identifier(compoundAffect.getString("block")));
+                        continue;
+                    }
 
                     if (nbt.contains(target)) {
                         if (target.equals("vector")) {
@@ -84,8 +96,8 @@ public class SpellHelper {
                                 Optional<Block> searchBlock = Registry.BLOCK.getOrEmpty(new Identifier(compoundAffect.getString("block")));
                                 if (searchBlock.isPresent()) {
                                     float numBlocks = (float) world.getStatesInBox(new Box(transcriberPosition).expand(radius))
-                                            .filter((blockState) -> blockState.isOf(searchBlock.get()))
-                                            .count();
+                                        .filter((blockState) -> blockState.isOf(searchBlock.get()))
+                                        .count();
                                     modifier = Optional.of(numBlocks);
                                 }
                             }
@@ -118,6 +130,29 @@ public class SpellHelper {
                 nbt.put("blockPos", NbtHelper.fromBlockPos(transcriberPosition.add(new Vec3i(vec.getX(), vec.getY(), vec.getZ()))));
             }
         }
+
+        if (checkPos && checkPosBlock.isPresent() && nbt.contains("blockPos")) {
+            ServerWorld worldToCheckIn;
+            if (nbt.contains("dimension")) {
+                MinecraftServer server = world.getServer();
+                Optional<RegistryKey<World>> worldRegKey = server
+                    .getWorldRegistryKeys().stream()
+                    .filter((regKey) -> regKey.getValue().equals(new Identifier(nbt.getString("dimension"))))
+                    .findFirst();
+
+                if (worldRegKey.isPresent()) {
+                    worldToCheckIn = world.getServer().getWorld(worldRegKey.get());
+                } else {
+                    return false;
+                }
+            } else {
+                worldToCheckIn = world;
+            }
+
+            return worldToCheckIn.getBlockState(NbtHelper.toBlockPos(nbt.getCompound("blockPos"))).isOf(checkPosBlock.get());
+        }
+
+        return true;
     }
 
     public static Vec3d vectorFromNbt(NbtCompound vector) {

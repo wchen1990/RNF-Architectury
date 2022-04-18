@@ -1,7 +1,6 @@
 {
   "type": "rnf:priming_spell",
   "key": {
-    "#": "rnf:drained_rune_block",
     "E": "rnf:rune_block_e",
     "X": "rnf:rune_block_x",
     "P": "rnf:rune_block_p",
@@ -12,8 +11,7 @@
     "N": "rnf:rune_block_n"
   },
   "pattern": {
-    "initial": "EXPLOSION",
-    "after": "#########"
+    "initial": "EXPLOSION"
   },
   "effects": [
     {

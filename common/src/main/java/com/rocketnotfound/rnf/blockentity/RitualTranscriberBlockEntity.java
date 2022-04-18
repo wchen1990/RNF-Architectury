@@ -130,16 +130,20 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
 
                 List<BlockPos> positions = BlockPos.stream(box).map((sPos) -> sPos.toImmutable()).collect(Collectors.toList());
                 Optional<ISpell> optSpell = SpellManager.getInstance().getFirstMatch(positions, serverWorld);
-                optSpell.ifPresent((spell) -> {
-                    if (spell.cast(entity, positions, serverWorld)) {
-                        Vec3d offPos = Vec3d.of(blockPos.offset(facing.getOpposite()));
-                        Vec3d vec = offPos.subtract(Vec3d.of(blockPos)).multiply(blockEntity.spellLength / 3);
-                        ItemEntityHelper.spawnItem(serverWorld, offPos.add(0.5, 0.5, 0.5), spell.craft(null), vec);
+                optSpell.ifPresentOrElse((spell) -> {
+                    boolean playSound = spell.cast(entity, positions, serverWorld);
 
+                    Vec3d offPos = Vec3d.of(blockPos.offset(facing.getOpposite()));
+                    Vec3d vec = offPos.subtract(Vec3d.of(blockPos)).multiply(blockEntity.spellLength / 3);
+                    ItemEntityHelper.spawnItem(serverWorld, offPos.add(0.5, 0.5, 0.5), spell.craft(null), vec);
+
+                    if (playSound) {
                         doCompletionFX(serverWorld, blockPos, blockState, blockEntity);
-                    } else {
+                    } else if (entity != null) {
                         doInterruptFX(serverWorld, blockPos, blockState, blockEntity);
                     }
+                }, () -> {
+                    doInterruptFX(serverWorld, blockPos, blockState, blockEntity);
                 });
 
                 blockEntity.setPhase(Phase.RESTING);
