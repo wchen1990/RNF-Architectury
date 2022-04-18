@@ -131,13 +131,15 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
                 List<BlockPos> positions = BlockPos.stream(box).map((sPos) -> sPos.toImmutable()).collect(Collectors.toList());
                 Optional<ISpell> optSpell = SpellManager.getInstance().getFirstMatch(positions, serverWorld);
                 optSpell.ifPresent((spell) -> {
-                    spell.cast(entity, positions, serverWorld);
+                    if (spell.cast(entity, positions, serverWorld)) {
+                        Vec3d offPos = Vec3d.of(blockPos.offset(facing.getOpposite()));
+                        Vec3d vec = offPos.subtract(Vec3d.of(blockPos)).multiply(blockEntity.spellLength / 3);
+                        ItemEntityHelper.spawnItem(serverWorld, offPos.add(0.5, 0.5, 0.5), spell.craft(null), vec);
 
-                    Vec3d offPos = Vec3d.of(blockPos.offset(facing.getOpposite()));
-                    Vec3d vec = offPos.subtract(Vec3d.of(blockPos)).multiply(blockEntity.spellLength / 3);
-                    ItemEntityHelper.spawnItem(serverWorld, offPos.add(0.5, 0.5, 0.5), spell.craft(null), vec);
-
-                    doCompletionFX(serverWorld, blockPos, blockState, blockEntity);
+                        doCompletionFX(serverWorld, blockPos, blockState, blockEntity);
+                    } else {
+                        doInterruptFX(serverWorld, blockPos, blockState, blockEntity);
+                    }
                 });
 
                 blockEntity.setPhase(Phase.RESTING);
@@ -183,6 +185,10 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
 
         int scale = 3;
         serverWorld.spawnParticles(RNFParticleTypes.END_ROD_REV.get(), x, y, z, 10, (target.getX() / scale), (target.getY() / scale), (target.getZ() / scale), 0.1);
+    }
+
+    protected static void doInterruptFX(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualTranscriberBlockEntity blockEntity) {
+        serverWorld.playSound(null, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_INTERRUPT.get(), SoundCategory.BLOCKS, 1F, 1F);
     }
 
     protected static void doCompletionFX(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualTranscriberBlockEntity blockEntity) {

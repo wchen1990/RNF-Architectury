@@ -23,7 +23,7 @@ public interface ISpell extends Recipe<Inventory> {
     List<Pair<String, BlockStateArgument>> getInitialState();
     List<Pair<String, BlockState>> getFinalState();
     boolean matches(List<BlockPos> blocks, ServerWorld world);
-    void cast(@Nullable LivingEntity livingEntity, List<BlockPos> blocks, ServerWorld world);
+    boolean cast(@Nullable LivingEntity livingEntity, List<BlockPos> blocks, ServerWorld world);
 
     default List<Pair<String, Optional<NbtCompound>>> getEffects() {
         return Collections.emptyList();

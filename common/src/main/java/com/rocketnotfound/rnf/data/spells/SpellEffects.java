@@ -28,6 +28,7 @@ import java.util.Optional;
 public class SpellEffects {
     public static final Map<String, SpellEffectDeserialize> TYPE_MAP = new HashMap<>();
 
+    // Pre-defined spell effects
     public static final VectorAffectedSpellRequires ADD_VELOCITY = (vec) -> (world, entity) -> {
         // Apparently, this won't actually add any velocity unless you're off the ground
         // So, we cancel out any negative Y velocity and add a small amount to the Y axis
@@ -79,6 +80,8 @@ public class SpellEffects {
         return returnEntity[0] != null ? returnEntity[0] : entity;
     };
 
+    // Put in defined spell effects into our map
+    // Should be able to add and remove effects from this easily
     static {
         TYPE_MAP.put("add_velocity", ADD_VELOCITY);
         TYPE_MAP.put("explosion", EXPLOSION);
@@ -89,6 +92,7 @@ public class SpellEffects {
         TYPE_MAP.put("warp_dim", WARP_DIM);
     }
 
+    // Boilerplate interfaces that were defined so that we can _lazily_ define spell effects
     interface SpellEffect {
         LivingEntity cast(ServerWorld world, LivingEntity entity);
     }

@@ -96,7 +96,7 @@ public class NormalSpell implements ISpell {
     }
 
     @Override
-    public void cast(@Nullable LivingEntity livingEntity, List<BlockPos> positions, ServerWorld world) {
+    public boolean cast(@Nullable LivingEntity livingEntity, List<BlockPos> positions, ServerWorld world) {
         if (matches(positions, world)) {
             boolean reverse = false;
 
@@ -133,7 +133,11 @@ public class NormalSpell implements ISpell {
                     }
                 }
             }
+
+            return true;
         }
+
+        return false;
     }
 
     @Override
