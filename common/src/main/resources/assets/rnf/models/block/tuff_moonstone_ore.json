@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "rnf:block/tuff_moonstone_ore",
+    "particle": "rnf:block/tuff_moonstone_ore"
+  }
+}

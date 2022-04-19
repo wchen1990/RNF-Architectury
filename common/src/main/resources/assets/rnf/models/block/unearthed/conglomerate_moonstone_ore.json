@@ -1,7 +1,0 @@
-{
-  "parent": "block/cube_all",
-  "textures": {
-    "all": "rnf:block/unearthed/conglomerate_moonstone_ore",
-    "particle": "rnf:block/unearthed/conglomerate_moonstone_ore"
-  }
-}

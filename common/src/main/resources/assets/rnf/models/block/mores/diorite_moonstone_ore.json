@@ -1,7 +1,0 @@
-{
-  "parent": "block/cube_all",
-  "textures": {
-    "all": "rnf:block/mores/diorite_moonstone_ore",
-    "particle": "rnf:block/mores/diorite_moonstone_ore"
-  }
-}
