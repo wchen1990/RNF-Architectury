@@ -23,13 +23,13 @@ public class RNFItems {
     public static final ItemGroup CREATIVE_TAB = CreativeTabRegistry.create(new Identifier(RNF.MOD_ID, "rnf_tab"), () ->
             new ItemStack(RNFItems.LUNA.get()));
 
+    public static final TagKey<Item> MOONSTONE_ORES = TagKey.of(Registry.ITEM_KEY, createIdentifier("moonstone_ores"));
     public static final RegistrySupplier<Item> MOONSTONE_ORE = ITEMS.register("moonstone_ore", () -> new BlockItem(RNFBlocks.MOONSTONE_ORE.get(), new Item.Settings().group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> DEEPSLATE_MOONSTONE_ORE = ITEMS.register("deepslate_moonstone_ore", () -> new BlockItem(RNFBlocks.DEEPSLATE_MOONSTONE_ORE.get(), new Item.Settings().group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> LUNA = ITEMS.register("luna", () -> new Item(new Item.Settings().group(CREATIVE_TAB)));
 
     public static final RegistrySupplier<Item> RITUAL_FRAME = ITEMS.register("ritual_frame", () -> new RitualFrameItem(new Item.Settings().maxCount(1).group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> RITUAL_STAFF = ITEMS.register("ritual_staff", () -> new RitualStaffItem(new Item.Settings().maxCount(1).group(CREATIVE_TAB)));
-
     public static final RegistrySupplier<Item> RITUAL_TRANSCRIBER = ITEMS.register("ritual_transcriber", () -> new BlockItem(RNFBlocks.RITUAL_TRANSCRIBER.get(), new Item.Settings().group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> RITUAL_PRIMER = ITEMS.register("ritual_primer", () -> new RitualPrimerItem(new Item.Settings().group(CREATIVE_TAB)));
 
@@ -94,6 +94,29 @@ public class RNFItems {
             RUNE_BLOCK_Y,
             RUNE_BLOCK_Z
     );
+
+    // Register Moonstone Variants for use in compat with Mores and Unearthed
+    // Mores variants
+    public static final RegistrySupplier<Item> ANDESITE_MOONSTONE_ORE = ITEMS.register("andesite_moonstone_ore", () -> new BlockItem(RNFBlocks.ANDESITE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> DIORITE_MOONSTONE_ORE = ITEMS.register("diorite_moonstone_ore", () -> new BlockItem(RNFBlocks.DIORITE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> GRANITE_MOONSTONE_ORE = ITEMS.register("granite_moonstone_ore", () -> new BlockItem(RNFBlocks.GRANITE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> TUFF_MOONSTONE_ORE = ITEMS.register("tuff_moonstone_ore", () -> new BlockItem(RNFBlocks.TUFF_MOONSTONE_ORE.get(), new Item.Settings()));
+
+    // Unearthed variants
+    public static final RegistrySupplier<Item> BEIGE_LIMESTONE_MOONSTONE_ORE = ITEMS.register("beige_limestone_moonstone_ore", () -> new BlockItem(RNFBlocks.BEIGE_LIMESTONE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> CONGLOMERATE_MOONSTONE_ORE = ITEMS.register("conglomerate_moonstone_ore", () -> new BlockItem(RNFBlocks.CONGLOMERATE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> GABBRO_MOONSTONE_ORE = ITEMS.register("gabbro_moonstone_ore", () -> new BlockItem(RNFBlocks.GABBRO_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> GRANDIORITE_MOONSTONE_ORE = ITEMS.register("grandiorite_moonstone_ore", () -> new BlockItem(RNFBlocks.GRANDIORITE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> GREY_LIMESTONE_MOONSTONE_ORE = ITEMS.register("grey_limestone_moonstone_ore", () -> new BlockItem(RNFBlocks.GREY_LIMESTONE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> KIMBERLITE_MOONSTONE_ORE = ITEMS.register("kimberlite_moonstone_ore", () -> new BlockItem(RNFBlocks.KIMBERLITE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> LIMESTONE_MOONSTONE_ORE = ITEMS.register("limestone_moonstone_ore", () -> new BlockItem(RNFBlocks.LIMESTONE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> MUDSTONE_MOONSTONE_ORE = ITEMS.register("mudstone_moonstone_ore", () -> new BlockItem(RNFBlocks.MUDSTONE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> PHYLLITE_MOONSTONE_ORE = ITEMS.register("phyllite_moonstone_ore", () -> new BlockItem(RNFBlocks.PHYLLITE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> QUARTZITE_MOONSTONE_ORE = ITEMS.register("quartzite_moonstone_ore", () -> new BlockItem(RNFBlocks.QUARTZITE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> RHYOLITE_MOONSTONE_ORE = ITEMS.register("rhyolite_moonstone_ore", () -> new BlockItem(RNFBlocks.RHYOLITE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> SILTSTONE_MOONSTONE_ORE = ITEMS.register("siltstone_moonstone_ore", () -> new BlockItem(RNFBlocks.SILTSTONE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> SLATE_MOONSTONE_ORE = ITEMS.register("slate_moonstone_ore", () -> new BlockItem(RNFBlocks.SLATE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> WHITE_GRANITE_MOONSTONE_ORE = ITEMS.register("white_granite_moonstone_ore", () -> new BlockItem(RNFBlocks.WHITE_GRANITE_MOONSTONE_ORE.get(), new Item.Settings()));
 
     public static String customName(ItemStack itemStack) {
         return itemStack.hasCustomName() ? itemStack.getName().getString() : new TranslatableText(itemStack.getItem().getTranslationKey()).getString();

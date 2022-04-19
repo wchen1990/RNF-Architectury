@@ -18,12 +18,12 @@ import static com.rocketnotfound.rnf.RNF.createIdentifier;
 public class RNFBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(RNF.MOD_ID, Registry.BLOCK_KEY);
 
+    public static final TagKey<Block> MOONSTONE_ORES = TagKey.of(Registry.BLOCK_KEY, createIdentifier("moonstone_ores"));
     public static final RegistrySupplier<Block> MOONSTONE_ORE = BLOCKS.register("moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.of(Material.STONE, MapColor.TERRACOTTA_WHITE).requiresTool().ticksRandomly().luminance(litBlockLuminance(9)).sounds(BlockSoundGroup.STONE).strength(1.5f, 6.0f)));
-    public static final RegistrySupplier<Block> DEEPSLATE_MOONSTONE_ORE = BLOCKS.register("deepslate_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get()).mapColor(MapColor.DEEPSLATE_GRAY).sounds(BlockSoundGroup.DEEPSLATE)));
+    public static final RegistrySupplier<Block> DEEPSLATE_MOONSTONE_ORE = BLOCKS.register("deepslate_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+
     public static final RegistrySupplier<Block> RITUAL_FRAME = BLOCKS.register("ritual_frame", () -> new RitualFrameBlock());
-
     public static final RegistrySupplier<Block> RITUAL_TRANSCRIBER = BLOCKS.register("ritual_transcriber", () -> new RitualTranscriberBlock());
-
     public static final RegistrySupplier<Block> RITUAL_PRIMER = BLOCKS.register("ritual_primer", () -> new RitualPrimerBlock());
 
     public static final RegistrySupplier<Block> DRAINED_RUNE_BLOCK = BLOCKS.register("drained_rune_block", () -> new DrainedRuneBlock());
@@ -87,6 +87,29 @@ public class RNFBlocks {
         RUNE_BLOCK_Y,
         RUNE_BLOCK_Z
     );
+
+    // Register Moonstone Variants for use in compat with Mores and Unearthed
+    // Mores variants
+    public static final RegistrySupplier<Block> ANDESITE_MOONSTONE_ORE = BLOCKS.register("andesite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> DIORITE_MOONSTONE_ORE = BLOCKS.register("diorite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> GRANITE_MOONSTONE_ORE = BLOCKS.register("granite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> TUFF_MOONSTONE_ORE = BLOCKS.register("tuff_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+
+    // Unearthed variants
+    public static final RegistrySupplier<Block> BEIGE_LIMESTONE_MOONSTONE_ORE = BLOCKS.register("beige_limestone_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> CONGLOMERATE_MOONSTONE_ORE = BLOCKS.register("conglomerate_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> GABBRO_MOONSTONE_ORE = BLOCKS.register("gabbro_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> GRANDIORITE_MOONSTONE_ORE = BLOCKS.register("grandiorite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> GREY_LIMESTONE_MOONSTONE_ORE = BLOCKS.register("grey_limestone_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> KIMBERLITE_MOONSTONE_ORE = BLOCKS.register("kimberlite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> LIMESTONE_MOONSTONE_ORE = BLOCKS.register("limestone_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> MUDSTONE_MOONSTONE_ORE = BLOCKS.register("mudstone_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> PHYLLITE_MOONSTONE_ORE = BLOCKS.register("phyllite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> QUARTZITE_MOONSTONE_ORE = BLOCKS.register("quartzite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> RHYOLITE_MOONSTONE_ORE = BLOCKS.register("rhyolite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> SILTSTONE_MOONSTONE_ORE = BLOCKS.register("siltstone_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> SLATE_MOONSTONE_ORE = BLOCKS.register("slate_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> WHITE_GRANITE_MOONSTONE_ORE = BLOCKS.register("white_granite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
 
     public static ToIntFunction<BlockState> blockLuminance(int luminance) {
         return (blockState) -> luminance;
