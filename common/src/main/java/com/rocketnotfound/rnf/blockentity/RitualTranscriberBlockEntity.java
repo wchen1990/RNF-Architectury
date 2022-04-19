@@ -1,6 +1,7 @@
 package com.rocketnotfound.rnf.blockentity;
 
 import com.rocketnotfound.rnf.RNF;
+import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.data.managers.SpellManager;
 import com.rocketnotfound.rnf.data.spells.ISpell;
 import com.rocketnotfound.rnf.data.spells.Spell;
@@ -92,7 +93,12 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
                     List<BlockPos> positions = BlockPos.stream(box).map((sPos) -> sPos.toImmutable()).collect(Collectors.toList());
                     Optional<ISpell> optSpell = SpellManager.getInstance().getFirstMatch(positions, serverWorld);
                     optSpell.ifPresent((spell) -> {
-                        blockEntity.setPhase(getPhaseForSpellType(spell.getSpellType()));
+                        // Hardcoded case for Ritual Primer
+                        if (world.getBlockState(blockPos.offset(opposite)).isOf(RNFBlocks.RITUAL_PRIMER.get())) {
+                            blockEntity.setPhase(Phase.PRIMED);
+                        } else {
+                            blockEntity.setPhase(getPhaseForSpellType(spell.getSpellType()));
+                        }
                     });
 
                     if (optSpell.isEmpty()) {

@@ -23,6 +23,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -40,6 +41,8 @@ import net.minecraft.world.WorldView;
 
 import javax.annotation.Nullable;
 
+import static com.rocketnotfound.rnf.block.RNFBlocks.blockLuminance;
+
 public class RitualFrameBlock extends Block implements BlockEntityProvider, Waterloggable {
     public static final BooleanProperty WATERLOGGED;
     public static final DirectionProperty FACING;
@@ -56,6 +59,16 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
     protected static final VoxelShape EAST_SHAPE = Block.createCuboidShape(0.0D, 4.00, 4.00, 4.00, 12.00, 12.00);
     protected static final VoxelShape WEST_SHAPE = Block.createCuboidShape(12.00, 4.00, 4.00, 16.0D, 12.00, 12.00);
 
+    public RitualFrameBlock() {
+        this(AbstractBlock.Settings.of(Material.DECORATION, MapColor.TERRACOTTA_WHITE)
+            .nonOpaque()
+            .noCollision()
+            .requiresTool()
+            .luminance(blockLuminance(6))
+            .sounds(BlockSoundGroup.AMETHYST_CLUSTER)
+            .strength(1.5f, 6.0f)
+        );
+    }
     public RitualFrameBlock(Settings builder) {
         super(builder);
         this.setDefaultState(this.getDefaultState().with(WATERLOGGED, false).with(FACING, Direction.UP));

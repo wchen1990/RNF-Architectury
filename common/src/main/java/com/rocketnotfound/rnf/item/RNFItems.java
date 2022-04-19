@@ -21,7 +21,7 @@ import static com.rocketnotfound.rnf.RNF.createIdentifier;
 public class RNFItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(RNF.MOD_ID, Registry.ITEM_KEY);
     public static final ItemGroup CREATIVE_TAB = CreativeTabRegistry.create(new Identifier(RNF.MOD_ID, "rnf_tab"), () ->
-            new ItemStack(RNFItems.MOONSTONE.get()));
+            new ItemStack(RNFItems.LUNA.get()));
 
     public static final RegistrySupplier<Item> MOONSTONE = ITEMS.register("moonstone", () -> new BlockItem(RNFBlocks.MOONSTONE.get(), new Item.Settings().group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> DEEP_MOONSTONE = ITEMS.register("deep_moonstone", () -> new BlockItem(RNFBlocks.DEEP_MOONSTONE.get(), new Item.Settings().group(CREATIVE_TAB)));
@@ -31,6 +31,7 @@ public class RNFItems {
     public static final RegistrySupplier<Item> RITUAL_STAFF = ITEMS.register("ritual_staff", () -> new RitualStaffItem(new Item.Settings().maxCount(1).group(CREATIVE_TAB)));
 
     public static final RegistrySupplier<Item> RITUAL_TRANSCRIBER = ITEMS.register("ritual_transcriber", () -> new BlockItem(RNFBlocks.RITUAL_TRANSCRIBER.get(), new Item.Settings().group(CREATIVE_TAB)));
+    public static final RegistrySupplier<Item> RITUAL_PRIMER = ITEMS.register("ritual_primer", () -> new RitualPrimerItem(new Item.Settings().group(CREATIVE_TAB)));
 
     public static final RegistrySupplier<Item> DRAINED_RUNE_BLOCK = ITEMS.register("drained_rune_block", () -> new BlockItem(RNFBlocks.DRAINED_RUNE_BLOCK.get(), new Item.Settings().group(CREATIVE_TAB)));
 

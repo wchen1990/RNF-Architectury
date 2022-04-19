@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "rnf:block/ritual_primer",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "rnf:block/ritual_primer",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north": {
+      "model": "rnf:block/ritual_primer",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "rnf:block/ritual_primer",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up": {
+      "model": "rnf:block/ritual_primer"
+    },
+    "facing=west": {
+      "model": "rnf:block/ritual_primer",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

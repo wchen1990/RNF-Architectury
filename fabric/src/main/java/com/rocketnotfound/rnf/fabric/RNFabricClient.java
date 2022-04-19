@@ -5,7 +5,9 @@ import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.block.RuneBlock;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.fabric.client.renderer.blockentity.RitualFrameRenderer;
+import com.rocketnotfound.rnf.fabric.client.renderer.blockentity.RitualPrimerRenderer;
 import com.rocketnotfound.rnf.fabric.client.renderer.item.RitualFrameItemRenderer;
+import com.rocketnotfound.rnf.fabric.client.renderer.item.RitualPrimerItemRenderer;
 import com.rocketnotfound.rnf.fabric.client.renderer.item.RitualStaffItemRenderer;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.proxy.ClientProxy;
@@ -29,6 +31,10 @@ public class RNFabricClient implements ClientModInitializer {
                 (BlockEntityRendererFactory.Context rendererDispatcherIn) -> new RitualFrameRenderer());
         BlockRenderLayerMapImpl.INSTANCE.putBlock(RNFBlocks.RITUAL_FRAME.get(), RenderLayer.getCutout());
 
+        BlockEntityRendererRegistry.register(RNFBlockEntities.RITUAL_PRIMER.get(),
+                (BlockEntityRendererFactory.Context rendererDispatcherIn) -> new RitualPrimerRenderer());
+        BlockRenderLayerMapImpl.INSTANCE.putBlock(RNFBlocks.RITUAL_PRIMER.get(), RenderLayer.getCutout());
+
         // Set render layers for all TransparentBlocks
         RNFBlocks.RUNE_BLOCKS.forEach((blockRegistry) -> {
             if (blockRegistry.isPresent() && blockRegistry.get() instanceof TransparentBlock) {
@@ -39,5 +45,6 @@ public class RNFabricClient implements ClientModInitializer {
         //Items
         GeoItemRenderer.registerItemRenderer(RNFItems.RITUAL_FRAME.get(), new RitualFrameItemRenderer());
         GeoItemRenderer.registerItemRenderer(RNFItems.RITUAL_STAFF.get(), new RitualStaffItemRenderer());
+        GeoItemRenderer.registerItemRenderer(RNFItems.RITUAL_PRIMER.get(), new RitualPrimerItemRenderer());
     }
 }

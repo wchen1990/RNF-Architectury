@@ -5,6 +5,7 @@ import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.block.RuneBlock;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.forge.client.renderer.blockentity.RitualFrameRenderer;
+import com.rocketnotfound.rnf.forge.client.renderer.blockentity.RitualPrimerRenderer;
 import net.minecraft.block.TransparentBlock;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayers;
@@ -32,6 +33,7 @@ public class RNForgeClient {
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
         if (!FMLEnvironment.production && !GeckoLibMod.DISABLE_IN_DEV) {
             event.registerBlockEntityRenderer(RNFBlockEntities.RITUAL_FRAME.get(), RitualFrameRenderer::new);
+            event.registerBlockEntityRenderer(RNFBlockEntities.RITUAL_PRIMER.get(), RitualPrimerRenderer::new);
         }
     }
 }

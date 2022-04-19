@@ -17,6 +17,7 @@ public class RNFBlockEntities {
 
     public static final RegistrySupplier<BlockEntityType<RitualFrameBlockEntity>> RITUAL_FRAME = BLOCK_ENTITIES.register("ritual_frame", () -> buildType("ritual_frame", BlockEntityType.Builder.create(RitualFrameBlockEntity::new, RNFBlocks.RITUAL_FRAME.get())));
     public static final RegistrySupplier<BlockEntityType<RitualTranscriberBlockEntity>> RITUAL_TRANSCRIBER = BLOCK_ENTITIES.register("ritual_transcriber", () -> buildType("ritual_transcriber", BlockEntityType.Builder.create(RitualTranscriberBlockEntity::new, RNFBlocks.RITUAL_TRANSCRIBER.get())));
+    public static final RegistrySupplier<BlockEntityType<RitualPrimerBlockEntity>> RITUAL_PRIMER = BLOCK_ENTITIES.register("ritual_primer", () -> buildType("ritual_primer", BlockEntityType.Builder.create(RitualPrimerBlockEntity::new, RNFBlocks.RITUAL_PRIMER.get())));
 
     private static <T extends BlockEntity> BlockEntityType<T> buildType(String key, BlockEntityType.Builder<T> builder) {
         if (((BlockEntityTypeBuilderAccess) (Object) builder).getBlocks().isEmpty()) {

@@ -2,6 +2,7 @@ package com.rocketnotfound.rnf.forge;
 
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.forge.item.ForgeRitualFrameItem;
+import com.rocketnotfound.rnf.forge.item.ForgeRitualPrimerItem;
 import com.rocketnotfound.rnf.forge.item.ForgeRitualStaffItem;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.item.RitualFrameItem;
@@ -22,6 +23,7 @@ public class RNForge {
         // There has to be a better way
         RNFItems.ITEMS.register("ritual_frame", () -> new ForgeRitualFrameItem(new Item.Settings().group(RNFItems.CREATIVE_TAB)));
         RNFItems.ITEMS.register("ritual_staff", () -> new ForgeRitualStaffItem(new Item.Settings().group(RNFItems.CREATIVE_TAB)));
+        RNFItems.ITEMS.register("ritual_primer", () -> new ForgeRitualPrimerItem(new Item.Settings().group(RNFItems.CREATIVE_TAB)));
 
         RNF.PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
         RNF.init();
