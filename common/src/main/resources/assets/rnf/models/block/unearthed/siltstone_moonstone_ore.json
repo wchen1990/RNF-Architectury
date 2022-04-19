@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "rnf:block/unearthed/siltstone_moonstone_ore",
+    "particle": "rnf:block/unearthed/siltstone_moonstone_ore"
+  }
+}

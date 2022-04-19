@@ -2,10 +2,10 @@
   "itemGroup.rnf.rnf_tab": "RNF",
 
   "item.rnf.luna": "Luna",
-  "item.rnf.moonstone": "Moonstone",
-  "block.rnf.moonstone": "Moonstone Block",
-  "item.rnf.deep_moonstone": "Deep Moonstone",
-  "block.rnf.deep_moonstone": "Deep Moonstone Block",
+  "item.rnf.moonstone_ore": "Moonstone Ore",
+  "block.rnf.moonstone_ore": "Moonstone Ore Block",
+  "item.rnf.deep_moonstone_ore": "Deep Moonstone Ore",
+  "block.rnf.deep_moonstone_ore": "Deep Moonstone Ore Block",
 
   "subtitle.ritual.generic.progress": "Ritual progresses",
   "subtitle.ritual.generic.complete": "Ritual completed",

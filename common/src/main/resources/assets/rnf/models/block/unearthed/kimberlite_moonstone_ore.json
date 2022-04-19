@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "rnf:block/unearthed/kimberlite_moonstone_ore",
+    "particle": "rnf:block/unearthed/kimberlite_moonstone_ore"
+  }
+}

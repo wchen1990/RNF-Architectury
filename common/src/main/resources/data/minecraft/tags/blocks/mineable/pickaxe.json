@@ -1,8 +1,8 @@
 {
   "replace": false,
   "values": [
-    "rnf:moonstone",
-    "rnf:deep_moonstone",
+    "rnf:moonstone_ore",
+    "rnf:deep_moonstone_ore",
     "rnf:ritual_frame",
     "rnf:ritual_transcriber"
   ]

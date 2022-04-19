@@ -18,8 +18,8 @@ import static com.rocketnotfound.rnf.RNF.createIdentifier;
 public class RNFBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(RNF.MOD_ID, Registry.BLOCK_KEY);
 
-    public static final RegistrySupplier<Block> MOONSTONE = BLOCKS.register("moonstone", () -> new MoonstoneBlock(AbstractBlock.Settings.of(Material.STONE, MapColor.TERRACOTTA_WHITE).requiresTool().ticksRandomly().luminance(litBlockLuminance(9)).sounds(BlockSoundGroup.STONE).strength(1.5f, 6.0f)));
-    public static final RegistrySupplier<Block> DEEP_MOONSTONE = BLOCKS.register("deep_moonstone", () -> new MoonstoneBlock(AbstractBlock.Settings.copy(MOONSTONE.get()).mapColor(MapColor.DEEPSLATE_GRAY).sounds(BlockSoundGroup.DEEPSLATE)));
+    public static final RegistrySupplier<Block> MOONSTONE_ORE = BLOCKS.register("moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.of(Material.STONE, MapColor.TERRACOTTA_WHITE).requiresTool().ticksRandomly().luminance(litBlockLuminance(9)).sounds(BlockSoundGroup.STONE).strength(1.5f, 6.0f)));
+    public static final RegistrySupplier<Block> DEEP_MOONSTONE_ORE = BLOCKS.register("deep_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get()).mapColor(MapColor.DEEPSLATE_GRAY).sounds(BlockSoundGroup.DEEPSLATE)));
     public static final RegistrySupplier<Block> RITUAL_FRAME = BLOCKS.register("ritual_frame", () -> new RitualFrameBlock());
 
     public static final RegistrySupplier<Block> RITUAL_TRANSCRIBER = BLOCKS.register("ritual_transcriber", () -> new RitualTranscriberBlock());
