@@ -29,6 +29,17 @@
             },
             {
               "type": "minecraft:item",
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 2.0,
+                    "max": 5.0
+                  },
+                  "add": false
+                }
+              ],
               "name": "rnf:luna"
             }
           ]

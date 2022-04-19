@@ -25,7 +25,6 @@ public class RuneBlock extends TransparentBlock implements Stainable {
         this(
             AbstractBlock.Settings.of(Material.GLASS, MapColor.TERRACOTTA_WHITE)
                 .nonOpaque()
-                .requiresTool()
                 .luminance(blockLuminance(12))
                 .sounds(BlockSoundGroup.AMETHYST_BLOCK)
                 .strength(1.5f, 6.0f)
