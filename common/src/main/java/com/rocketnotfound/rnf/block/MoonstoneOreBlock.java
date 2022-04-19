@@ -2,6 +2,7 @@ package com.rocketnotfound.rnf.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.OreBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -21,7 +22,7 @@ import net.minecraft.world.World;
 
 import java.util.Random;
 
-public class MoonstoneOreBlock extends Block {
+public class MoonstoneOreBlock extends OreBlock {
     public static final BooleanProperty LIT;
 
     static {
