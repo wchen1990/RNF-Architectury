@@ -12,7 +12,6 @@ public class DrainedRuneBlock extends TransparentBlock {
         this(
             AbstractBlock.Settings.of(Material.GLASS, MapColor.WHITE_GRAY)
                 .nonOpaque()
-                .requiresTool()
                 .sounds(BlockSoundGroup.SMALL_AMETHYST_BUD)
                 .strength(1.5f, 6.0f)
         );
