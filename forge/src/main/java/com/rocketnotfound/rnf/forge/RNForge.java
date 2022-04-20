@@ -5,13 +5,14 @@ import com.rocketnotfound.rnf.forge.item.ForgeRitualFrameItem;
 import com.rocketnotfound.rnf.forge.item.ForgeRitualPrimerItem;
 import com.rocketnotfound.rnf.forge.item.ForgeRitualStaffItem;
 import com.rocketnotfound.rnf.item.RNFItems;
-import com.rocketnotfound.rnf.item.RitualFrameItem;
 import com.rocketnotfound.rnf.proxy.ClientProxy;
 import com.rocketnotfound.rnf.proxy.ServerProxy;
 import dev.architectury.platform.forge.EventBuses;
 import net.minecraft.item.Item;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(RNF.MOD_ID)
@@ -26,6 +27,14 @@ public class RNForge {
         RNFItems.ITEMS.register("ritual_primer", () -> new ForgeRitualPrimerItem(new Item.Settings().group(RNFItems.CREATIVE_TAB)));
 
         RNF.PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
+
         RNF.init();
+
+        IEventBus bus = EventBuses.getModEventBus(RNF.MOD_ID).get();
+        bus.addListener(this::commonSetup);
+    }
+
+    private void commonSetup(FMLCommonSetupEvent event) {
+        RNF.delayedInit();
     }
 }

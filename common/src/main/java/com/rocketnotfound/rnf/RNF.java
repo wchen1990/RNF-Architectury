@@ -63,8 +63,6 @@ public class RNF {
         RNFBlockEntities.BLOCK_ENTITIES.register();
         RNFItems.ITEMS.register();
 
-        RNFFeatures.init();
-
         RNFParticleTypes.PARTICLES.register();
         RNFSounds.SOUND_EVENTS.register();
 
@@ -86,6 +84,10 @@ public class RNF {
         PlayerEvent.PLAYER_JOIN.register(player ->
             RNFNetwork.CHANNEL.sendToPlayer(player, new SyncConfigMessage(RNF.serverConfig()))
         );
+    }
+
+    public static void delayedInit() {
+        RNFFeatures.init();
     }
 
     public static Identifier createIdentifier(String path) {

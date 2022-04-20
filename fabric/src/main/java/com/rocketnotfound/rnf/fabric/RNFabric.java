@@ -8,6 +8,8 @@ public class RNFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         RNF.PROXY = new ServerProxy();
+
         RNF.init();
+        RNF.delayedInit();
     }
 }

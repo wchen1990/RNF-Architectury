@@ -23,8 +23,8 @@ public class ServerConfig implements ConfigData {
     public TranscribeConfig TRANSCRIBE = new TranscribeConfig();
 
     public static class WorldGenConfig {
-        public int MOONSTONE_ORE_VEIN_SIZE = 1;
-        public int MOONSTONE_VEINS_PER_CHUNK = 8;
+        public int MOONSTONE_ORE_VEIN_SIZE = 5;
+        public int MOONSTONE_VEINS_PER_CHUNK = 2;
         public int MOONSTONE_SPAWN_MAX_Y = 32;
         public int MOONSTONE_SPAWN_MIN_Y = -16;
     }
