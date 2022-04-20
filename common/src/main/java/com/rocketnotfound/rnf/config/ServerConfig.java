@@ -8,6 +8,10 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 public class ServerConfig implements ConfigData {
     @ConfigEntry.Category("Ritual")
     @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+    public WorldGenConfig WORLD_GEN = new WorldGenConfig();
+
+    @ConfigEntry.Category("Ritual")
+    @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
     public RitualConfig RITUAL = new RitualConfig();
 
     @ConfigEntry.Category("Infusion")
@@ -17,6 +21,13 @@ public class ServerConfig implements ConfigData {
     @ConfigEntry.Category("Transcribe")
     @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
     public TranscribeConfig TRANSCRIBE = new TranscribeConfig();
+
+    public static class WorldGenConfig {
+        public int MOONSTONE_ORE_VEIN_SIZE = 1;
+        public int MOONSTONE_VEINS_PER_CHUNK = 8;
+        public int MOONSTONE_SPAWN_MAX_Y = 32;
+        public int MOONSTONE_SPAWN_MIN_Y = -16;
+    }
 
     public static class RitualConfig {
         public int MAX_RANGE = 16;

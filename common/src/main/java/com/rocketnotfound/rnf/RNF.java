@@ -16,6 +16,7 @@ import com.rocketnotfound.rnf.proxy.IProxy;
 import com.rocketnotfound.rnf.proxy.ServerProxy;
 import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameHelper;
+import com.rocketnotfound.rnf.world.gen.feature.RNFFeatures;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.ReloadListenerRegistry;
@@ -57,11 +58,16 @@ public class RNF {
         clientConfig = AutoConfig.register(ClientConfig.class, Toml4jConfigSerializer::new);
 
         if (PROXY == null) PROXY = new ServerProxy();
+
         RNFBlocks.BLOCKS.register();
         RNFBlockEntities.BLOCK_ENTITIES.register();
         RNFItems.ITEMS.register();
+
+        RNFFeatures.init();
+
         RNFParticleTypes.PARTICLES.register();
         RNFSounds.SOUND_EVENTS.register();
+
         RNFRituals.register();
         RNFSpells.register();
 
