@@ -4,7 +4,7 @@ import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.client.gui.RNFGuiTextures;
 import com.rocketnotfound.rnf.data.managers.RitualManager;
-import com.rocketnotfound.rnf.data.rituals.NormalRitual;
+import com.rocketnotfound.rnf.data.rituals.CircleRitual;
 import com.rocketnotfound.rnf.data.rituals.RNFRituals;
 import com.rocketnotfound.rnf.item.RNFItems;
 import mezz.jei.api.constants.VanillaTypes;
@@ -20,7 +20,7 @@ import net.minecraft.recipe.Ingredient;
 
 import java.util.List;
 
-public class NormalRitualCategory extends RNFRecipeCategory<NormalRitual> {
+public class CircleRitualCategory extends RNFRecipeCategory<CircleRitual> {
     // GUI Constants
     protected final static int maxWidth = 180;
     protected final static int maxCraftWidth = 142;
@@ -33,16 +33,16 @@ public class NormalRitualCategory extends RNFRecipeCategory<NormalRitual> {
 
     protected final static int maxHeight = ((slotSize + catalystYSpacing + catalystYSpacing) * maxRows) + (ySpacing * (maxRows - 1));
 
-    public NormalRitualCategory(IGuiHelper helper) {
+    public CircleRitualCategory(IGuiHelper helper) {
         super(
-            NormalRitual.TYPE.getPath(),
+            CircleRitual.TYPE.getPath(),
             helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, RNFBlocks.RITUAL_FRAME.get().asItem().getDefaultStack()),
             emptyBackground(maxWidth, maxHeight),
             helper
         );
     }
 
-    protected void calculateSpacing(NormalRitual recipe, BasedOnXYCalculationWithIdx based) {
+    protected void calculateSpacing(CircleRitual recipe, BasedOnXYCalculationWithIdx based) {
         int recipeSize = recipe.getIngredients().size();
 
         int xSpaceTaken = ((recipeSize * slotSize) + ((recipeSize - 1) * xSpacing));
@@ -63,7 +63,7 @@ public class NormalRitualCategory extends RNFRecipeCategory<NormalRitual> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, NormalRitual recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, CircleRitual recipe, IFocusGroup focuses) {
         final List<Ingredient> ingredients = recipe.getIngredients();
         calculateSpacing(recipe, (xPlacement, yPlacement, idx) -> {
             builder.addSlot(RecipeIngredientRole.INPUT, xPlacement, yPlacement).addIngredients(ingredients.get(idx));
@@ -77,7 +77,7 @@ public class NormalRitualCategory extends RNFRecipeCategory<NormalRitual> {
     }
 
     @Override
-    public void draw(NormalRitual recipe, IRecipeSlotsView recipeSlotsView, MatrixStack stack, double mouseX, double mouseY) {
+    public void draw(CircleRitual recipe, IRecipeSlotsView recipeSlotsView, MatrixStack stack, double mouseX, double mouseY) {
         final List<Ingredient> ingredients = recipe.getIngredients();
         final int size = ingredients.size();
 
@@ -98,15 +98,15 @@ public class NormalRitualCategory extends RNFRecipeCategory<NormalRitual> {
 
         RNFGuiTextures.SLOT.render(
             stack,
-        ((maxWidth - maxCraftWidth - slotSize) / 2) + maxCraftWidth - (RNFGuiTextures.SLOT.width - slotSize) / 2,
-        (maxHeight - slotSize) / 2  - (RNFGuiTextures.SLOT.height - slotSize) / 2
+            ((maxWidth - maxCraftWidth - slotSize) / 2) + maxCraftWidth - (RNFGuiTextures.SLOT.width - slotSize) / 2,
+            (maxHeight - slotSize) / 2  - (RNFGuiTextures.SLOT.height - slotSize) / 2
         );
     }
 
     @Override
     @SuppressWarnings("removal")
-    public Class<? extends NormalRitual> getRecipeClass() {
-        return NormalRitual.class;
+    public Class<? extends CircleRitual> getRecipeClass() {
+        return CircleRitual.class;
     }
 
     @Override
@@ -115,12 +115,12 @@ public class NormalRitualCategory extends RNFRecipeCategory<NormalRitual> {
     }
 
     @Override
-    public List<NormalRitual> getRecipes() {
-        return RitualManager.getInstance().listAllOfType(RNFRituals.RITUAL_TYPE.get());
+    public List<CircleRitual> getRecipes() {
+        return RitualManager.getInstance().listAllOfType(RNFRituals.CIRCLE_RITUAL_TYPE.get());
     }
 
     @Override
-    public RecipeType<NormalRitual> getRecipeType() {
-        return RecipeType.create(RNF.MOD_ID, name, NormalRitual.class);
+    public RecipeType<CircleRitual> getRecipeType() {
+        return RecipeType.create(RNF.MOD_ID, name, CircleRitual.class);
     }
 }

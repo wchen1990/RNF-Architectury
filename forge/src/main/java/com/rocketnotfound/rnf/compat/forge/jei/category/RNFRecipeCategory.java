@@ -37,6 +37,10 @@ public abstract class RNFRecipeCategory<T extends Recipe<?>> implements IRecipeC
     public abstract List<T> getRecipes();
     public abstract RecipeType<T> getRecipeType();
 
+    protected interface BasedOnXYCalculationWithIdx {
+        void execute(int xPlacement, int yPlacement, int idx);
+    }
+
     @Override
     @SuppressWarnings("removal")
     public Identifier getUid() {
