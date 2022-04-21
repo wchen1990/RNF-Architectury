@@ -11,6 +11,12 @@
   "subtitle.ritual.generic.complete": "Ritual completed",
   "subtitle.ritual.generic.interrupt": "Ritual interrupted",
 
+  "recipe.rnf.ritual": "Ritual Crafting",
+  "recipe.rnf.circle_ritual": "Circle Ritual Crafting",
+  "recipe.rnf.engraving_ritual": "Engraving Ritual Crafting",
+  "recipe.rnf.anchoring_ritual": "Anchoring Ritual Crafting",
+  "recipe.rnf.tethering_ritual": "Tethering Ritual Crafting",
+
   "item.rnf.ritual_frame": "Ritual Frame",
   "block.rnf.ritual_frame": "Ritual Frame",
   "ritual_frame.attune.set": "%s attunes with another ritual",
