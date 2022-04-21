@@ -2,6 +2,7 @@ package com.rocketnotfound.rnf.item;
 
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.blockentity.RitualFrameBlockEntity;
+import com.rocketnotfound.rnf.blockentity.RitualPrimerBlockEntity;
 import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameHelper;
 import net.minecraft.block.entity.BlockEntity;
@@ -33,12 +34,13 @@ public class RitualStaffItem extends GeckoItem {
     public TypedActionResult<ItemStack> use(World world, PlayerEntity playerEntity, Hand hand) {
         ItemStack itemStack = playerEntity.getStackInHand(hand);
         if (playerEntity.isSneaking() && itemStack.isOf(RNFItems.RITUAL_STAFF.get())) {
-            if (itemStack.getSubNbt("Target") != null) {
+            if (itemStack.getSubNbt("Target") != null || itemStack.getSubNbt("PrimerTarget") != null) {
                 if (world.isClient) {
                     RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_GENERIC_CHANGE.get(),1,1);
                     RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_staff.attune.self", new Object[]{ customName(itemStack) }), false);
                 }
                 itemStack.removeSubNbt("Target");
+                itemStack.removeSubNbt("PrimerTarget");
             } else if (itemStack.getSubNbt("Seeking") != null) {
                 if (world.isClient) {
                     RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_GENERIC_DORMANT.get(),1,1);
@@ -66,8 +68,8 @@ public class RitualStaffItem extends GeckoItem {
         BlockEntity te = world.getBlockEntity(blockPos);
 
         if (itemStack.isOf(RNFItems.RITUAL_STAFF.get())) {
-            if (te instanceof RitualFrameBlockEntity) {
-                if (itemStack.getSubNbt("Seeking") != null) {
+            if (itemStack.getSubNbt("Seeking") != null) {
+                if (te instanceof RitualFrameBlockEntity) {
                     if (playerEntity.isSneaking()) {
                         if (world.isClient) {
                             RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_STAFF_CHANGE.get(), 1, 1);
@@ -107,6 +109,49 @@ public class RitualStaffItem extends GeckoItem {
                                 RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_staff.attune.set", new Object[]{customName(itemStack)}), false);
                             }
                             itemStack.setSubNbt("Target", NbtHelper.fromBlockPos(blockPos));
+                            return ActionResult.SUCCESS;
+                        }
+                    }
+                } else if (te instanceof RitualPrimerBlockEntity) {
+                    if (playerEntity.isSneaking()) {
+                        if (world.isClient) {
+                            RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_STAFF_CHANGE.get(), 1, 1);
+                            RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_staff.attune.conduct", new Object[]{customName(itemStack)}), false);
+                        }
+
+                        ((RitualPrimerBlockEntity) te).clearTargetInfo();
+                        ((RitualPrimerBlockEntity) te).updateBlock();
+
+                        return ActionResult.SUCCESS;
+                    } else {
+                        NbtCompound primerTargetNbt = itemStack.getSubNbt("PrimerTarget");
+                        if (primerTargetNbt != null && primerTargetNbt.contains("Dimension") && primerTargetNbt.contains("Position")) {
+                            String dimension = primerTargetNbt.getString("Dimension");
+                            BlockPos target = NbtHelper.toBlockPos(primerTargetNbt.getCompound("Position"));
+
+                            if (world.isClient) {
+                                RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_STAFF_CHANGE.get(), 1, 1);
+                                RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_staff.attune.link"), false);
+                            }
+
+                            ((RitualPrimerBlockEntity) te).setTargetDimension(dimension);
+                            ((RitualPrimerBlockEntity) te).setTargetPosition(target);
+                            ((RitualPrimerBlockEntity) te).updateBlock();
+
+                            itemStack.removeSubNbt("PrimerTarget");
+
+                            return ActionResult.SUCCESS;
+                        } else {
+                            if (world.isClient) {
+                                RNF.PROXY.getClientPlayer().playSound(RNFSounds.RITUAL_GENERIC_SET.get(), 1, 1);
+                                RNF.PROXY.sendOverlayMessage(new TranslatableText("ritual_staff.attune.set", new Object[]{customName(itemStack)}), false);
+                            }
+
+                            NbtCompound primerTarget = new NbtCompound();
+                            primerTarget.putString("Dimension", world.getRegistryKey().getValue().toString());
+                            primerTarget.put("Position", NbtHelper.fromBlockPos(blockPos));
+                            itemStack.setSubNbt("PrimerTarget", primerTarget);
+
                             return ActionResult.SUCCESS;
                         }
                     }

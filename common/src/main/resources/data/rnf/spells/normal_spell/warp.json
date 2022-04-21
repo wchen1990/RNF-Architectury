@@ -1,0 +1,28 @@
+{
+  "type": "rnf:normal_spell",
+  "key": {
+    "W": "rnf:rune_block_w",
+    "A": "rnf:rune_block_a",
+    "R": "rnf:rune_block_r",
+    "P": "rnf:rune_block_p"
+  },
+  "pattern": {
+    "initial": "WARP"
+  },
+  "effects": [
+    {
+      "type": "warp_dim",
+      "variables": {
+        "affectedBy": [
+          {
+            "type": "use_primer"
+          },
+          {
+            "type": "check_pos",
+            "block": "rnf:ritual_primer"
+          }
+        ]
+      }
+    }
+  ]
+}

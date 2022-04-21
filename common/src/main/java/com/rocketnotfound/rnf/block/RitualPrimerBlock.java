@@ -1,20 +1,26 @@
 package com.rocketnotfound.rnf.block;
 
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
+import com.rocketnotfound.rnf.blockentity.RitualPrimerBlockEntity;
+import com.rocketnotfound.rnf.item.RNFItems;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
 import net.minecraft.util.*;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -27,7 +33,7 @@ import javax.annotation.Nullable;
 
 import static com.rocketnotfound.rnf.block.RNFBlocks.blockLuminance;
 
-public class RitualPrimerBlock extends Block implements BlockEntityProvider, Waterloggable {
+public class RitualPrimerBlock extends BlockWithEntity implements Waterloggable {
     public static final BooleanProperty WATERLOGGED;
     public static final DirectionProperty FACING;
 
@@ -58,6 +64,41 @@ public class RitualPrimerBlock extends Block implements BlockEntityProvider, Wat
     public RitualPrimerBlock(Settings builder) {
         super(builder);
         this.setDefaultState(this.getDefaultState().with(WATERLOGGED, false).with(FACING, Direction.UP));
+    }
+
+    @Override
+    public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockHitResult blockHitResult) {
+        ItemStack heldItem = playerEntity.getStackInHand(hand);
+
+        BlockEntity te = world.getBlockEntity(blockPos);
+        if (!(te instanceof RitualPrimerBlockEntity)) {
+            return ActionResult.PASS;
+        }
+
+        RitualPrimerBlockEntity rpbe = (RitualPrimerBlockEntity) te;
+
+        if (heldItem.isOf(RNFItems.RITUAL_STAFF.get())) {
+            if (heldItem.getSubNbt("Debug") != null) {
+                if (!world.isClient) {
+                    playerEntity.sendMessage(Text.of(
+                        String.format(
+                            "--------------------------------\n" +
+                                "Dimension: %s\n" +
+                                "Pos: %s\n" +
+                                "TargetDimension: %s\n" +
+                                "TargetPosition: %s",
+                            rpbe.getWorld().getRegistryKey().getValue().toString(),
+                            rpbe.getPos(),
+                            rpbe.getTargetDimension(),
+                            rpbe.getTargetPosition()
+                        )
+                    ), false);
+                }
+                return ActionResult.SUCCESS;
+            }
+        }
+
+        return ActionResult.PASS;
     }
 
     @Override

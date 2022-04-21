@@ -1,0 +1,37 @@
+{
+  "type": "rnf:priming_spell",
+  "key": {
+    "T": "rnf:rune_block_t",
+    "H": "rnf:rune_block_h",
+    "A": "rnf:rune_block_a",
+    "U": "rnf:rune_block_u",
+    "R": "rnf:rune_block_r"
+  },
+  "pattern": {
+    "initial": "THATHURT"
+  },
+  "effects": [
+    {
+      "type": "damage",
+      "variables": {
+        "value": 1,
+        "affectedBy": [
+          {
+            "type": "num_blocks",
+            "block": "minecraft:amethyst_block",
+            "searchRadius": 1,
+            "target": "value",
+            "operation": "add"
+          },
+          {
+            "type": "num_blocks",
+            "block": "minecraft:obsidian",
+            "searchRadius": 1,
+            "target": "value",
+            "operation": "multiply"
+          }
+        ]
+      }
+    }
+  ]
+}

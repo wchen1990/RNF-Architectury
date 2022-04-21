@@ -53,6 +53,10 @@ public class SpellEffects {
         world.spawnEntity(lightning);
         return entity;
     };
+    public static final FloatAffectedSpellRequires DAMAGE = (damage) -> (world, entity) -> {
+        entity.damage(DamageSource.MAGIC, damage);
+        return entity;
+    };
     public static final NonAffectedSpellRequires KILL = () -> (world, entity) -> {
         entity.damage(DamageSource.MAGIC, Float.MAX_VALUE);
         return entity;
@@ -84,16 +88,30 @@ public class SpellEffects {
 
         final LivingEntity[] returnEntity = new LivingEntity[1];
         worldRegKey.ifPresent((worldKey) -> {
+            Vec3d entPos = entity.getPos();
+            Vec3d offset = entPos
+                .subtract(entPos.floorAlongAxes(EnumSet.of(Axis.X, Axis.Y, Axis.Z)));
+            Vec3d toPos = Vec3d.of(vec).add(offset);
+
             ServerWorld changedWorld = server.getWorld(worldKey);
 
-            LivingEntity movedEntity = (LivingEntity) entity.moveToWorld(changedWorld);
-            movedEntity.setPosition(Vec3d.of(vec).add(0.5, 0, 0.5));
+            if (entity instanceof ServerPlayerEntity) {
+                ((ServerPlayerEntity)entity).teleport(changedWorld, toPos.getX(), toPos.getY(), toPos.getZ(), entity.getYaw(), entity.getPitch());
+            } else {
+                LivingEntity movedEntity = (LivingEntity) entity.getType().create(changedWorld);
+                if (movedEntity != null) {
+                    movedEntity.copyFrom(entity);
+                    movedEntity.refreshPositionAndAngles(toPos.getX(), toPos.getY(), toPos.getZ(), movedEntity.getYaw(), movedEntity.getPitch());
+                    movedEntity.setVelocity(movedEntity.getVelocity());
+                    changedWorld.onDimensionChanged(movedEntity);
+                }
 
-            if (entity instanceof PlayerEntity) {
-                changedWorld.getChunkManager().sendToNearbyPlayers(movedEntity, new EntityPositionS2CPacket(movedEntity));
+                entity.setRemoved(Entity.RemovalReason.CHANGED_DIMENSION);
+                ((ServerWorld)entity.world).resetIdleTimeout();
+                changedWorld.resetIdleTimeout();
+
+                returnEntity[0] = movedEntity;
             }
-
-            returnEntity[0] = movedEntity;
         });
 
         return returnEntity[0] != null ? returnEntity[0] : entity;
@@ -105,6 +123,7 @@ public class SpellEffects {
         TYPE_MAP.put("add_velocity", ADD_VELOCITY);
         TYPE_MAP.put("explosion", EXPLOSION);
         TYPE_MAP.put("lightning", LIGHTNING);
+        TYPE_MAP.put("damage", DAMAGE);
         TYPE_MAP.put("kill", KILL);
         TYPE_MAP.put("give_status", GIVE_STATUS);
         TYPE_MAP.put("warp", WARP);
@@ -142,6 +161,18 @@ public class SpellEffects {
     }
     interface NonAffectedSpellRequires extends NonAffectedSpell, RequiresEntity { }
     interface NonAffectedSpellNoEntity extends NonAffectedSpell, DoesNotRequiresEntity { }
+
+    interface FloatAffectedSpell extends SpellEffectDeserialize {
+        @Override
+        default SpellEffect deserialize(NbtCompound nbt) {
+            float f = nbt.getFloat("value");
+            return create(f);
+        }
+
+        SpellEffect create(float f);
+    }
+    interface FloatAffectedSpellRequires extends FloatAffectedSpell, RequiresEntity { }
+    interface FloatAffectedSpellNoEntity extends FloatAffectedSpell, DoesNotRequiresEntity { }
 
     interface StatusEffectSpell extends SpellEffectDeserialize, RequiresEntity {
         @Override

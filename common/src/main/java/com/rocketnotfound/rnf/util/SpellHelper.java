@@ -1,8 +1,11 @@
 package com.rocketnotfound.rnf.util;
 
+import com.rocketnotfound.rnf.block.RNFBlocks;
+import com.rocketnotfound.rnf.blockentity.RitualPrimerBlockEntity;
 import com.rocketnotfound.rnf.data.spells.ISpell;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
@@ -11,6 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.*;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
@@ -26,6 +30,8 @@ public class SpellHelper {
         boolean checkPos = false;
         boolean checkCollision = false;
         boolean isCollidable = false;
+        boolean usePrimer = false;
+
         Optional<Block> checkPosBlock = Optional.empty();
 
         Direction facing = world.getBlockState(transcriberPosition).get(Properties.FACING);
@@ -39,6 +45,11 @@ public class SpellHelper {
                     String type = compoundAffect.getString("type");
                     String target = compoundAffect.getString("target");
                     String operation = compoundAffect.getString("operation");
+
+                    if (type.equals("use_primer")) {
+                        usePrimer = true;
+                        continue;
+                    }
 
                     if (type.equals("check_pos")) {
                         checkPos = true;
@@ -93,7 +104,10 @@ public class SpellHelper {
                                 } else if (operation.equals("multiply")) {
                                     vec = vec.multiply(modifier);
                                 } else if (operation.equals("divide")) {
-                                    vec = vec.multiply(1/modifier.getX(), 1/modifier.getY(), 1/modifier.getZ());
+                                    double modX = modifier.getX() != 0 ? 1 / modifier.getX() : 1;
+                                    double modY = modifier.getY() != 0 ? 1 / modifier.getY() : 1;
+                                    double modZ = modifier.getZ() != 0 ? 1 / modifier.getZ() : 1;
+                                    vec = vec.multiply(modX, modY, modZ);
                                 }
                             }
 
@@ -124,7 +138,9 @@ public class SpellHelper {
                                 } else if (operation.equals("multiply")) {
                                     value = value * mod;
                                 } else if (operation.equals("divide")) {
-                                    value = value / mod;
+                                    if (mod != 0) {
+                                        value = value / mod;
+                                    }
                                 }
                             }
 
@@ -135,13 +151,33 @@ public class SpellHelper {
             }
         }
 
+        BlockPos positionToUse = transcriberPosition;
+        if (usePrimer) {
+            if (world.getBlockState(transcriberPosition.offset(opposite)).isOf(RNFBlocks.RITUAL_PRIMER.get())) {
+                BlockEntity be = world.getBlockEntity(transcriberPosition.offset(opposite));
+                if (be instanceof RitualPrimerBlockEntity) {
+                    Pair<Optional<String>, Optional<BlockPos>> info = ((RitualPrimerBlockEntity) be).getTargetInfo();
+                    if (info.getLeft().isPresent()) {
+                        nbt.putString("dimension", info.getLeft().get());
+                    }
+                    if (info.getRight().isPresent()) {
+                        positionToUse = info.getRight().get();
+                    }
+                }
+            }
+        }
+
         if (nbt.contains("vector")) {
             Vec3d vec = vectorFromNbt(nbt.getCompound("vector"));
             if (nbt.contains("isPosition") && nbt.getBoolean("isPosition")) {
                 nbt.put("blockPos", NbtHelper.fromBlockPos(new BlockPos(vec)));
             } else {
-                nbt.put("blockPos", NbtHelper.fromBlockPos(transcriberPosition.add(new Vec3i(vec.getX(), vec.getY(), vec.getZ()))));
+                nbt.put("blockPos", NbtHelper.fromBlockPos(positionToUse.add(new Vec3i(vec.getX(), vec.getY(), vec.getZ()))));
             }
+        }
+
+        if (usePrimer && !nbt.contains("blockPos")) {
+            nbt.put("blockPos", NbtHelper.fromBlockPos(positionToUse));
         }
 
         if (checkPos && nbt.contains("blockPos")) {

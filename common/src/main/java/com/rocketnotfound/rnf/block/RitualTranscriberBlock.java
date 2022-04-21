@@ -2,19 +2,26 @@ package com.rocketnotfound.rnf.block;
 
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.blockentity.RitualTranscriberBlockEntity;
+import com.rocketnotfound.rnf.item.RNFItems;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -48,13 +55,45 @@ public class RitualTranscriberBlock extends BlockWithEntity {
     }
 
     @Override
+    public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockHitResult blockHitResult) {
+        ItemStack heldItem = playerEntity.getStackInHand(hand);
+
+        BlockEntity te = world.getBlockEntity(blockPos);
+        if (!(te instanceof RitualTranscriberBlockEntity)) {
+            return ActionResult.PASS;
+        }
+
+        RitualTranscriberBlockEntity rtbe = (RitualTranscriberBlockEntity) te;
+
+        if (heldItem.isOf(RNFItems.RITUAL_STAFF.get())) {
+            if (heldItem.getSubNbt("Debug") != null) {
+                if (!world.isClient) {
+                    playerEntity.sendMessage(Text.of(
+                        String.format(
+                            "--------------------------------\n" +
+                                "Pos: %s\n" +
+                                "Phase: %s",
+                            rtbe.getPos(),
+                            rtbe.getPhase()
+                        )
+                    ), false);
+                }
+                return ActionResult.SUCCESS;
+            }
+        }
+
+        return ActionResult.PASS;
+    }
+
+    @Override
     public BlockRenderType getRenderType(BlockState blockState) {
         return BlockRenderType.MODEL;
     }
 
     @Override
     public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new RitualTranscriberBlockEntity(blockPos, blockState);
+        return RNFBlockEntities.RITUAL_TRANSCRIBER.get().instantiate(blockPos, blockState);
+        //return new RitualTranscriberBlockEntity(blockPos, blockState);
     }
 
     @Nullable
