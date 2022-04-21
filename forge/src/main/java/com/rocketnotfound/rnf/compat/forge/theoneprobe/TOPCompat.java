@@ -12,6 +12,7 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 import static com.rocketnotfound.rnf.RNF.createIdentifier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = RNF.MOD_ID)
+@SuppressWarnings("unused")
 public class TOPCompat {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {

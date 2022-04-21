@@ -62,6 +62,11 @@ public class NormalRitual implements IRitual {
     }
 
     @Override
+    public DefaultedList<Ingredient> getIngredients() {
+        return recipeItems;
+    }
+
+    @Override
     public ItemStack getOutput() {
         return output.copy();
     }

@@ -111,6 +111,11 @@ public class TetheredRitual implements IRitual, IAlterBaseRitual, IAlterAnchorRi
     }
 
     @Override
+    public DefaultedList<Ingredient> getIngredients() {
+        return recipeItems;
+    }
+
+    @Override
     public Pair<Block, String> getBase() {
         return base;
     }

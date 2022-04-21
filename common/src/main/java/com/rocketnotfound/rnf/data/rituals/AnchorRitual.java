@@ -90,6 +90,11 @@ public class AnchorRitual implements IRitual, IAlterAnchorRitual {
     }
 
     @Override
+    public DefaultedList<Ingredient> getIngredients() {
+        return recipeItems;
+    }
+
+    @Override
     public Pair<Block, String> getAnchor() {
         return anchor;
     }

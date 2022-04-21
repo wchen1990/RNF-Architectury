@@ -90,6 +90,11 @@ public class RuneEngravement implements IRitual, IAlterBaseRitual {
     }
 
     @Override
+    public DefaultedList<Ingredient> getIngredients() {
+        return recipeItems;
+    }
+
+    @Override
     public Pair<Block, String> getBase() {
         return base;
     }

@@ -39,8 +39,14 @@ dependencies {
     // Cloth Config
     modImplementation("me.shedaniel.cloth:cloth-config-forge:${rootProject.cloth_config_version}")
 
+    // JEI
+    // compile against the JEI API but do not include it at runtime
+    modCompileOnlyApi("mezz.jei:jei-${minecraft_version}:${jei_version}:api")
+    // at runtime, use the full JEI jar
+    modRuntimeOnly("mezz.jei:jei-${minecraft_version}:${jei_version}")
+
     // TOP
-    //modImplementation("curse.maven:top-245211:3671753")
+    modRuntimeOnly("curse.maven:top-245211:3671753")
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }

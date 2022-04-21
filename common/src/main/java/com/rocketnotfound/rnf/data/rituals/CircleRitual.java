@@ -65,6 +65,11 @@ public class CircleRitual implements IRitual {
         return true;
     }
 
+    @Override
+    public DefaultedList<Ingredient> getIngredients() {
+        return recipeItems;
+    }
+
     public Ingredient getOutputIngredient() {
         return output;
     }
