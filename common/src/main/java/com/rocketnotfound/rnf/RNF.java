@@ -1,5 +1,6 @@
 package com.rocketnotfound.rnf;
 
+import com.mojang.logging.LogUtils;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.config.ClientConfig;
@@ -25,15 +26,14 @@ import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 import java.util.Optional;
 
 public class RNF {
     public static final String MOD_ID = "rnf";
     public static final String MOD_NAME = "RNF";
-    public static final Logger LOG = LogManager.getLogger(MOD_NAME);
+    public static final Logger LOG = LogUtils.getLogger();
     public static IProxy PROXY;
 
     private static ConfigHolder<ServerConfig> localServerConfig;

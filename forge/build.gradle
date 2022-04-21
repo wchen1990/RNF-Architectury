@@ -39,6 +39,9 @@ dependencies {
     // Cloth Config
     modImplementation("me.shedaniel.cloth:cloth-config-forge:${rootProject.cloth_config_version}")
 
+    // TOP
+    //modImplementation("curse.maven:top-245211:3671753")
+
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 }
