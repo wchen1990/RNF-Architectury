@@ -30,8 +30,9 @@ public class CircleRitualCategory extends RNFRecipeCategory<CircleRitual> {
     protected final static int xSpacing = 2;
     protected final static int ySpacing = 2;
     protected final static int catalystYSpacing = 10;
+    protected final static int secondIndicatorYSpacing = 12;
 
-    protected final static int maxHeight = ((slotSize + catalystYSpacing + catalystYSpacing) * maxRows) + (ySpacing * (maxRows - 1));
+    protected final static int maxHeight = ((slotSize + catalystYSpacing * 2 + secondIndicatorYSpacing) * maxRows) + (ySpacing * (maxRows - 1));
 
     public CircleRitualCategory(IGuiHelper helper) {
         super(
@@ -46,8 +47,8 @@ public class CircleRitualCategory extends RNFRecipeCategory<CircleRitual> {
         int recipeSize = recipe.getIngredients().size();
 
         int xSpaceTaken = ((recipeSize * slotSize) + ((recipeSize - 1) * xSpacing));
-        int numRows = 1 + xSpaceTaken / maxCraftWidth;
-        int calcHeight = (numRows * (slotSize + catalystYSpacing + catalystYSpacing)) + ((numRows - 1) * ySpacing);
+        int numRows = (xSpaceTaken > maxCraftWidth) ? 1 + xSpaceTaken / maxCraftWidth : 1;
+        int calcHeight = (numRows * (slotSize + catalystYSpacing * 2 + secondIndicatorYSpacing)) + ((numRows - 1) * ySpacing);
 
         int xPlacement = (numRows > 1) ? 0 : (maxCraftWidth - xSpaceTaken) / 2;
         int yPlacement = (maxHeight - calcHeight) / 2;
@@ -57,7 +58,7 @@ public class CircleRitualCategory extends RNFRecipeCategory<CircleRitual> {
             xPlacement += slotSize + xSpacing;
             if (xPlacement >= maxCraftWidth) {
                 xPlacement = xPlacement % maxCraftWidth;
-                yPlacement += (slotSize + catalystYSpacing + catalystYSpacing) + ySpacing;
+                yPlacement += (slotSize + catalystYSpacing * 2 + secondIndicatorYSpacing) + ySpacing;
             }
         }
     }
@@ -73,7 +74,7 @@ public class CircleRitualCategory extends RNFRecipeCategory<CircleRitual> {
             RecipeIngredientRole.OUTPUT,
             ((maxWidth - maxCraftWidth - slotSize) / 2) + maxCraftWidth,
             (maxHeight - slotSize) / 2
-        ).addItemStack(recipe.getOutput());
+        ).addIngredients(recipe.getOutputIngredient());
     }
 
     @Override
@@ -87,10 +88,13 @@ public class CircleRitualCategory extends RNFRecipeCategory<CircleRitual> {
             if (size > 1) {
                 int yPlaceMod = yPlacement + catalystYSpacing * 2;
                 if (idx == 0) {
+                    RNFGuiTextures.DOWN_TO_RIGHT.render(stack, xPlacement - 1, yPlaceMod + secondIndicatorYSpacing);
                     RNFGuiTextures.UP_FROM_RIGHT.render(stack, xPlacement, yPlaceMod);
                 } else if (idx == size - 1) {
-                    RNFGuiTextures.DOWN_TO_LEFT.render(stack, xPlacement, yPlaceMod);
+                    RNFGuiTextures.UP_FROM_LEFT.render(stack, xPlacement + 1, yPlaceMod + secondIndicatorYSpacing);
+                    RNFGuiTextures.DOWN_TO_LEFT.render(stack, xPlacement - 1, yPlaceMod);
                 } else {
+                    RNFGuiTextures.CONNECT.render(stack, xPlacement - 1, yPlaceMod + secondIndicatorYSpacing);
                     RNFGuiTextures.DOWN_CONNECT.render(stack, xPlacement, yPlaceMod);
                 }
             }

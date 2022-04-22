@@ -36,10 +36,10 @@ public class EngravingRitualCategory extends RNFRecipeCategory<RuneEngravement> 
 
     public EngravingRitualCategory(IGuiHelper helper) {
         super(
-                RuneEngravement.TYPE.getPath(),
-                helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, RNFBlocks.RITUAL_FRAME.get().asItem().getDefaultStack()),
-                emptyBackground(maxWidth, maxHeight),
-                helper
+            RuneEngravement.TYPE.getPath(),
+            helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, RNFBlocks.RITUAL_FRAME.get().asItem().getDefaultStack()),
+            emptyBackground(maxWidth, maxHeight),
+            helper
         );
     }
 
@@ -71,9 +71,9 @@ public class EngravingRitualCategory extends RNFRecipeCategory<RuneEngravement> 
         });
 
         builder.addSlot(
-                RecipeIngredientRole.OUTPUT,
-                ((maxWidth - maxCraftWidth - slotSize) / 2) + maxCraftWidth,
-                (maxHeight - slotSize) / 2
+            RecipeIngredientRole.OUTPUT,
+            ((maxWidth - maxCraftWidth - slotSize) / 2) + maxCraftWidth,
+            (maxHeight - slotSize) / 2
         ).addItemStack(recipe.getOutput());
     }
 
@@ -98,9 +98,9 @@ public class EngravingRitualCategory extends RNFRecipeCategory<RuneEngravement> 
         });
 
         RNFGuiTextures.SLOT.render(
-                stack,
-                ((maxWidth - maxCraftWidth - slotSize) / 2) + maxCraftWidth - (RNFGuiTextures.SLOT.width - slotSize) / 2,
-                (maxHeight - slotSize) / 2  - (RNFGuiTextures.SLOT.height - slotSize) / 2
+            stack,
+            ((maxWidth - maxCraftWidth - slotSize) / 2) + maxCraftWidth - (RNFGuiTextures.SLOT.width - slotSize) / 2,
+            (maxHeight - slotSize) / 2  - (RNFGuiTextures.SLOT.height - slotSize) / 2
         );
     }
 

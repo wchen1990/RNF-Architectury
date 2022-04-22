@@ -46,7 +46,7 @@ public class NormalRitualCategory extends RNFRecipeCategory<NormalRitual> {
         int recipeSize = recipe.getIngredients().size();
 
         int xSpaceTaken = ((recipeSize * slotSize) + ((recipeSize - 1) * xSpacing));
-        int numRows = 1 + xSpaceTaken / maxCraftWidth;
+        int numRows = (xSpaceTaken > maxCraftWidth) ? 1 + xSpaceTaken / maxCraftWidth : 1;
         int calcHeight = (numRows * (slotSize + catalystYSpacing + catalystYSpacing)) + ((numRows - 1) * ySpacing);
 
         int xPlacement = (numRows > 1) ? 0 : (maxCraftWidth - xSpaceTaken) / 2;
