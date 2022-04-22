@@ -89,9 +89,9 @@ public class NormalRitualCategory extends RNFRecipeCategory<NormalRitual> {
                 if (idx == 0) {
                     RNFGuiTextures.UP_FROM_RIGHT.render(stack, xPlacement, yPlaceMod);
                 } else if (idx == size - 1) {
-                    RNFGuiTextures.DOWN_TO_LEFT.render(stack, xPlacement, yPlaceMod);
+                    RNFGuiTextures.DOWN_TO_LEFT.render(stack, xPlacement - 1, yPlaceMod);
                 } else {
-                    RNFGuiTextures.DOWN_CONNECT.render(stack, xPlacement, yPlaceMod);
+                    RNFGuiTextures.DOWN_CONNECT.render(stack, xPlacement - 1, yPlaceMod);
                 }
             }
         });

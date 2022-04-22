@@ -91,11 +91,11 @@ public class CircleRitualCategory extends RNFRecipeCategory<CircleRitual> {
                     RNFGuiTextures.DOWN_TO_RIGHT.render(stack, xPlacement - 1, yPlaceMod + secondIndicatorYSpacing);
                     RNFGuiTextures.UP_FROM_RIGHT.render(stack, xPlacement, yPlaceMod);
                 } else if (idx == size - 1) {
-                    RNFGuiTextures.UP_FROM_LEFT.render(stack, xPlacement + 1, yPlaceMod + secondIndicatorYSpacing);
+                    RNFGuiTextures.UP_FROM_LEFT.render(stack, xPlacement, yPlaceMod + secondIndicatorYSpacing);
                     RNFGuiTextures.DOWN_TO_LEFT.render(stack, xPlacement - 1, yPlaceMod);
                 } else {
-                    RNFGuiTextures.CONNECT.render(stack, xPlacement - 1, yPlaceMod + secondIndicatorYSpacing);
-                    RNFGuiTextures.DOWN_CONNECT.render(stack, xPlacement, yPlaceMod);
+                    RNFGuiTextures.CONNECT.render(stack, xPlacement, yPlaceMod + secondIndicatorYSpacing);
+                    RNFGuiTextures.DOWN_CONNECT.render(stack, xPlacement - 1, yPlaceMod);
                 }
             }
         });
