@@ -2,7 +2,6 @@ package com.rocketnotfound.rnf.fabric;
 
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
-import com.rocketnotfound.rnf.block.RuneBlock;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.fabric.client.renderer.blockentity.RitualFrameRenderer;
 import com.rocketnotfound.rnf.fabric.client.renderer.blockentity.RitualPrimerRenderer;

@@ -1,16 +1,20 @@
 package com.rocketnotfound.rnf.forge;
 
 import com.rocketnotfound.rnf.RNF;
+import com.rocketnotfound.rnf.compat.forge.unearthed.UECompat;
 import com.rocketnotfound.rnf.forge.item.ForgeRitualFrameItem;
 import com.rocketnotfound.rnf.forge.item.ForgeRitualPrimerItem;
 import com.rocketnotfound.rnf.forge.item.ForgeRitualStaffItem;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.proxy.ClientProxy;
 import com.rocketnotfound.rnf.proxy.ServerProxy;
+import com.rocketnotfound.rnf.world.gen.feature.RNFFeatures;
 import dev.architectury.platform.forge.EventBuses;
 import net.minecraft.item.Item;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -32,9 +36,16 @@ public class RNForge {
 
         IEventBus bus = EventBuses.getModEventBus(RNF.MOD_ID).get();
         bus.addListener(this::commonSetup);
+
+        if (ModList.get().isLoaded("unearthed")) {
+            MinecraftForge.EVENT_BUS.register(new UECompat());
+        }
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        RNF.delayedInit();
+        RNFFeatures.init();
+        if (ModList.get().isLoaded("mores")) {
+            RNFFeatures.initMores();
+        }
     }
 }

@@ -30,6 +30,6 @@ side = "BOTH"
 [[dependencies.rnf]]
 modId = "architectury"
 mandatory = true
-versionRange = "[4.0.29,)"
+versionRange = "[4.2.50,)"
 ordering = "AFTER"
 side = "BOTH"

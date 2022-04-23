@@ -86,10 +86,6 @@ public class RNF {
         );
     }
 
-    public static void delayedInit() {
-        RNFFeatures.init();
-    }
-
     public static Identifier createIdentifier(String path) {
         return new Identifier(MOD_ID, path);
     }

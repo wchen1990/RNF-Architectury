@@ -43,10 +43,18 @@ dependencies {
     // compile against the JEI API but do not include it at runtime
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}:${jei_version}:api")
     // at runtime, use the full JEI jar
-    modRuntimeOnly("mezz.jei:jei-${minecraft_version}:${jei_version}")
+    //modRuntimeOnly("mezz.jei:jei-${minecraft_version}:${jei_version}")
 
     // TOP
-    modRuntimeOnly("curse.maven:top-245211:3671753")
+    //modRuntimeOnly("curse.maven:top-245211:3671753")
+
+    // Mores
+    //modRuntimeOnly("curse.maven:mores-556697:3681536")
+
+    // Unearthed Compat
+    modCompileOnlyApi("curse.maven:hyle-${hyle_curse_maven_project_id}:${hyle_curse_maven_forge_file_id}")
+    //modRuntimeOnly("curse.maven:hyle-${hyle_curse_maven_project_id}:${hyle_curse_maven_forge_file_id}")
+    //modRuntimeOnly("curse.maven:unearthed-${unearthed_curse_maven_project_id}:${unearthed_curse_maven_forge_file_id}")
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
