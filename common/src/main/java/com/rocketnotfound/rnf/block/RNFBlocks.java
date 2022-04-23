@@ -111,14 +111,14 @@ public class RNFBlocks {
     public static final RegistrySupplier<Block> SLATE_MOONSTONE_ORE = BLOCKS.register("slate_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
     public static final RegistrySupplier<Block> WHITE_GRANITE_MOONSTONE_ORE = BLOCKS.register("white_granite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
 
+    public static AbstractBlock.ContextPredicate blockContextTrue() { return (blockState, blockView, blockPos) -> true; }
+    public static AbstractBlock.ContextPredicate blockContextFalse() { return (blockState, blockView, blockPos) -> false; }
     public static ToIntFunction<BlockState> blockLuminance(int luminance) {
         return (blockState) -> luminance;
     }
-
     public static ToIntFunction<BlockState> litBlockLuminance(int luminance) {
         return (blockState) -> blockState.get(Properties.LIT) ? luminance : 0;
     }
-
     public static ToIntFunction<BlockState> blockLuminanceWithProperty(int luminance, BooleanProperty property, int defaultValue) {
         return (blockState) -> blockState.get(property) ? luminance : defaultValue;
     }

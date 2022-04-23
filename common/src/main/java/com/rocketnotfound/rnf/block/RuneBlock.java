@@ -13,9 +13,10 @@ import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nullable;
 
+import static com.rocketnotfound.rnf.block.RNFBlocks.blockContextFalse;
 import static com.rocketnotfound.rnf.block.RNFBlocks.blockLuminance;
 
-public class RuneBlock extends TransparentBlock implements Stainable {
+public class RuneBlock extends AbstractGlassBlock implements Stainable {
     public static final DirectionProperty FACING;
     static {
         FACING = Properties.HORIZONTAL_FACING;
@@ -25,6 +26,8 @@ public class RuneBlock extends TransparentBlock implements Stainable {
         this(
             AbstractBlock.Settings.of(Material.GLASS, MapColor.TERRACOTTA_WHITE)
                 .nonOpaque()
+                .suffocates(blockContextFalse())
+                .blockVision(blockContextFalse())
                 .luminance(blockLuminance(12))
                 .sounds(BlockSoundGroup.AMETHYST_BLOCK)
                 .strength(1.5f, 6.0f)
