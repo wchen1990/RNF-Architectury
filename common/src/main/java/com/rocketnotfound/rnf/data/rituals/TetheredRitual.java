@@ -48,14 +48,18 @@ public class TetheredRitual implements IRitual, IAlterBaseRitual, IAlterAnchorRi
 
     @Override
     public boolean matches(Inventory inventory, World world) {
-        if (inventory.size() == recipeItems.size() + 1) {
-            boolean matches = true;
+        if (inventory.size() == recipeItems.size() + 2) {
             int size = recipeItems.size();
+
+            boolean matches = true;
             for (int idx = 0; idx < size; ++idx) {
-                matches = matches && recipeItems.get(idx).test(inventory.getStack(idx));
+                matches = matches && recipeItems.get(idx).test(inventory.getStack(idx + 1));
                 if (!matches) break;
             }
-            matches = matches && !inventory.getStack(recipeItems.size()).isEmpty();
+
+            matches = matches && !inventory.getStack(0).isEmpty();
+            matches = matches && !inventory.getStack(size).isEmpty();
+
             return matches;
         }
 

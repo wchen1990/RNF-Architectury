@@ -50,7 +50,7 @@ public class AnchorRitual implements IRitual, IAlterAnchorRitual {
             boolean matches = true;
             int size = recipeItems.size();
             for (int idx = 0; idx < size; ++idx) {
-                matches = matches && recipeItems.get(idx).test(inventory.getStack(idx));
+                matches = matches && recipeItems.get(idx).test(inventory.getStack(idx + 1));
                 if (!matches) break;
             }
             matches = matches && !inventory.getStack(recipeItems.size()).isEmpty();

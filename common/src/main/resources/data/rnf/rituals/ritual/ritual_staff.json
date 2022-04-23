@@ -2,10 +2,13 @@
   "type": "rnf:ritual",
   "ingredients": [
     {
-      "item": "rnf:rune_block"
+      "item": "minecraft:stick"
     },
     {
       "item": "rnf:luna"
+    },
+    {
+      "item": "rnf:rune_block"
     },
     {
       "item": "minecraft:amethyst_block"
