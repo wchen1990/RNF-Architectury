@@ -4,6 +4,7 @@ import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.compat.fabric.unearthed.UECompat;
 import com.rocketnotfound.rnf.proxy.ServerProxy;
 import com.rocketnotfound.rnf.world.gen.feature.RNFFeatures;
+import com.rocketnotfound.rnf.world.gen.structures.RNFStructures;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 

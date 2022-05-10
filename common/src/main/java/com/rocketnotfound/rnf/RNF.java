@@ -1,6 +1,5 @@
 package com.rocketnotfound.rnf;
 
-import com.mojang.logging.LogUtils;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.blockentity.RNFBlockEntities;
 import com.rocketnotfound.rnf.config.ClientConfig;
@@ -17,7 +16,9 @@ import com.rocketnotfound.rnf.proxy.IProxy;
 import com.rocketnotfound.rnf.proxy.ServerProxy;
 import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameHelper;
-import com.rocketnotfound.rnf.world.gen.feature.RNFFeatures;
+import com.rocketnotfound.rnf.world.gen.predicate.RNFPredicates;
+import com.rocketnotfound.rnf.world.gen.processor.RNFProcessors;
+import com.rocketnotfound.rnf.world.gen.structures.RNFStructures;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.ReloadListenerRegistry;
@@ -26,14 +27,15 @@ import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
 public class RNF {
     public static final String MOD_ID = "rnf";
     public static final String MOD_NAME = "RNF";
-    public static final Logger LOG = LogUtils.getLogger();
+    public static final Logger LOG = LogManager.getLogger();
     public static IProxy PROXY;
 
     private static ConfigHolder<ServerConfig> localServerConfig;
@@ -65,6 +67,10 @@ public class RNF {
 
         RNFParticleTypes.PARTICLES.register();
         RNFSounds.SOUND_EVENTS.register();
+
+        RNFPredicates.POSITION_PREDICATES.register();
+        RNFProcessors.PROCESSORS.register();
+        RNFStructures.STRUCTURES.register();
 
         RNFRituals.register();
         RNFSpells.register();
