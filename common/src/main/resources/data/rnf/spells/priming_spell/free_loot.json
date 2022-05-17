@@ -1,0 +1,23 @@
+{
+  "type": "rnf:priming_spell",
+  "key": {
+    "F": "rnf:rune_block_f",
+    "R": "rnf:rune_block_r",
+    "E": "rnf:rune_block_e",
+    "L": "rnf:rune_block_l",
+    "O": "rnf:rune_block_o",
+    "T": "rnf:rune_block_t"
+  },
+  "pattern": {
+    "initial": "FREELOOT"
+  },
+  "effects": [
+    {
+      "type": "summon_block",
+      "variables": {
+        "block": "minecraft:chest",
+        "lootTables": ["minecraft:chests/simple_dungeon", "minecraft:chests/ruined_portal"]
+      }
+    }
+  ]
+}

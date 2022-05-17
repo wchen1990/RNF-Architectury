@@ -1,11 +1,9 @@
 package com.rocketnotfound.rnf.data.spells;
 
+import com.rocketnotfound.rnf.util.BlockStateParser;
 import com.rocketnotfound.rnf.util.ItemEntityHelper;
 import com.rocketnotfound.rnf.util.SpellHelper;
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FluidBlock;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
@@ -21,15 +19,20 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Direction.Axis;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -37,10 +40,8 @@ import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.explosion.Explosion;
 
 import javax.annotation.Nullable;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SpellEffects {
     public static final Map<String, SpellEffectDeserialize> TYPE_MAP = new HashMap<>();
@@ -55,28 +56,34 @@ public class SpellEffects {
         entity.velocityModified = true;
         return entity;
     };
+
     public static final BlockPosAffectedSpellWith1FNoEntity EXPLOSION = (vec, f) -> (world, entity) -> {
         world.createExplosion(null, vec.getX() + 0.5, vec.getY(), vec.getZ() + 0.5, f, Explosion.DestructionType.NONE);
         return entity;
     };
+
     public static final BlockPosAffectedSpellNoEntity LIGHTNING = (vec) -> (world, entity) -> {
         Entity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
         lightning.setPosition(Vec3d.of(vec).add(0.5, 0, 0.5));
         world.spawnEntity(lightning);
         return entity;
     };
+
     public static final FloatAffectedSpellRequires DAMAGE = (damage) -> (world, entity) -> {
         entity.damage(DamageSource.MAGIC, damage);
         return entity;
     };
+
     public static final NonAffectedSpellRequires KILL = () -> (world, entity) -> {
         entity.damage(DamageSource.MAGIC, Float.MAX_VALUE);
         return entity;
     };
+
     public static final StatusEffectSpell GIVE_STATUS = (statusEffect, duration, amplifier) -> (world, entity) -> {
         entity.addStatusEffect(new StatusEffectInstance(statusEffect, (int) duration * (statusEffect.isInstant() ? 1 : 20), (int) amplifier));
         return entity;
     };
+
     public static final BlockPosAffectedSpellRequires WARP = (vec) -> (world, entity) -> {
         Vec3d entPos = entity.getPos();
         Vec3d offset = entPos
@@ -91,6 +98,7 @@ public class SpellEffects {
 
         return entity;
     };
+
     public static final BlockPosAffectedSpellWithDimRequires WARP_DIM = (vec, dimKey) -> (world, entity) -> {
         MinecraftServer server = world.getServer();
         Optional<RegistryKey<World>> worldRegKey = server
@@ -140,11 +148,11 @@ public class SpellEffects {
             }
 
             LootContext.Builder build = new LootContext.Builder(world)
-                    .luck(f)
-                    .random(world.random)
-                    .parameter(LootContextParameters.ORIGIN, Vec3d.ofCenter(blockPos))
-                    .parameter(LootContextParameters.TOOL, ItemEntityHelper.FORTUNE_SILK_TOOL_HELPER.apply((int)f, useSilkTouch))
-                    .optionalParameter(LootContextParameters.BLOCK_ENTITY, world.getBlockEntity(blockPos));
+                .luck(f)
+                .random(world.random)
+                .parameter(LootContextParameters.ORIGIN, Vec3d.ofCenter(blockPos))
+                .parameter(LootContextParameters.TOOL, ItemEntityHelper.FORTUNE_SILK_TOOL_HELPER.apply((int)f, useSilkTouch))
+                .optionalParameter(LootContextParameters.BLOCK_ENTITY, world.getBlockEntity(blockPos));
             Block.dropStacks(blockState, build);
 
             boolean bl2 = world.setBlockState(blockPos, fluidState.getBlockState(), 3, 512);
@@ -162,6 +170,25 @@ public class SpellEffects {
         return entity;
     };
 
+    public static final SummonBlockWithLootTableSpell SUMMON_BLOCK = (block, lootTables) -> (world, entity) -> {
+        Direction facing = entity.getHorizontalFacing();
+        BlockPos pos = entity.getBlockPos().offset(facing);
+
+        baseBreakSpell(pos, 1, world, entity, true);
+        BlockStateParser.setBlockState(
+            world,
+            pos,
+            String.format(
+                "%s[facing=%s]{LootTable:\"%s\"}",
+                block,
+                facing.getOpposite().asString(),
+                lootTables.get(world.random.nextInt(lootTables.size()))
+            )
+        );
+
+        return entity;
+    };
+
     // Put in defined spell effects into our map
     // Should be able to add and remove effects from this easily
     static {
@@ -175,6 +202,7 @@ public class SpellEffects {
         TYPE_MAP.put("warp_dim", WARP_DIM);
         TYPE_MAP.put("break", BREAK);
         TYPE_MAP.put("silk_break", SILK_BREAK);
+        TYPE_MAP.put("summon_block", SUMMON_BLOCK);
     }
 
     // Boilerplate interfaces that were defined so that we can _lazily_ define spell effects
@@ -255,6 +283,36 @@ public class SpellEffects {
     }
     interface BlockPosAffectedSpellWith1FRequires extends BlockPosAffectedSpellWith1F, RequiresEntity {}
     interface BlockPosAffectedSpellWith1FNoEntity extends BlockPosAffectedSpellWith1F, DoesNotRequiresEntity {}
+
+    interface BlockPosAffectedSpellWithStringList extends SpellEffectDeserialize {
+        @Override
+        default SpellEffect deserialize(NbtCompound nbt) {
+            return create(
+                NbtHelper.toBlockPos(nbt.getCompound("blockPos")),
+                nbt.getList("values", NbtElement.STRING_TYPE).stream().map(
+                    (element) -> element.getType() == NbtElement.STRING_TYPE ? element.asString() : element.toString()
+                ).collect(Collectors.toList())
+            );
+        }
+
+        SpellEffect create(BlockPos pos, List<String> parameters);
+    }
+    interface BlockPosAffectedSpellWithStringListRequires extends BlockPosAffectedSpellWithStringList, RequiresEntity {}
+    interface BlockPosAffectedSpellWithStringListNoEntity extends BlockPosAffectedSpellWithStringList, DoesNotRequiresEntity {}
+
+    interface SummonBlockWithLootTableSpell extends SpellEffectDeserialize, RequiresEntity {
+        @Override
+        default SpellEffect deserialize(NbtCompound nbt) {
+            return create(
+                nbt.getString("block"),
+                nbt.getList("lootTables", NbtElement.STRING_TYPE).stream().map(
+                    (element) -> element.getType() == NbtElement.STRING_TYPE ? element.asString() : element.toString()
+                ).collect(Collectors.toList())
+            );
+        }
+
+        SpellEffect create(String block, List<String> lootTables);
+    }
 
     interface BlockPosAffectedSpellWithDim extends SpellEffectDeserialize {
         @Override
