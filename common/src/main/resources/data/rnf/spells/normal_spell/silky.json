@@ -1,0 +1,73 @@
+{
+  "type": "rnf:normal_spell",
+  "key": {
+    "S": "rnf:rune_block_s",
+    "I": "rnf:rune_block_i",
+    "L": "rnf:rune_block_l",
+    "K": "rnf:rune_block_k",
+    "Y": "rnf:rune_block_y"
+  },
+  "pattern": {
+    "initial": "SILKY"
+  },
+  "effects": [
+    {
+      "type": "silk_break",
+      "variables": {
+        "vector": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "isPosition": false,
+        "value": 1,
+        "affectedBy": [
+          {
+            "type": "num_blocks",
+            "block": "minecraft:gold_block",
+            "searchRadius": 1,
+            "target": "value",
+            "operation": "add"
+          },
+          {
+            "type": "num_blocks",
+            "block": "minecraft:diamond_block",
+            "searchRadius": 1,
+            "target": "value",
+            "operation": "add",
+            "multiplier": 2.5
+          },
+          {
+            "type": "num_blocks",
+            "block": "minecraft:netherite_block",
+            "searchRadius": 1,
+            "target": "value",
+            "operation": "multiply",
+            "min": 1
+          },
+          {
+            "type": "num_blocks",
+            "block": "minecraft:amethyst_block",
+            "searchRadius": 1,
+            "target": "vector",
+            "fields": ["x", "y", "z"],
+            "operation": "add"
+          },
+          {
+            "type": "num_blocks",
+            "block": "minecraft:obsidian",
+            "searchRadius": 1,
+            "target": "vector",
+            "fields": ["x", "y", "z"],
+            "operation": "multiply"
+          },
+          {
+            "type": "facing_opposite",
+            "target": "vector",
+            "operation": "multiply"
+          }
+        ]
+      }
+    }
+  ]
+}

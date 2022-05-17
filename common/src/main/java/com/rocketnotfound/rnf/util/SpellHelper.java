@@ -97,6 +97,11 @@ public class SpellHelper {
                                     );
                                 }
 
+                                if (compoundAffect.contains("multiplier")) {
+                                    float multiplier = compoundAffect.getFloat("multiplier");
+                                    modifier.multiply(multiplier, multiplier, multiplier);
+                                }
+
                                 if (operation.equals("add")) {
                                     vec = vec.add(modifier);
                                 } else if (operation.equals("subtract")) {
@@ -131,6 +136,11 @@ public class SpellHelper {
 
                             if (modifier.isPresent()) {
                                 float mod = modifier.get();
+                                if (compoundAffect.contains("multiplier")) {
+                                    float multiplier = compoundAffect.getFloat("multiplier");
+                                    mod *= multiplier;
+                                }
+
                                 if (operation.equals("add")) {
                                     value = value + mod;
                                 } else if (operation.equals("subtract")) {
@@ -141,6 +151,19 @@ public class SpellHelper {
                                     if (mod != 0) {
                                         value = value / mod;
                                     }
+                                }
+                            }
+
+                            if (compoundAffect.contains("min")) {
+                                int min = compoundAffect.getInt("min");
+                                if (value < min) {
+                                    value = min;
+                                }
+                            }
+                            if (compoundAffect.contains("max")) {
+                                int max = compoundAffect.getInt("max");
+                                if (value > max) {
+                                    value = max;
                                 }
                             }
 
