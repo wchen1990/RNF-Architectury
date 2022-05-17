@@ -56,6 +56,9 @@ dependencies {
     //modRuntimeOnly("curse.maven:hyle-${hyle_curse_maven_project_id}:${hyle_curse_maven_forge_file_id}")
     //modRuntimeOnly("curse.maven:unearthed-${unearthed_curse_maven_project_id}:${unearthed_curse_maven_forge_file_id}")
 
+    // Shutup Experimental Settings
+    modRuntimeOnly("curse.maven:shutup-407174:3759881")
+
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 }
