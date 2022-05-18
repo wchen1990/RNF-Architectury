@@ -141,6 +141,19 @@ public class SpellHelper {
                                     mod *= multiplier;
                                 }
 
+                                if (compoundAffect.contains("min")) {
+                                    int min = compoundAffect.getInt("min");
+                                    if (mod < min) {
+                                        mod = min;
+                                    }
+                                }
+                                if (compoundAffect.contains("max")) {
+                                    int max = compoundAffect.getInt("max");
+                                    if (mod > max) {
+                                        mod = max;
+                                    }
+                                }
+
                                 if (operation.equals("add")) {
                                     value = value + mod;
                                 } else if (operation.equals("subtract")) {
@@ -151,19 +164,6 @@ public class SpellHelper {
                                     if (mod != 0) {
                                         value = value / mod;
                                     }
-                                }
-                            }
-
-                            if (compoundAffect.contains("min")) {
-                                int min = compoundAffect.getInt("min");
-                                if (value < min) {
-                                    value = min;
-                                }
-                            }
-                            if (compoundAffect.contains("max")) {
-                                int max = compoundAffect.getInt("max");
-                                if (value > max) {
-                                    value = max;
                                 }
                             }
 

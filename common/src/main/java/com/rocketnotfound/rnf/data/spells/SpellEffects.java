@@ -14,6 +14,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContext;
@@ -172,9 +173,12 @@ public class SpellEffects {
 
     public static final SummonBlockWithLootTableSpell SUMMON_BLOCK = (block, lootTables) -> (world, entity) -> {
         Direction facing = entity.getHorizontalFacing();
-        BlockPos pos = entity.getBlockPos().offset(facing);
+        BlockPos pos = entity.getBlockPos().offset(facing).offset(facing);
 
+        FluidState initFluidState = world.getFluidState(pos);
         baseBreakSpell(pos, 1, world, entity, true);
+
+        // Yea we could totally do this a better way
         BlockStateParser.setBlockState(
             world,
             pos,
@@ -185,6 +189,11 @@ public class SpellEffects {
                 lootTables.get(world.random.nextInt(lootTables.size()))
             )
         );
+
+        if (!initFluidState.isEmpty()) {
+            BlockState blockState = world.getBlockState(pos);
+            ((FluidFillable) blockState.getBlock()).tryFillWithFluid(world, pos, blockState, initFluidState);
+        }
 
         return entity;
     };
