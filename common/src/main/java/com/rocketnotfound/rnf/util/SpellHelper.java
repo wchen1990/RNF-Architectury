@@ -96,13 +96,11 @@ public class SpellHelper {
                                     return false;
                                 }
 
-                                Vec3d returnPos = result.getPos();
-                                if (offset && result instanceof BlockHitResult) {
-                                    Direction side = ((BlockHitResult) result).getSide();
-                                    returnPos.add(side.getOffsetX(), side.getOffsetY(), side.getOffsetZ());
+                                if (offset && result instanceof BlockHitResult blockHitResult) {
+                                    modifier = Vec3d.of(blockHitResult.getBlockPos().offset(blockHitResult.getSide()));
+                                } else {
+                                    modifier = result.getPos();
                                 }
-
-                                modifier = returnPos;
                             } else if (type.equals("num_blocks")) {
                                 int radius = compoundAffect.getInt("searchRadius");
                                 Optional<Block> searchBlock = Registry.BLOCK.getOrEmpty(new Identifier(compoundAffect.getString("block")));
