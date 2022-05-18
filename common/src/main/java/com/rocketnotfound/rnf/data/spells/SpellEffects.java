@@ -4,8 +4,6 @@ import com.rocketnotfound.rnf.util.BlockStateParser;
 import com.rocketnotfound.rnf.util.ItemEntityHelper;
 import com.rocketnotfound.rnf.util.SpellHelper;
 import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
@@ -13,27 +11,19 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.Direction.Axis;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -53,8 +43,14 @@ public class SpellEffects {
         // So, we cancel out any negative Y velocity and add a small amount to the Y axis
         // We should only do this when we're adding >= 0 Y velocity
         double offsetY = entity.getVelocity().getY() < 0 ? entity.getVelocity().getY() * -1 : 0;
-        entity.addVelocity(vec.getX(), vec.getY() + (vec.getY() >= 0 ? offsetY + 0.25 : 0), vec.getZ());
-        entity.velocityModified = true;
+        Vec3d modVec = new Vec3d(vec.getX(), vec.getY() + (vec.getY() >= 0 ? offsetY + 0.25 : 0), vec.getZ());
+        if (entity instanceof ServerPlayerEntity) {
+            ((ServerPlayerEntity) entity).networkHandler.sendPacket(new EntityVelocityUpdateS2CPacket(entity.getId(), entity.getVelocity().add(modVec)));
+        } else {
+            entity.addVelocity(modVec.getX(), modVec.getY(), modVec.getZ());
+            entity.velocityModified = true;
+        }
+
         return entity;
     };
 
@@ -171,9 +167,8 @@ public class SpellEffects {
         return entity;
     };
 
-    public static final SummonBlockWithLootTableSpell SUMMON_BLOCK = (block, lootTables) -> (world, entity) -> {
+    public static final SummonBlockWithLootTableSpell SUMMON_BLOCK = (pos, block, lootTables) -> (world, entity) -> {
         Direction facing = entity.getHorizontalFacing();
-        BlockPos pos = entity.getBlockPos().offset(facing).offset(facing);
 
         FluidState initFluidState = world.getFluidState(pos);
         baseBreakSpell(pos, 1, world, entity, true);
@@ -313,6 +308,7 @@ public class SpellEffects {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             return create(
+                NbtHelper.toBlockPos(nbt.getCompound("blockPos")),
                 nbt.getString("block"),
                 nbt.getList("lootTables", NbtElement.STRING_TYPE).stream().map(
                     (element) -> element.getType() == NbtElement.STRING_TYPE ? element.asString() : element.toString()
@@ -320,7 +316,7 @@ public class SpellEffects {
             );
         }
 
-        SpellEffect create(String block, List<String> lootTables);
+        SpellEffect create(BlockPos pos, String block, List<String> lootTables);
     }
 
     interface BlockPosAffectedSpellWithDim extends SpellEffectDeserialize {

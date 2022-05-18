@@ -15,8 +15,27 @@
     {
       "type": "summon_block",
       "variables": {
+        "vector": {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        "isPosition": true,
         "block": "minecraft:chest",
-        "lootTables": ["minecraft:chests/simple_dungeon", "minecraft:chests/ruined_portal"]
+        "lootTables": ["minecraft:chests/simple_dungeon", "minecraft:chests/ruined_portal"],
+        "affectedBy": [
+          {
+            "type": "entity_look",
+            "fields": ["x", "z"],
+            "target": "vector",
+            "operation": "multiply"
+          },
+          {
+            "type": "entity_position",
+            "target": "vector",
+            "operation": "add"
+          }
+        ]
       }
     }
   ]

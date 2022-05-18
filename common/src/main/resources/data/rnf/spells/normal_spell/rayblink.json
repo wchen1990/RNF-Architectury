@@ -1,0 +1,42 @@
+{
+  "type": "rnf:normal_spell",
+  "key": {
+    "R": "rnf:rune_block_r",
+    "A": "rnf:rune_block_a",
+    "Y": "rnf:rune_block_y",
+    "B": "rnf:rune_block_b",
+    "L": "rnf:rune_block_l",
+    "I": "rnf:rune_block_i",
+    "N": "rnf:rune_block_n",
+    "K": "rnf:rune_block_k"
+  },
+  "pattern": {
+    "initial": "RAYBLINK"
+  },
+  "effects": [
+    {
+      "type": "warp",
+      "variables": {
+        "vector": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "isPosition": true,
+        "affectedBy": [
+          {
+            "type": "check_pos",
+            "isCollidable": false
+          },
+          {
+            "type": "entity_raycast_pos",
+            "target": "vector",
+            "maxDistance": 64,
+            "offset": true,
+            "operation": "add"
+          }
+        ]
+      }
+    }
+  ]
+}

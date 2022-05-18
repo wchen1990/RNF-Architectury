@@ -77,7 +77,7 @@ public interface ISpell extends Recipe<Inventory> {
                 SpellEffects.SpellEffectDeserialize spell = SpellEffects.TYPE_MAP.getOrDefault(effect.getLeft(), null);
                 if (spell != null) {
                     NbtCompound nbt = effect.getRight().orElseGet(() -> new NbtCompound()).copy();
-                    if (SpellHelper.processNbtForDeserialization(nbt, world, this, transcriberPosition)) {
+                    if (SpellHelper.processNbtForDeserialization(nbt, world, this, transcriberPosition, livingEntity)) {
                         if (spell.requiresEntity()) {
                             if (targetEntity != null) {
                                 targetEntity = spell.deserialize(nbt).cast(world, targetEntity);

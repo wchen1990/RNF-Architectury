@@ -6,6 +6,7 @@ import com.rocketnotfound.rnf.data.spells.ISpell;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
@@ -15,18 +16,21 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SpellHelper {
-    public static boolean processNbtForDeserialization(NbtCompound nbt, ServerWorld world, ISpell spell, BlockPos transcriberPosition) {
+    public static boolean processNbtForDeserialization(NbtCompound nbt, ServerWorld world, ISpell spell, BlockPos transcriberPosition, @Nullable LivingEntity targetEntity) {
         boolean checkPos = false;
         boolean checkCollision = false;
         boolean isCollidable = false;
@@ -75,6 +79,30 @@ public class SpellHelper {
                                 modifier = Vec3d.of(facing.getVector());
                             } else if (type.equals("facing_opposite")) {
                                 modifier = Vec3d.of(opposite.getVector());
+                            } else if (type.equals("entity_facing")) {
+                                modifier = Vec3d.of(targetEntity.getHorizontalFacing().getVector());
+                            } else if (type.equals("entity_facing_opposite")) {
+                                modifier = Vec3d.of(targetEntity.getHorizontalFacing().getOpposite().getVector());
+                            } else if (type.equals("entity_position")) {
+                                modifier = targetEntity.getPos();
+                            } else if (type.equals("entity_look")) {
+                                modifier = targetEntity.getRotationVec(1f);
+                            } else if (type.equals("entity_raycast_pos")) {
+                                boolean offset = compoundAffect.contains("offset") && compoundAffect.getBoolean("offset");
+                                double distance = compoundAffect.getDouble("maxDistance");
+
+                                HitResult result = targetEntity.raycast(distance,1f, false);
+                                if (result.getType() == HitResult.Type.MISS) {
+                                    return false;
+                                }
+
+                                Vec3d returnPos = result.getPos();
+                                if (offset && result instanceof BlockHitResult) {
+                                    Direction side = ((BlockHitResult) result).getSide();
+                                    returnPos.add(side.getOffsetX(), side.getOffsetY(), side.getOffsetZ());
+                                }
+
+                                modifier = returnPos;
                             } else if (type.equals("num_blocks")) {
                                 int radius = compoundAffect.getInt("searchRadius");
                                 Optional<Block> searchBlock = Registry.BLOCK.getOrEmpty(new Identifier(compoundAffect.getString("block")));

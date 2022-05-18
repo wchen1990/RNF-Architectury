@@ -45,6 +45,8 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
 
     protected boolean hasOutput = false;
 
+    protected LivingEntity triggeredEntity = null;
+
     public RitualTranscriberBlockEntity(BlockPos pos, BlockState state) {
         super(RNFBlockEntities.RITUAL_TRANSCRIBER.get(), pos, state);
     }
@@ -108,7 +110,7 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
                     doTranscribeFX(serverWorld, blockPos, blockState, blockEntity);
                 }
             } else if (blockEntity.isPrimed()) {
-                LivingEntity entity = serverWorld.getClosestEntity(
+                blockEntity.triggeredEntity = serverWorld.getClosestEntity(
                     LivingEntity.class,
                     TargetPredicate.createNonAttackable(),
                     null,
@@ -118,13 +120,13 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
                     new Box(blockPos).stretch(Vec3d.of(opposite.getVector().multiply(RNF.serverConfig().TRANSCRIBE.PRIMED_TRIGGER_DISTANCE)))
                 );
 
-                if (entity != null) {
+                if (blockEntity.triggeredEntity != null) {
                     blockEntity.setPhase(Phase.COMPLETE);
                 } else {
                     doPrimedFX(serverWorld, blockPos, blockState, blockEntity);
                 }
             } else if (blockEntity.isCompleting()) {
-                LivingEntity entity = serverWorld.getClosestEntity(
+                LivingEntity entity = (blockEntity.triggeredEntity != null) ? blockEntity.triggeredEntity : serverWorld.getClosestEntity(
                     LivingEntity.class,
                     TargetPredicate.createNonAttackable(),
                     null,
@@ -262,6 +264,7 @@ public class RitualTranscriberBlockEntity extends BaseBlockEntity {
         this.spellLength = 0;
         this.castTime = 0;
         this.hasOutput = false;
+        this.triggeredEntity = null;
     }
 
     // NBT
