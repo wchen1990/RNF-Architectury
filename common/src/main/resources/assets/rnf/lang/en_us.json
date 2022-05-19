@@ -2,6 +2,8 @@
   "itemGroup.rnf.rnf_tab": "RNF",
 
   "item.rnf.luna": "Luna",
+  "item.rnf.luna_block": "Block of Luna",
+  "block.rnf.luna_block": "Block of Luna",
   "item.rnf.moonstone_ore": "Moonstone Ore",
   "block.rnf.moonstone_ore": "Moonstone Ore",
   "item.rnf.deepslate_moonstone_ore": "Deepslate Moonstone Ore",

@@ -27,6 +27,7 @@ public class RNFItems {
     public static final RegistrySupplier<Item> MOONSTONE_ORE = ITEMS.register("moonstone_ore", () -> new BlockItem(RNFBlocks.MOONSTONE_ORE.get(), new Item.Settings().group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> DEEPSLATE_MOONSTONE_ORE = ITEMS.register("deepslate_moonstone_ore", () -> new BlockItem(RNFBlocks.DEEPSLATE_MOONSTONE_ORE.get(), new Item.Settings().group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> LUNA = ITEMS.register("luna", () -> new Item(new Item.Settings().group(CREATIVE_TAB)));
+    public static final RegistrySupplier<Item> LUNA_BLOCK = ITEMS.register("luna_block", () -> new BlockItem(RNFBlocks.LUNA_BLOCK.get(), new Item.Settings().group(CREATIVE_TAB)));
 
     public static final RegistrySupplier<Item> RITUAL_FRAME = ITEMS.register("ritual_frame", () -> new RitualFrameItem(new Item.Settings().maxCount(1).group(CREATIVE_TAB)));
     public static final RegistrySupplier<Item> RITUAL_STAFF = ITEMS.register("ritual_staff", () -> new RitualStaffItem(new Item.Settings().maxCount(1).group(CREATIVE_TAB)));

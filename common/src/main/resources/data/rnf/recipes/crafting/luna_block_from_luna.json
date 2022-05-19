@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LLL",
+    "LLL",
+    "LLL"
+  ],
+  "key": {
+    "L": {
+      "item": "rnf:luna"
+    }
+  },
+  "result": {
+    "item": "rnf:luna_block"
+  }
+}

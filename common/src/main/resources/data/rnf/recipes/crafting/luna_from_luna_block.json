@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "rnf:luna_block"
+    }
+  ],
+  "result": {
+    "item": "rnf:luna",
+    "count": 9
+  }
+}

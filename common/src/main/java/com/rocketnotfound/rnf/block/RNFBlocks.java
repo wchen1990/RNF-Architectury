@@ -22,6 +22,8 @@ public class RNFBlocks {
     public static final RegistrySupplier<Block> MOONSTONE_ORE = BLOCKS.register("moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.of(Material.STONE, MapColor.TERRACOTTA_WHITE).requiresTool().ticksRandomly().luminance(litBlockLuminance(9)).sounds(BlockSoundGroup.STONE).strength(1.5f, 6.0f)));
     public static final RegistrySupplier<Block> DEEPSLATE_MOONSTONE_ORE = BLOCKS.register("deepslate_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
 
+    public static final RegistrySupplier<Block> LUNA_BLOCK = BLOCKS.register("luna_block", () -> new LunaBlock());
+
     public static final RegistrySupplier<Block> RITUAL_FRAME = BLOCKS.register("ritual_frame", () -> new RitualFrameBlock());
     public static final RegistrySupplier<Block> RITUAL_TRANSCRIBER = BLOCKS.register("ritual_transcriber", () -> new RitualTranscriberBlock());
     public static final RegistrySupplier<Block> RITUAL_PRIMER = BLOCKS.register("ritual_primer", () -> new RitualPrimerBlock());
