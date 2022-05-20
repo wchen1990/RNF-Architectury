@@ -106,7 +106,6 @@ public class NoGravityParticle extends SpriteBillboardParticle {
             int revMul = (this.reverse) ? -1 : 1;
             float f = (float)this.age / (float)this.maxAge;
             f = 1.0F - f;
-            double fPi = f * (8 * Math.PI);
             this.x = this.startX + (this.velocityX * (double)f) * revMul;
             this.y = this.startY + (this.velocityY * (double)f) * revMul;
             this.z = this.startZ + (this.velocityZ * (double)f) * revMul;

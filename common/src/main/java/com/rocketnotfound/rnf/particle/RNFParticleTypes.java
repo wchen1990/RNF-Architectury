@@ -1,5 +1,6 @@
 package com.rocketnotfound.rnf.particle;
 
+import com.mojang.serialization.Codec;
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.mixin.access.DefaultParticleTypeAccess;
 import dev.architectury.registry.registries.DeferredRegister;
@@ -16,4 +17,11 @@ public class RNFParticleTypes {
 
     public static final RegistrySupplier<DefaultParticleType> END_ROD = PARTICLES.register("end_rod", () -> DefaultParticleTypeAccess.create(false));
     public static final RegistrySupplier<DefaultParticleType> END_ROD_REV = PARTICLES.register("end_rod_rev", () -> DefaultParticleTypeAccess.create(false));
+
+    public static final RegistrySupplier<ParticleType<LunaParticleEffect>> LUNA_EFFECT = PARTICLES.register("luna_effect", () -> new ParticleType<LunaParticleEffect>(false, LunaParticleEffect.PARAMETERS_FACTORY) {
+        @Override
+        public Codec<LunaParticleEffect> getCodec() {
+            return LunaParticleEffect.CODEC;
+        }
+    });
 }

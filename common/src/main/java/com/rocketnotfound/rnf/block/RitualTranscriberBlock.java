@@ -93,7 +93,6 @@ public class RitualTranscriberBlock extends BlockWithEntity {
     @Override
     public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
         return RNFBlockEntities.RITUAL_TRANSCRIBER.get().instantiate(blockPos, blockState);
-        //return new RitualTranscriberBlockEntity(blockPos, blockState);
     }
 
     @Nullable

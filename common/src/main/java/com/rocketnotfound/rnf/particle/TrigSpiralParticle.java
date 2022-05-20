@@ -26,7 +26,7 @@ public class TrigSpiralParticle extends NoGravityParticle {
         this(clientWorld, d, e, f, g, h, i, reverse, fullBright, allWhite, 0F);
     }
     TrigSpiralParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i, boolean reverse, boolean fullBright, boolean allWhite, float fixedScale) {
-        super(clientWorld, d, e, f, g, h, i, reverse, fullBright, allWhite, 0F);
+        super(clientWorld, d, e, f, g, h, i, reverse, fullBright, allWhite, fixedScale);
 
         this.xTrigDelta = baseTrigDelta * this.random.nextFloat();
         this.yTrigDelta = baseTrigDelta * this.random.nextFloat();

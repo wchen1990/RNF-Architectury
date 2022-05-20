@@ -1,5 +1,6 @@
 package com.rocketnotfound.rnf.mixin.client;
 
+import com.rocketnotfound.rnf.particle.CircleOriginParticle;
 import com.rocketnotfound.rnf.particle.NoGravityParticle;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.particle.TrigSpiralParticle;
@@ -28,5 +29,7 @@ public class MixinParticleManager {
 
         registerFactory(RNFParticleTypes.END_ROD.get(), (spriteProvider) -> new TrigSpiralParticle.Custom(spriteProvider, false, true, true, 0F));
         registerFactory(RNFParticleTypes.END_ROD_REV.get(), (spriteProvider) -> new TrigSpiralParticle.Custom(spriteProvider, true, true, true, 0F));
+
+        registerFactory(RNFParticleTypes.LUNA_EFFECT.get(), (spriteProvider) -> new CircleOriginParticle.Custom(spriteProvider, false, true, true, 0F));
     }
 }
