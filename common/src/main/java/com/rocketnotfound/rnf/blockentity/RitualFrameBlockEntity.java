@@ -106,6 +106,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     }
 
     protected static void performRitualInfusion(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualFrameBlockEntity blockEntity) {
+        // TODO: Make it so that this uses a recipe system
         BlockPos pos = blockEntity.getPos();
         ItemStack itemStack = blockEntity.getItemStack();
 

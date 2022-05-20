@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=east": {
+      "model": "rnf:block/luna_block",
+      "y": 90
+    },
+    "facing=north": {
       "model": "rnf:block/luna_block"
+    },
+    "facing=south": {
+      "model": "rnf:block/luna_block",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "rnf:block/luna_block",
+      "y": 270
     }
   }
 }

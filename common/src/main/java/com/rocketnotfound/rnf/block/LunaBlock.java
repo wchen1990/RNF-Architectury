@@ -2,13 +2,13 @@ package com.rocketnotfound.rnf.block;
 
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.particle.LunaParticleEffect;
-import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Wearable;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
@@ -26,7 +26,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class LunaBlock extends HorizontalFacingBlock {
+public class LunaBlock extends HorizontalFacingBlock implements Wearable {
     public static final BooleanProperty LIT;
 
     static {
