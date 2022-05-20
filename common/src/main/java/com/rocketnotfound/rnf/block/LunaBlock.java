@@ -28,9 +28,11 @@ import java.util.Random;
 
 public class LunaBlock extends HorizontalFacingBlock implements Wearable {
     public static final BooleanProperty LIT;
+    public static final BooleanProperty CONDITIONAL;
 
     static {
         LIT = Properties.LIT;
+        CONDITIONAL = Properties.CONDITIONAL;
     }
 
     public LunaBlock() {
@@ -41,7 +43,12 @@ public class LunaBlock extends HorizontalFacingBlock implements Wearable {
                 .sounds(BlockSoundGroup.STONE)
                 .strength(1.5f, 6.0f)
         );
-        this.setDefaultState(this.getDefaultState().with(LIT, false).with(FACING, Direction.NORTH));
+        this.setDefaultState(
+            this.getDefaultState()
+                .with(LIT, false)
+                .with(CONDITIONAL, false)
+                .with(FACING, Direction.NORTH)
+        );
     }
 
     @Override
@@ -58,12 +65,7 @@ public class LunaBlock extends HorizontalFacingBlock implements Wearable {
 
     @Override
     public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockHitResult blockHitResult) {
-        if (world.isClient) {
-            spawnParticles(world, blockPos);
-        } else {
-            light(blockState, world, blockPos);
-        }
-
+        light(blockState, world, blockPos);
         ItemStack itemStack = playerEntity.getStackInHand(hand);
         if (itemStack.isOf(RNFItems.RITUAL_STAFF.get())) {
             if (itemStack.getSubNbt("Debug") != null) {
@@ -96,12 +98,24 @@ public class LunaBlock extends HorizontalFacingBlock implements Wearable {
         return itemStack.getItem() instanceof BlockItem && (new ItemPlacementContext(playerEntity, hand, itemStack, blockHitResult)).canPlace() ? ActionResult.PASS : ActionResult.SUCCESS;
     }
 
-    private static void light(BlockState blockState, World world, BlockPos blockPos) {
-        spawnParticles(world, blockPos);
-        if (!(Boolean)blockState.get(LIT)) {
-            world.setBlockState(blockPos, blockState.with(LIT, true), 3);
-        }
+    protected static void light(BlockState blockState, World world, BlockPos blockPos) {
+        if (!world.isClient) {
+            BlockState accState = blockState;
 
+            if (!(Boolean) blockState.get(LIT)) {
+                accState = accState.with(LIT, true);
+            }
+
+            accState = accState.with(CONDITIONAL, conditionsMet(world, blockPos));
+
+            if (!accState.equals(blockState)) {
+                world.setBlockState(blockPos, accState, 3);
+            }
+        }
+    }
+
+    protected static boolean conditionsMet(World world, BlockPos blockPos) {
+        return world.isNight() && world.isSkyVisibleAllowingSea(blockPos);
     }
 
     @Override
@@ -111,16 +125,19 @@ public class LunaBlock extends HorizontalFacingBlock implements Wearable {
 
     @Override
     public void randomTick(BlockState blockState, ServerWorld serverWorld, BlockPos blockPos, Random random) {
-        if (blockState.get(LIT)) {
-            if (!serverWorld.isNight() || !serverWorld.isSkyVisibleAllowingSea(blockPos)) {
-                serverWorld.setBlockState(blockPos, blockState.with(LIT, false), 3);
-            }
+        BlockState accState = blockState;
+        if (conditionsMet(serverWorld, blockPos)) {
+            accState = accState.with(CONDITIONAL, true).with(LIT, true);
         } else {
-            if (serverWorld.isNight() && serverWorld.isSkyVisibleAllowingSea(blockPos)) {
-                serverWorld.setBlockState(blockPos, blockState.with(LIT, true), 3);
+            accState = accState.with(CONDITIONAL, false);
+            if (blockState.get(LIT)) {
+                accState = accState.with(LIT, false);
             }
         }
 
+        if (!accState.equals(blockState)) {
+            serverWorld.setBlockState(blockPos, accState, 3);
+        }
     }
 
     @Override
@@ -131,13 +148,14 @@ public class LunaBlock extends HorizontalFacingBlock implements Wearable {
     }
 
     private static void spawnParticles(World world, BlockPos blockPos) {
+        BlockState bs = world.getBlockState(blockPos);
+
         double d = 0.5625D;
         Random random = world.random;
         Direction[] var5 = Direction.values();
         int var6 = var5.length;
 
-        if(world.isSkyVisibleAllowingSea(blockPos)) {
-            BlockState bs = world.getBlockState(blockPos);
+        if(bs.get(CONDITIONAL) && world.isSkyVisibleAllowingSea(blockPos)) {
             if (bs.isOf(RNFBlocks.LUNA_BLOCK.get())) {
                 Direction facing = bs.get(FACING);
 
@@ -218,6 +236,6 @@ public class LunaBlock extends HorizontalFacingBlock implements Wearable {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(new Property[]{ LIT, FACING });
+        builder.add(new Property[]{ LIT, CONDITIONAL, FACING });
     }
 }
