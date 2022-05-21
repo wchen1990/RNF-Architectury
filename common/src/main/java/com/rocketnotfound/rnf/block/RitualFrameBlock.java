@@ -66,7 +66,7 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
             .requiresTool()
             .luminance(blockLuminance(6))
             .sounds(BlockSoundGroup.AMETHYST_CLUSTER)
-            .strength(1.5f, 6.0f)
+            .strength(1.5f, 600.0f)
         );
     }
     public RitualFrameBlock(Settings builder) {

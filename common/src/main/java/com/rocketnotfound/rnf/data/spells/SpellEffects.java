@@ -1,9 +1,9 @@
 package com.rocketnotfound.rnf.data.spells;
 
-import com.rocketnotfound.rnf.util.BlockStateParser;
 import com.rocketnotfound.rnf.util.ItemEntityHelper;
 import com.rocketnotfound.rnf.util.SpellHelper;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
@@ -21,6 +21,7 @@ import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.Direction.Axis;
@@ -173,21 +174,29 @@ public class SpellEffects {
         FluidState initFluidState = world.getFluidState(pos);
         baseBreakSpell(pos, 1, world, entity, true);
 
-        // Yea we could totally do this a better way
-        BlockStateParser.setBlockState(
-            world,
-            pos,
-            String.format(
-                "%s[facing=%s]{LootTable:\"%s\"}",
-                block,
-                facing.getOpposite().asString(),
-                lootTables.get(world.random.nextInt(lootTables.size()))
-            )
-        );
+        BlockState modState = Registry.BLOCK.get(new Identifier(block)).getDefaultState();
+        if (modState.getProperties().contains(Properties.HORIZONTAL_FACING)) {
+            modState = modState.with(Properties.HORIZONTAL_FACING, facing.getOpposite());
+        }
+
+        BlockState blockState = Block.postProcessState(modState, world, pos);
+        if (blockState.isAir()) {
+            blockState = modState;
+        }
+
+        world.setBlockState(pos, blockState, 3);
+        if (lootTables.size() > 0) {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity != null) {
+                NbtCompound lootTable = new NbtCompound();
+                lootTable.putString("LootTable", lootTables.get(world.random.nextInt(lootTables.size())));
+                blockEntity.readNbt(lootTable);
+            }
+        }
 
         if (!initFluidState.isEmpty()) {
-            BlockState blockState = world.getBlockState(pos);
-            ((FluidFillable) blockState.getBlock()).tryFillWithFluid(world, pos, blockState, initFluidState);
+            BlockState newState = world.getBlockState(pos);
+            ((FluidFillable) newState.getBlock()).tryFillWithFluid(world, pos, newState, initFluidState);
         }
 
         return entity;
@@ -307,12 +316,13 @@ public class SpellEffects {
     interface SummonBlockWithLootTableSpell extends SpellEffectDeserialize, RequiresEntity {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
+            List<String> lootTables = nbt.contains("lootTables") ? nbt.getList("lootTables", NbtElement.STRING_TYPE).stream().map(
+                (element) -> element.getType() == NbtElement.STRING_TYPE ? element.asString() : element.toString()
+            ).collect(Collectors.toList()) : Collections.EMPTY_LIST;
             return create(
                 NbtHelper.toBlockPos(nbt.getCompound("blockPos")),
                 nbt.getString("block"),
-                nbt.getList("lootTables", NbtElement.STRING_TYPE).stream().map(
-                    (element) -> element.getType() == NbtElement.STRING_TYPE ? element.asString() : element.toString()
-                ).collect(Collectors.toList())
+                lootTables
             );
         }
 
