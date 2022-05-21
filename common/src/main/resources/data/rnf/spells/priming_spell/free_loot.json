@@ -22,7 +22,14 @@
         },
         "isPosition": true,
         "block": "minecraft:chest",
-        "lootTables": ["minecraft:chests/simple_dungeon", "minecraft:chests/ruined_portal"],
+        "additionalNbt": [
+          {
+            "LootTable": "minecraft:chests/simple_dungeon"
+          },
+          {
+            "LootTable": "minecraft:chests/ruined_portal"
+          }
+        ],
         "affectedBy": [
           {
             "type": "entity_look",

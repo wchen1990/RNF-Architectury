@@ -1,0 +1,41 @@
+{
+  "type": "rnf:normal_spell",
+  "key": {
+    "Z": "rnf:rune_block_z",
+    "L": "rnf:rune_block_l",
+    "T": "rnf:rune_block_t",
+    "N": "rnf:rune_block_n",
+    "U": "rnf:rune_block_u"
+  },
+  "pattern": {
+    "initial": "ZLTNU"
+  },
+  "effects": [
+    {
+      "type": "summon_entity",
+      "variables": {
+        "entities": ["minecraft:skeleton"],
+        "additionalNbt": [
+          {
+            "DeathLootTable": "minecraft:entities/slime",
+            "ArmorItems":[{},{},{},{"id":"rnf:luna_block","tag":{},"Count":1}],
+            "ArmorDropChances":[0,0,0,0]
+          }
+        ],
+        "vector": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "isPosition": false,
+        "affectedBy": [
+          {
+            "type": "facing_opposite",
+            "target": "vector",
+            "operation": "multiply"
+          }
+        ]
+      }
+    }
+  ]
+}
