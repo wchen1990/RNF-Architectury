@@ -2,10 +2,7 @@ package com.rocketnotfound.rnf.blockentity;
 
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
-import com.rocketnotfound.rnf.data.rituals.Ritual;
-import com.rocketnotfound.rnf.data.rituals.IAlterAnchorRitual;
-import com.rocketnotfound.rnf.data.rituals.IAlterBaseRitual;
-import com.rocketnotfound.rnf.data.rituals.IRitual;
+import com.rocketnotfound.rnf.data.rituals.*;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.sound.RNFSounds;
@@ -91,7 +88,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         }
 
         ItemStack itemStack = blockEntity.getItemStack();
-        if (blockEntity.isIndependent() && itemStack.isOf(RNFItems.LUNA.get())) {
+        if (blockEntity.isIndependent() && !itemStack.isEmpty()) {
             // Ritual infusion
             performRitualInfusion(serverWorld, blockPos, blockState, blockEntity);
         } else {
@@ -106,7 +103,6 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     }
 
     protected static void performRitualInfusion(ServerWorld serverWorld, BlockPos blockPos, BlockState blockState, RitualFrameBlockEntity blockEntity) {
-        // TODO: Make it so that this uses a recipe system
         BlockPos pos = blockEntity.getPos();
         ItemStack itemStack = blockEntity.getItemStack();
 
@@ -114,6 +110,12 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
             blockEntity.phaseTicks++;
             if (blockEntity.miscPos == null) {
                 if (blockEntity.phaseTicks > RNF.serverConfig().INFUSE.CHECK_REQUIREMENTS_INTERVAL_TICKS) {
+                    Optional<Recipe> rec = RitualFrameHelper.checkForInfusionRecipe(blockEntity, serverWorld);
+                    if (rec.isEmpty() || !(rec.get() instanceof InfusionRitual infuseRec) || !infuseRec.isValid()) {
+                        blockEntity.becomeDormant();
+                        return;
+                    }
+
                     int radius = RNF.serverConfig().INFUSE.INFUSING_RADIUS;
                     int negRagius = radius * -1;
                     BlockPos infuseTarget;
@@ -126,7 +128,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                         }
 
                         infuseTarget = (BlockPos) iter.next();
-                    } while (!serverWorld.getBlockState(infuseTarget).isOf(RNFBlocks.DRAINED_RUNE_BLOCK.get()));
+                    } while (!infuseRec.testTarget(serverWorld, infuseTarget));
 
                     if (infuseTarget != null && serverWorld.getBlockState(infuseTarget).isOf(RNFBlocks.DRAINED_RUNE_BLOCK.get())) {
                         blockEntity.miscPos = infuseTarget;
@@ -136,27 +138,37 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                 }
             } else if (serverWorld.getBlockState(blockEntity.miscPos).isOf(RNFBlocks.DRAINED_RUNE_BLOCK.get())) {
                 if (blockEntity.phaseTicks > RNF.serverConfig().INFUSE.ACTION_COMPLETION_TICKS) {
-                    // Replace Drained with Rune Block
-                    serverWorld.setBlockState(blockEntity.miscPos, RNFBlocks.RUNE_BLOCK.get().getDefaultState());
+                    Optional<Recipe> rec = RitualFrameHelper.checkForInfusionRecipe(blockEntity, serverWorld);
+                    if (rec.isEmpty() || !(rec.get() instanceof InfusionRitual infuseRec) || !infuseRec.isValid()) {
+                        blockEntity.becomeDormant();
+                        return;
+                    }
 
-                    // FX
-                    serverWorld.playSound(null, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_COMPLETE.get(), SoundCategory.BLOCKS, 1F, 1F);
-                    serverWorld.spawnParticles(ParticleTypes.FLASH, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, 0, 0, 0, 0, 0);
-                    serverWorld.spawnParticles(ParticleTypes.END_ROD, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, 50, 0, 0, 0, 0.1);
+                    if (infuseRec.tryInfuse(serverWorld, blockEntity.miscPos)) {
+                        ItemScatterer.spawn(serverWorld, blockPos, DefaultedList.ofSize(1, infuseRec.craft(null)));
 
-                    // Damage the Luna
-                    if (!itemStack.hasNbt() || !itemStack.getNbt().contains("Damage")) {
-                        itemStack.setDamage(RNF.serverConfig().INFUSE.INFUSE_PER_LUNA - 1);
+                        // FX
+                        serverWorld.playSound(null, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_COMPLETE.get(), SoundCategory.BLOCKS, 1F, 1F);
+                        serverWorld.spawnParticles(ParticleTypes.FLASH, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, 0, 0, 0, 0, 0);
+                        serverWorld.spawnParticles(ParticleTypes.END_ROD, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, 50, 0, 0, 0, 0.1);
+
+                        // Damage the Luna
+                        if (!itemStack.hasNbt() || !itemStack.getNbt().contains("Damage")) {
+                            itemStack.setDamage(RNF.serverConfig().INFUSE.INFUSE_PER_LUNA - 1);
+                        } else {
+                            itemStack.setDamage(itemStack.getDamage() - 1);
+                        }
+                        if (itemStack.getDamage() <= 0) {
+                            blockEntity.clearItem();
+                            blockEntity.updateBlock();
+                        }
+
+                        blockEntity.miscPos = null;
+                        blockEntity.phaseTicks = 0;
                     } else {
-                        itemStack.setDamage(itemStack.getDamage() - 1);
+                        blockEntity.miscPos = null;
+                        blockEntity.becomeDormant();
                     }
-                    if (itemStack.getDamage() <= 0) {
-                        blockEntity.clearItem();
-                        blockEntity.updateBlock();
-                    }
-
-                    blockEntity.miscPos = null;
-                    blockEntity.phaseTicks = 0;
                 } else {
                     if (blockEntity.phaseTicks % 15 == 0) {
                         serverWorld.playSound(null, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, RNFSounds.RITUAL_GENERIC_PROGRESS.get(), SoundCategory.BLOCKS, 0.8F, 1F);
@@ -168,7 +180,15 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                 blockEntity.becomeDormant();
             }
         } else {
-            blockEntity.setPhase(Phase.INFUSING);
+            blockEntity.phaseTicks++;
+            if (blockEntity.phaseTicks > RNF.serverConfig().INFUSE.CHECK_REQUIREMENTS_INTERVAL_TICKS) {
+                blockEntity.phaseTicks = 0;
+
+                Optional<Recipe> infuseRec = RitualFrameHelper.checkForInfusionRecipe(blockEntity, serverWorld);
+                if (infuseRec.isPresent() && infuseRec.get() instanceof InfusionRitual infuseRitual && infuseRitual.isValid()) {
+                    blockEntity.setPhase(Phase.INFUSING);
+                }
+            }
         }
     }
 

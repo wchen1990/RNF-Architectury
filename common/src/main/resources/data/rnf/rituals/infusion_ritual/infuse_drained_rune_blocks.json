@@ -1,0 +1,8 @@
+{
+  "type": "rnf:infusion_ritual",
+  "catalyst": {
+    "item": "rnf:luna"
+  },
+  "initial": "rnf:drained_rune_block",
+  "after": "rnf:rune_block"
+}

@@ -26,6 +26,9 @@ public class RNFRituals {
     public static final RegistrySupplier<RecipeType> ANCHOR_RITUAL_TYPE = RECIPE_TYPES.register(AnchorRitual.TYPE, AnchorRitual.RitualType::new);
     public static final RegistrySupplier<RecipeSerializer> ANCHOR_RITUAL_SERIALIZER = RECIPE_SERIALIZERS.register(AnchorRitual.TYPE, AnchorRitual.Serializer::new);
 
+    public static final RegistrySupplier<RecipeType> INFUSION_RITUAL_TYPE = RECIPE_TYPES.register(InfusionRitual.TYPE, InfusionRitual.RitualType::new);
+    public static final RegistrySupplier<RecipeSerializer> INFUSION_RITUAL_SERIALIZER = RECIPE_SERIALIZERS.register(InfusionRitual.TYPE, InfusionRitual.Serializer::new);
+
     public static void register() {
         RECIPE_TYPES.register();
         RECIPE_SERIALIZERS.register();

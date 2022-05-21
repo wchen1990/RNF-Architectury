@@ -6,5 +6,6 @@ public enum Ritual {
     CIRCLE,
     ENGRAVING,
     TETHER,
-    ANCHOR
+    ANCHOR,
+    INFUSION
 }

@@ -90,6 +90,11 @@ public class RitualFrameHelper {
         return listSize * RNF.serverConfig().RITUAL.ACTION_TICKS_PER_FRAME;
     }
 
+    public static Optional<Recipe> checkForInfusionRecipe(RitualFrameBlockEntity blockEntity, ServerWorld serverWorld) {
+        RitualManager manager = RitualManager.getInstance();
+        return manager.getFirstMatch(RNFRituals.INFUSION_RITUAL_TYPE.get(), SimpleInventoryHelper.of(blockEntity.getInventory()), serverWorld);
+    }
+
     public static Pair<Optional<Recipe>, Inventory> checkForRecipe(RitualFrameBlockEntity blockEntity, ServerWorld serverWorld) {
         List<RitualFrameBlockEntity> ordered = getOrderedActors(blockEntity);
         if (ordered.size() == 0) return new Pair<>(Optional.empty(), null);
