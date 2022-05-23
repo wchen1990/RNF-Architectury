@@ -433,8 +433,23 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     }
 
     public void onPositionChanged() {
+        BlockPos relativeTarget = null;
+        BlockPos relativeTargettedBy = null;
+
+        if (targettedBy != null)
+            relativeTarget = targettedBy.subtract(lastKnownPos);
+        if (target != null)
+            relativeTargettedBy = target.subtract(lastKnownPos);
+
         RitualFrameHelper.remove(this);
         lastKnownPos = pos;
+
+        if (relativeTarget != null && world.getBlockEntity(pos.add(relativeTarget)) instanceof RitualFrameBlockEntity newTarget) {
+            RitualFrameHelper.target(this, newTarget);
+        }
+        if (relativeTargettedBy != null && world.getBlockEntity(pos.add(relativeTargettedBy)) instanceof RitualFrameBlockEntity newTargettedBy) {
+            RitualFrameHelper.target(newTargettedBy, this);
+        }
     }
 
     public BlockPos getMiscPos() {
@@ -562,16 +577,17 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
         target = null;
         lastKnownPos = null;
 
+        // We add the current position to the saved nbt BlockPos values since they're relative values
         if (nbtCompound.contains("LastKnownPos"))
-            lastKnownPos = NbtHelper.toBlockPos(nbtCompound.getCompound("LastKnownPos"));
+            lastKnownPos = NbtHelper.toBlockPos(nbtCompound.getCompound("LastKnownPos")).add(pos);
         if (nbtCompound.contains("Conductor"))
-            conductor = NbtHelper.toBlockPos(nbtCompound.getCompound("Conductor"));
+            conductor = NbtHelper.toBlockPos(nbtCompound.getCompound("Conductor")).add(pos);
         if (nbtCompound.contains("Target"))
-            target = NbtHelper.toBlockPos(nbtCompound.getCompound("Target"));
+            target = NbtHelper.toBlockPos(nbtCompound.getCompound("Target")).add(pos);
         if (nbtCompound.contains("TargettedBy"))
-            targettedBy = NbtHelper.toBlockPos(nbtCompound.getCompound("TargettedBy"));
+            targettedBy = NbtHelper.toBlockPos(nbtCompound.getCompound("TargettedBy")).add(pos);
         if (nbtCompound.contains("MiscPos"))
-            miscPos = NbtHelper.toBlockPos(nbtCompound.getCompound("MiscPos"));
+            miscPos = NbtHelper.toBlockPos(nbtCompound.getCompound("MiscPos")).add(pos);
         if (nbtCompound.contains("Phase"))
             phase = Phase.valueOf(nbtCompound.getString("Phase"));
         if (nbtCompound.contains("PhaseTicks"))
@@ -593,18 +609,19 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
     @Override
     public void writeNbt(NbtCompound nbtCompound) {
         super.writeNbt(nbtCompound);
+        // We take the current position and subtract it from the other BlockPos variables to make them relative
         if (updateConnectivity)
             nbtCompound.putBoolean("Uninitialized", true);
         if (lastKnownPos != null)
-            nbtCompound.put("LastKnownPos", NbtHelper.fromBlockPos(lastKnownPos));
+            nbtCompound.put("LastKnownPos", NbtHelper.fromBlockPos(lastKnownPos.subtract(pos)));
         if (conductor != null && !isConductor())
-            nbtCompound.put("Conductor", NbtHelper.fromBlockPos(conductor));
+            nbtCompound.put("Conductor", NbtHelper.fromBlockPos(conductor.subtract(pos)));
         if (target != null && !target.equals(pos))
-            nbtCompound.put("Target", NbtHelper.fromBlockPos(target));
+            nbtCompound.put("Target", NbtHelper.fromBlockPos(target.subtract(pos)));
         if (targettedBy != null && !targettedBy.equals(pos))
-            nbtCompound.put("TargettedBy", NbtHelper.fromBlockPos(targettedBy));
+            nbtCompound.put("TargettedBy", NbtHelper.fromBlockPos(targettedBy.subtract(pos)));
         if (miscPos != null)
-            nbtCompound.put("MiscPos", NbtHelper.fromBlockPos(miscPos));
+            nbtCompound.put("MiscPos", NbtHelper.fromBlockPos(miscPos.subtract(pos)));
         if (phase != null && isConductor())
             nbtCompound.putString("Phase", phase.toString());
         if (phaseTicks >= 0 && isConductor())
