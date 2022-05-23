@@ -12,5 +12,6 @@ public class RNFProcessors {
     public static final RegistrySupplier<StructureProcessorType<?>> CHEST_PROCESSOR = PROCESSORS.register("chest_processor", () -> ChestLootTableProcessor.TYPE);
     public static final RegistrySupplier<StructureProcessorType<?>> FLUID_PROCESSOR = PROCESSORS.register("fluid_processor", () -> FluidProcessor.TYPE);
     public static final RegistrySupplier<StructureProcessorType<?>> REDSTONE_PROCESSOR = PROCESSORS.register("redstone_processor", () -> RedstoneProcessor.TYPE);
+    public static final RegistrySupplier<StructureProcessorType<?>> RITUAL_FRAME_PROCESSOR = PROCESSORS.register("ritual_frame_processor", () -> RitualFrameProcessor.TYPE);
     public static final RegistrySupplier<StructureProcessorType<?>> RANDOMLY_REPLACE_BLOCK_PROCESSOR = PROCESSORS.register("randomly_replace_block_processor", () -> RandomlyReplaceBlockProcessor.TYPE);
 }
