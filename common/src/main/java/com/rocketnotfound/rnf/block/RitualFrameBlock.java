@@ -188,8 +188,8 @@ public class RitualFrameBlock extends Block implements BlockEntityProvider, Wate
     @Override
     public int getComparatorOutput(BlockState blockState, World world, BlockPos blockPos) {
         BlockEntity be = world.getBlockEntity(blockPos);
-        if (be instanceof RitualFrameBlockEntity) {
-            return ScreenHandler.calculateComparatorOutput(SimpleInventoryHelper.of(((RitualFrameBlockEntity) be).getInventory()));
+        if (be instanceof RitualFrameBlockEntity && ((RitualFrameBlockEntity) be).getItemStack() != ItemStack.EMPTY) {
+            return 16;
         }
         return 0;
     }
