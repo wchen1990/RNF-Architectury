@@ -4,5 +4,7 @@
     "item": "rnf:luna"
   },
   "initial": "rnf:drained_rune_block",
-  "after": "rnf:rune_block"
+  "after": "rnf:rune_block",
+  "numInfusions": 8,
+  "searchRadius": 2
 }

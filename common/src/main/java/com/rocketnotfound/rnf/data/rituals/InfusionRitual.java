@@ -1,6 +1,7 @@
 package com.rocketnotfound.rnf.data.rituals;
 
 import com.google.gson.JsonObject;
+import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.util.BlockStateParser;
 import dev.architectury.core.AbstractRecipeSerializer;
 import net.minecraft.command.argument.BlockStateArgument;
@@ -29,13 +30,17 @@ public class InfusionRitual implements IRitual, IInfusionRitual {
     protected final DefaultedList<Ingredient> recipeItems;
     protected final Pair<String, BlockStateArgument> initialState;
     protected final Pair<String, BlockStateArgument> finalState;
+    protected final int numInfusions;
+    protected final int searchRadius;
 
-    public InfusionRitual(Identifier id, ItemStack output, DefaultedList<Ingredient> recipeItems, Pair<String, BlockStateArgument> initialState, Pair<String, BlockStateArgument> finalState) {
+    public InfusionRitual(Identifier id, ItemStack output, DefaultedList<Ingredient> recipeItems, Pair<String, BlockStateArgument> initialState, Pair<String, BlockStateArgument> finalState, int numInfusions, int searchRadius) {
         this.id = id;
         this.output = output;
         this.recipeItems = recipeItems;
         this.initialState = initialState;
         this.finalState = finalState;
+        this.numInfusions = numInfusions;
+        this.searchRadius = searchRadius;
     }
 
     public Ritual getRitualType() {
@@ -106,6 +111,17 @@ public class InfusionRitual implements IRitual, IInfusionRitual {
         return finalState;
     }
 
+    @Override
+    public int getNumInfusions() {
+        return numInfusions;
+    }
+
+    @Override
+    public int getSearchRadius() {
+        int serverLimit = RNF.serverConfig().INFUSE.SEARCH_LIMIT;
+        return (searchRadius > serverLimit) ? serverLimit : searchRadius;
+    }
+
     public static class RitualType implements RecipeType<InfusionRitual> {
         @Override
         public String toString() {
@@ -124,8 +140,10 @@ public class InfusionRitual implements IRitual, IInfusionRitual {
             Pair<String, BlockStateArgument> initialPair = new Pair(initial, BlockStateParser.parse(initial));
             String after = JsonHelper.getString(jsonObject, "after");
             Pair<String, BlockStateArgument> afterPair = new Pair(after, BlockStateParser.parse(after));
+            int numInfusions = JsonHelper.getInt(jsonObject, "numInfusions");
+            int searchRadius = JsonHelper.getInt(jsonObject, "searchRadius");
 
-            return new InfusionRitual(identifier, output, inputs, initialPair, afterPair);
+            return new InfusionRitual(identifier, output, inputs, initialPair, afterPair, numInfusions, searchRadius);
         }
 
         @Override
@@ -137,6 +155,8 @@ public class InfusionRitual implements IRitual, IInfusionRitual {
             packetByteBuf.writeItemStack(recipe.getOutput());
             packetByteBuf.writeString(recipe.getTargetPair().getLeft());
             packetByteBuf.writeString(recipe.getResultPair().getLeft());
+            packetByteBuf.writeInt(recipe.getNumInfusions());
+            packetByteBuf.writeInt(recipe.getSearchRadius());
         }
 
         @Nullable
@@ -154,8 +174,10 @@ public class InfusionRitual implements IRitual, IInfusionRitual {
             Pair<String, BlockStateArgument> initialPair = new Pair(initial, BlockStateParser.parse(initial));
             String after = packetByteBuf.readString();
             Pair<String, BlockStateArgument> afterPair = new Pair(after, BlockStateParser.parse(after));
+            int numInfusions = packetByteBuf.readInt();
+            int searchRadius = packetByteBuf.readInt();
 
-            return new InfusionRitual(identifier, output, inputs, initialPair, afterPair);
+            return new InfusionRitual(identifier, output, inputs, initialPair, afterPair, numInfusions, searchRadius);
         }
     }
 }

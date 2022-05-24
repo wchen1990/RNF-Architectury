@@ -9,6 +9,8 @@ import net.minecraft.util.math.BlockPos;
 public interface IInfusionRitual {
     Pair<String, BlockStateArgument> getTargetPair();
     Pair<String, BlockStateArgument> getResultPair();
+    int getNumInfusions();
+    int getSearchRadius();
 
     default boolean testTarget(ServerWorld serverWorld, BlockPos targetPos) {
         Pair<String, BlockStateArgument> targetPair = getTargetPair();

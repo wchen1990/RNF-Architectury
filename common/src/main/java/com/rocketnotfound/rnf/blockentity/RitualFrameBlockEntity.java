@@ -3,7 +3,6 @@ package com.rocketnotfound.rnf.blockentity;
 import com.rocketnotfound.rnf.RNF;
 import com.rocketnotfound.rnf.block.RNFBlocks;
 import com.rocketnotfound.rnf.data.rituals.*;
-import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.sound.RNFSounds;
 import com.rocketnotfound.rnf.util.RitualFrameHelper;
@@ -116,7 +115,7 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                         return;
                     }
 
-                    int radius = RNF.serverConfig().INFUSE.INFUSING_RADIUS;
+                    int radius = infuseRec.getSearchRadius();
                     int negRagius = radius * -1;
                     BlockPos infuseTarget;
 
@@ -152,9 +151,9 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                         serverWorld.spawnParticles(ParticleTypes.FLASH, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, 0, 0, 0, 0, 0);
                         serverWorld.spawnParticles(ParticleTypes.END_ROD, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, 50, 0, 0, 0, 0.1);
 
-                        // Damage the Luna
+                        // Damage the item stack
                         if (!itemStack.hasNbt() || !itemStack.getNbt().contains("Damage")) {
-                            itemStack.setDamage(RNF.serverConfig().INFUSE.INFUSE_PER_LUNA - 1);
+                            itemStack.setDamage(infuseRec.getNumInfusions() - 1);
                         } else {
                             itemStack.setDamage(itemStack.getDamage() - 1);
                         }

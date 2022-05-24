@@ -38,8 +38,7 @@ public class ServerConfig implements ConfigData {
     }
 
     public static class InfusionConfig {
-        public int INFUSING_RADIUS = 2;
-        public int INFUSE_PER_LUNA = 8;
+        public int SEARCH_LIMIT = 16;
         public int CHECK_REQUIREMENTS_INTERVAL_TICKS = 60;
         public int ACTION_COMPLETION_TICKS = 60;
     }
