@@ -7,22 +7,16 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.tag.FluidTags;
 import net.minecraft.tag.TagKey;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FluidState.class)
 public abstract class MixinFluidStateForceAllFluidsInWater {
-    @Shadow
-    public abstract Fluid getFluid();
-
     @Inject(method = "Lnet/minecraft/fluid/FluidState;isIn(Lnet/minecraft/tag/TagKey;)Z", at = @At("RETURN"), cancellable = true)
     public void rnf_isIn(TagKey<Fluid> tagKey, CallbackInfoReturnable<Boolean> cir) {
-        if (!cir.getReturnValue() && RNF.serverConfig().MISC.FORCE_UNTAGGED_AS_WATER) {
-            // Future enhancements could use a tag we make ourselves to tag fluids so that we can fake it being in water or lava
-            FluidState fluidState = getFluid().getDefaultState();
-            cir.setReturnValue(tagKey.equals(FluidTags.WATER) && MixinBackgroundRendererForFluidsHelper.matchesCondition(fluidState));
+        if (!cir.getReturnValue() && tagKey.equals(FluidTags.WATER) && RNF.serverConfig().MISC.FORCE_UNTAGGED_AS_WATER) {
+            cir.setReturnValue(MixinBackgroundRendererForFluidsHelper.matchesCondition(((FluidState)(Object)this)));
         }
     }
 }
