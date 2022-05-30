@@ -7,7 +7,8 @@
     "access.BlockEntityTypeAccess",
     "access.BlockEntityTypeBuilderAccess",
     "access.BlockStateProviderAccess",
-    "access.DefaultParticleTypeAccess"
+    "access.DefaultParticleTypeAccess",
+    "fluid.MixinFluidStateForceAllFluidsInWater"
   ],
   "client": [
     "client.MixinParticleManager"

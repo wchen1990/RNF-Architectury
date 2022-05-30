@@ -22,6 +22,10 @@ public class ServerConfig implements ConfigData {
     @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
     public TranscribeConfig TRANSCRIBE = new TranscribeConfig();
 
+    @ConfigEntry.Category("Miscellaneous")
+    @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+    public MiscellaneousConfig MISC = new MiscellaneousConfig();
+
     public static class WorldGenConfig {
         public int MOONSTONE_ORE_VEIN_SIZE = 5;
         public int MOONSTONE_VEINS_PER_CHUNK = 2;
@@ -49,5 +53,9 @@ public class ServerConfig implements ConfigData {
         public int CHECK_REQUIREMENTS_INTERVAL_TICKS = 60;
         public int ACTION_TICKS_PER_LENGTH = 10;
         public int ACTION_COOLDOWN = 60;
+    }
+
+    public static class MiscellaneousConfig {
+        public boolean FORCE_FAKE_WATER_FLUID_TAG = true;
     }
 }

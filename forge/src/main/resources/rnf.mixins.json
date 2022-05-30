@@ -4,6 +4,7 @@
   "package": "com.rocketnotfound.rnf.forge.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
+    "client.MixinBackgroundRendererForFluids"
   ],
   "mixins": [
   ],
