@@ -10,7 +10,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.tag.FluidTags;
 import net.minecraft.util.Identifier;
 import net.minecraftforge.fluids.FluidAttributes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,9 +35,9 @@ public class MixinBackgroundRendererForFluids {
     @Inject(method = "render(Lnet/minecraft/client/render/Camera;FLnet/minecraft/client/world/ClientWorld;IF)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld$Properties;getHorizonShadingRatio()F"))
     private static void rnf_render(Camera camera, float j, ClientWorld clientWorld, int l, float i1, CallbackInfo ci) {
-        if (RNF.serverConfig().MISC.FORCE_FAKE_WATER_FLUID_TAG) {
+        if (RNF.serverConfig().MISC.FORCE_UNTAGGED_AS_WATER) {
             FluidState fluidState = MixinBackgroundRendererForFluidsHelper.getNearbyFluid(camera);
-            if (!fluidState.isEmpty() && fluidState.isIn(FluidTags.WATER) && !fluidState.getFluid().getRegistryEntry().isIn(FluidTags.WATER) && !fluidState.getFluid().getRegistryEntry().isIn(FluidTags.LAVA)) {
+            if (MixinBackgroundRendererForFluidsHelper.matchesCondition(fluidState)) {
                 // Scale the brightness of fog but make sure it is never darker than the dimension's min brightness.
                 float brightness = (float) Math.max(
                     Math.pow(MixinBackgroundRendererForFluidsHelper.getDimensionBrightnessAtEyes(camera.getFocusedEntity()), 2D),

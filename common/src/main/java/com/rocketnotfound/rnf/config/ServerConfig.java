@@ -56,6 +56,7 @@ public class ServerConfig implements ConfigData {
     }
 
     public static class MiscellaneousConfig {
-        public boolean FORCE_FAKE_WATER_FLUID_TAG = true;
+        public boolean FORCE_UNTAGGED_AS_WATER = true;
+        public float FORCED_FOG_DENSITY = 16F;
     }
 }
