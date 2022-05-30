@@ -50,14 +50,16 @@ public class MixinBackgroundRendererForFluids {
                 if (fluidStill != null) {
                     MinecraftClient minecraft = MinecraftClient.getInstance();
                     Sprite textureAtlasSprite = minecraft.getSpriteAtlas(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).apply(fluidStill);
-                    int renderColor = textureAtlasSprite.getPixelRGBA(1, 7, 7);
+                    int renderColor = textureAtlasSprite.getPixelRGBA(0, 0, 0);
                     int attributeColor = fluid.getAttributes().getColor();
 
                     red = brightness * Math.min((renderColor >> 16 & 0xFF), (attributeColor >> 16 & 0xFF)) / 255F;
                     green = brightness * Math.min((renderColor >> 8 & 0xFF), (attributeColor >> 8 & 0xFF)) / 255F;
                     blue = Math.min((renderColor & 0xFF), (attributeColor & 0xFF)) / 255F;
 
-                    //RNF.LOG.info(String.format("--------\nsprite: %s\nattr: %s\nrgb (float): %s, %s, %s", renderColor, attributeColor, red, green, blue));
+                    if (RNF.clientConfig().DEBUG.SHOW_MOD_LOGGER_INFO) {
+                        RNF.LOG.info(String.format("--------\nsprite: %s\nattr: %s\nrgb (float): %s, %s, %s", renderColor, attributeColor, red, green, blue));
+                    }
 
                     lastWaterFogColorUpdateTime = -1L;
                 }

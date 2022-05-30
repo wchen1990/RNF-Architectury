@@ -20,6 +20,7 @@ public abstract class MixinFluidStateForceAllFluidsInWater {
     @Inject(method = "Lnet/minecraft/fluid/FluidState;isIn(Lnet/minecraft/tag/TagKey;)Z", at = @At("RETURN"), cancellable = true)
     public void rnf_isIn(TagKey<Fluid> tagKey, CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue() && RNF.serverConfig().MISC.FORCE_UNTAGGED_AS_WATER) {
+            // Future enhancements could use a tag we make ourselves to tag fluids so that we can fake it being in water or lava
             FluidState fluidState = getFluid().getDefaultState();
             cir.setReturnValue(tagKey.equals(FluidTags.WATER) && MixinBackgroundRendererForFluidsHelper.matchesCondition(fluidState));
         }
