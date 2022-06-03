@@ -13,6 +13,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -68,7 +69,10 @@ public interface ISpell extends Recipe<Inventory> {
                 }
 
                 for (int idx = 0; idx < finalState.size(); ++idx) {
-                    world.setBlockState(posCopy.get(idx + 1), finalState.get(idx).getRight());
+                    boolean didSet = world.setBlockState(posCopy.get(idx + 1), finalState.get(idx).getRight());
+                    if (didSet) {
+                        world.emitGameEvent(livingEntity, GameEvent.BLOCK_CHANGE, posCopy.get(idx + 1));
+                    }
                 }
             }
 

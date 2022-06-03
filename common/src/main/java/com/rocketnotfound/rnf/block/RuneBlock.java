@@ -28,7 +28,7 @@ public class RuneBlock extends AbstractGlassBlock implements Stainable {
                 .nonOpaque()
                 .suffocates(blockContextFalse())
                 .blockVision(blockContextFalse())
-                .luminance(blockLuminance(12))
+                .luminance(blockLuminance(10))
                 .sounds(BlockSoundGroup.AMETHYST_BLOCK)
                 .strength(1.5f, 6.0f)
         );

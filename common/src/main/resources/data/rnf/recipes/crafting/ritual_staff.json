@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "RAA",
+    "AO ",
+    "A O"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "R": {
+      "item": "rnf:rune_block"
+    }
+  },
+  "result": {
+    "item": "rnf:ritual_staff"
+  }
+}

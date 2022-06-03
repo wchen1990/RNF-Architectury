@@ -43,7 +43,7 @@ dependencies {
     // compile against the JEI API but do not include it at runtime
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}:${jei_version}:api")
     // at runtime, use the full JEI jar
-    //modRuntimeOnly("mezz.jei:jei-${minecraft_version}:${jei_version}")
+    modRuntimeOnly("mezz.jei:jei-${minecraft_version}:${jei_version}")
 
     // TOP
     //modRuntimeOnly("curse.maven:top-245211:3671753")

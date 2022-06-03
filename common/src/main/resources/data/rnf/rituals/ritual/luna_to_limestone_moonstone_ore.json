@@ -1,0 +1,14 @@
+{
+  "type": "rnf:ritual",
+  "ingredients": [
+    {
+      "item": "unearthed:limestone"
+    },
+    {
+      "item": "rnf:luna"
+    }
+  ],
+  "output": {
+    "item": "rnf:limestone_moonstone_ore"
+  }
+}

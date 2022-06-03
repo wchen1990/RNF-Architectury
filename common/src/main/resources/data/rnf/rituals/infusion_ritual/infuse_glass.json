@@ -1,0 +1,10 @@
+{
+  "type": "rnf:infusion_ritual",
+  "catalyst": {
+    "item": "minecraft:calcite"
+  },
+  "initial": "minecraft:glass",
+  "after": "rnf:drained_rune_block",
+  "numInfusions": 8,
+  "searchRadius": 2
+}

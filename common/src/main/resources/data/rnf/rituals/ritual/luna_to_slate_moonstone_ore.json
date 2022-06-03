@@ -1,0 +1,14 @@
+{
+  "type": "rnf:ritual",
+  "ingredients": [
+    {
+      "item": "unearthed:slate"
+    },
+    {
+      "item": "rnf:luna"
+    }
+  ],
+  "output": {
+    "item": "rnf:slate_moonstone_ore"
+  }
+}

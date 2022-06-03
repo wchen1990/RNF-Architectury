@@ -39,7 +39,7 @@ public class LunaBlock extends HorizontalFacingBlock implements Wearable {
         super(
             AbstractBlock.Settings.of(Material.STONE, MapColor.TERRACOTTA_WHITE)
                 .ticksRandomly()
-                .luminance((blockState) -> blockState.get(Properties.LIT) ? 10 : 7)
+                .luminance((blockState) -> blockState.get(Properties.LIT) ? 12 : 7)
                 .sounds(BlockSoundGroup.STONE)
                 .strength(1.5f, 6.0f)
         );
@@ -74,6 +74,8 @@ public class LunaBlock extends HorizontalFacingBlock implements Wearable {
                         String.format(
                             "--------------------------------\n" +
                             "Pos: %s\n" +
+                            "Conditional: %s\n" +
+                            "SubCondition: %s\n" +
                             "Time: %s\n" +
                             "TimeOfDay: %s\n" +
                             "LunarTime: %s\n" +
@@ -81,6 +83,8 @@ public class LunaBlock extends HorizontalFacingBlock implements Wearable {
                             "IsDay: %s\n" +
                             "IsNight: %s",
                             blockPos,
+                            blockState.get(CONDITIONAL),
+                            subConditionsMet(world, blockPos),
                             world.getTime(),
                             world.getTimeOfDay(),
                             world.getLunarTime(),
@@ -115,7 +119,13 @@ public class LunaBlock extends HorizontalFacingBlock implements Wearable {
     }
 
     protected static boolean conditionsMet(World world, BlockPos blockPos) {
-        return world.isNight() && world.isSkyVisibleAllowingSea(blockPos);
+        return world.isNight() && subConditionsMet(world, blockPos);
+    }
+
+    protected static boolean subConditionsMet(World world, BlockPos blockPos) {
+        BlockPos upPos = blockPos.up();
+        BlockState upBs = world.getBlockState(upPos);
+        return !(upBs.getOpacity(world, upPos) > 0 && !upBs.getMaterial().isLiquid());
     }
 
     @Override
@@ -155,7 +165,7 @@ public class LunaBlock extends HorizontalFacingBlock implements Wearable {
         Direction[] var5 = Direction.values();
         int var6 = var5.length;
 
-        if(bs.get(CONDITIONAL) && world.isSkyVisibleAllowingSea(blockPos)) {
+        if(bs.get(CONDITIONAL) && subConditionsMet(world, blockPos)) {
             if (bs.isOf(RNFBlocks.LUNA_BLOCK.get())) {
                 Direction facing = bs.get(FACING);
 

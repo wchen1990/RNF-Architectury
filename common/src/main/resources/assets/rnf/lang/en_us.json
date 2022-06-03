@@ -18,6 +18,9 @@
   "recipe.rnf.engraving_ritual": "Engraving Ritual Crafting",
   "recipe.rnf.anchoring_ritual": "Anchoring Ritual Crafting",
   "recipe.rnf.tethering_ritual": "Tethering Ritual Crafting",
+  "recipe.rnf.infusion_ritual": "Infusion Ritual Crafting",
+  "recipe.rnf.generic.radius": "Affects blocks in a %s block radius",
+  "recipe.rnf.generic.num_times": "Can be used %s time(s)",
   "recipe.rnf.generic.alter_base": "Output based on last item",
   "recipe.rnf.generic.alter_anchor": "Output based on first item",
 

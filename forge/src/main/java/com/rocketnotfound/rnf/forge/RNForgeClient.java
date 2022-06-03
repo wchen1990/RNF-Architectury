@@ -36,9 +36,7 @@ public class RNForgeClient {
 
     @SubscribeEvent
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-        if (!FMLEnvironment.production && !GeckoLibMod.DISABLE_IN_DEV) {
-            event.registerBlockEntityRenderer(RNFBlockEntities.RITUAL_FRAME.get(), RitualFrameRenderer::new);
-            event.registerBlockEntityRenderer(RNFBlockEntities.RITUAL_PRIMER.get(), RitualPrimerRenderer::new);
-        }
+        event.registerBlockEntityRenderer(RNFBlockEntities.RITUAL_FRAME.get(), RitualFrameRenderer::new);
+        event.registerBlockEntityRenderer(RNFBlockEntities.RITUAL_PRIMER.get(), RitualPrimerRenderer::new);
     }
 }

@@ -33,6 +33,7 @@ public class RNFJEI implements IModPlugin {
         allCategories.add(new EngravingRitualCategory(registration.getJeiHelpers().getGuiHelper()));
         allCategories.add(new AnchorRitualCategory(registration.getJeiHelpers().getGuiHelper()));
         allCategories.add(new TetheredRitualCategory(registration.getJeiHelpers().getGuiHelper()));
+        allCategories.add(new InfusionRitualCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override

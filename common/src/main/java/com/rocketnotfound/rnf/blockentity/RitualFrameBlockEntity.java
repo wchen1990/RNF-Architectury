@@ -25,6 +25,7 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -243,7 +244,10 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                             BlockPos baseBlockPos = RitualFrameHelper.getSupportingBlockPos(blockEntity);
                             Block newBlock = ((IAlterBaseRitual) ritualRecipe).alterBase(pair.getRight());
                             if (!serverWorld.getBlockState(baseBlockPos).isOf(newBlock)) {
-                                serverWorld.setBlockState(baseBlockPos, newBlock.getDefaultState());
+                                boolean setBase = serverWorld.setBlockState(baseBlockPos, newBlock.getDefaultState());
+                                if (setBase) {
+                                    serverWorld.emitGameEvent(null, GameEvent.BLOCK_CHANGE, baseBlockPos);
+                                }
                             }
                         }
 
@@ -251,7 +255,10 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                             BlockPos anchorBlockPos = RitualFrameHelper.getSupportingBlockPos(RitualFrameHelper.getLastActor(blockEntity));
                             Block newBlock = ((IAlterAnchorRitual) ritualRecipe).alterAnchor(pair.getRight());
                             if (!serverWorld.getBlockState(anchorBlockPos).isOf(newBlock)) {
-                                serverWorld.setBlockState(anchorBlockPos, newBlock.getDefaultState());
+                                boolean setAnchor = serverWorld.setBlockState(anchorBlockPos, newBlock.getDefaultState());
+                                if (setAnchor) {
+                                    serverWorld.emitGameEvent(null, GameEvent.BLOCK_CHANGE, anchorBlockPos);
+                                }
                             }
                         }
 
