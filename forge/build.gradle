@@ -56,6 +56,12 @@ dependencies {
     //modRuntimeOnly("curse.maven:hyle-${hyle_curse_maven_project_id}:${hyle_curse_maven_forge_file_id}")
     //modRuntimeOnly("curse.maven:unearthed-${unearthed_curse_maven_project_id}:${unearthed_curse_maven_forge_file_id}")
 
+    // Xaeros
+    //modCompileOnlyApi("curse.maven:xaerosminimap-263420:3819354")
+    //modRuntimeOnly("curse.maven:xaerosminimap-263420:3819354")
+    modImplementation("curse.maven:xaerosminimap-263420:3819354")
+    modRuntimeOnly("curse.maven:xaerosworldmap-317780:3819368")
+
     // Shutup Experimental Settings
     modRuntimeOnly("curse.maven:shutup-407174:3759881")
 

@@ -11,7 +11,9 @@
     "fluid.MixinFluidStateForceAllFluidsInWater"
   ],
   "client": [
-    "client.MixinParticleManager"
+    "client.MixinParticleManager",
+    "client.MixinWorldSetBlockstateNullCheck",
+    "client.MixinBannerBlockEntityRendererNullCheck"
   ],
   "injectors": {
     "defaultRequire": 1
