@@ -1,9 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "RAA",
-    "AO ",
-    "A O"
+    " A ",
+    " O ",
+    " R "
   ],
   "key": {
     "A": {
@@ -13,10 +13,10 @@
       "item": "minecraft:obsidian"
     },
     "R": {
-      "item": "rnf:redstone"
+      "item": "rnf:rune_block"
     }
   },
   "result": {
-    "item": "rnf:ritual_primer"
+    "item": "rnf:ritual_staff"
   }
 }

@@ -107,7 +107,7 @@ public class RNFItems {
     public static final RegistrySupplier<Item> BEIGE_LIMESTONE_MOONSTONE_ORE = ITEMS.register("beige_limestone_moonstone_ore", () -> new BlockItem(RNFBlocks.BEIGE_LIMESTONE_MOONSTONE_ORE.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> CONGLOMERATE_MOONSTONE_ORE = ITEMS.register("conglomerate_moonstone_ore", () -> new BlockItem(RNFBlocks.CONGLOMERATE_MOONSTONE_ORE.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> GABBRO_MOONSTONE_ORE = ITEMS.register("gabbro_moonstone_ore", () -> new BlockItem(RNFBlocks.GABBRO_MOONSTONE_ORE.get(), new Item.Settings()));
-    public static final RegistrySupplier<Item> GRANDIORITE_MOONSTONE_ORE = ITEMS.register("grandiorite_moonstone_ore", () -> new BlockItem(RNFBlocks.GRANDIORITE_MOONSTONE_ORE.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> GRANODIORITE_MOONSTONE_ORE = ITEMS.register("granodiorite_moonstone_ore", () -> new BlockItem(RNFBlocks.GRANODIORITE_MOONSTONE_ORE.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> GREY_LIMESTONE_MOONSTONE_ORE = ITEMS.register("grey_limestone_moonstone_ore", () -> new BlockItem(RNFBlocks.GREY_LIMESTONE_MOONSTONE_ORE.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> KIMBERLITE_MOONSTONE_ORE = ITEMS.register("kimberlite_moonstone_ore", () -> new BlockItem(RNFBlocks.KIMBERLITE_MOONSTONE_ORE.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> LIMESTONE_MOONSTONE_ORE = ITEMS.register("limestone_moonstone_ore", () -> new BlockItem(RNFBlocks.LIMESTONE_MOONSTONE_ORE.get(), new Item.Settings()));

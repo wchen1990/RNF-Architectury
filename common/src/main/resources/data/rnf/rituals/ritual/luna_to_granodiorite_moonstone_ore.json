@@ -2,13 +2,13 @@
   "type": "rnf:ritual",
   "ingredients": [
     {
-      "item": "unearthed:grandiorite"
+      "item": "unearthed:granodiorite"
     },
     {
       "item": "rnf:luna"
     }
   ],
   "output": {
-    "item": "rnf:grandiorite_moonstone_ore"
+    "item": "rnf:granodiorite_moonstone_ore"
   }
 }

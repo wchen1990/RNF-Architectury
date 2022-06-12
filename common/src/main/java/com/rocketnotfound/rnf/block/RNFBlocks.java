@@ -101,7 +101,7 @@ public class RNFBlocks {
     public static final RegistrySupplier<Block> BEIGE_LIMESTONE_MOONSTONE_ORE = BLOCKS.register("beige_limestone_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
     public static final RegistrySupplier<Block> CONGLOMERATE_MOONSTONE_ORE = BLOCKS.register("conglomerate_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
     public static final RegistrySupplier<Block> GABBRO_MOONSTONE_ORE = BLOCKS.register("gabbro_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
-    public static final RegistrySupplier<Block> GRANDIORITE_MOONSTONE_ORE = BLOCKS.register("grandiorite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
+    public static final RegistrySupplier<Block> GRANODIORITE_MOONSTONE_ORE = BLOCKS.register("granodiorite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
     public static final RegistrySupplier<Block> GREY_LIMESTONE_MOONSTONE_ORE = BLOCKS.register("grey_limestone_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
     public static final RegistrySupplier<Block> KIMBERLITE_MOONSTONE_ORE = BLOCKS.register("kimberlite_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
     public static final RegistrySupplier<Block> LIMESTONE_MOONSTONE_ORE = BLOCKS.register("limestone_moonstone_ore", () -> new MoonstoneOreBlock(AbstractBlock.Settings.copy(MOONSTONE_ORE.get())));
