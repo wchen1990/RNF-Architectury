@@ -10,6 +10,8 @@ import com.rocketnotfound.rnf.data.rituals.RNFRituals;
 import com.rocketnotfound.rnf.data.spells.RNFSpells;
 import com.rocketnotfound.rnf.network.RNFNetwork;
 import com.rocketnotfound.rnf.network.SyncConfigMessage;
+import com.rocketnotfound.rnf.network.SyncRitualManager;
+import com.rocketnotfound.rnf.network.SyncSpellManager;
 import com.rocketnotfound.rnf.particle.RNFParticleTypes;
 import com.rocketnotfound.rnf.item.RNFItems;
 import com.rocketnotfound.rnf.proxy.IProxy;
@@ -87,9 +89,11 @@ public class RNF {
         });
 
         // Sync Server Configs
-        PlayerEvent.PLAYER_JOIN.register(player ->
-            RNFNetwork.CHANNEL.sendToPlayer(player, new SyncConfigMessage(RNF.serverConfig()))
-        );
+        PlayerEvent.PLAYER_JOIN.register(player -> {
+            RNFNetwork.CHANNEL.sendToPlayer(player, new SyncConfigMessage(RNF.serverConfig()));
+            RNFNetwork.CHANNEL.sendToPlayer(player, new SyncRitualManager(RitualManager.getInstance().values()));
+            RNFNetwork.CHANNEL.sendToPlayer(player, new SyncSpellManager(SpellManager.getInstance().values()));
+        });
     }
 
     public static Identifier createIdentifier(String path) {

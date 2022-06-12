@@ -11,5 +11,7 @@ public class RNFNetwork {
 
     public static void init() {
         CHANNEL.register(SyncConfigMessage.class, SyncConfigMessage::encode, SyncConfigMessage::decode, SyncConfigMessage::handle);
+        CHANNEL.register(SyncRitualManager.class, SyncRitualManager::encode, SyncRitualManager::decode, SyncRitualManager::handle);
+        CHANNEL.register(SyncSpellManager.class, SyncSpellManager::encode, SyncSpellManager::decode, SyncSpellManager::handle);
     }
 }
