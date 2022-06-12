@@ -13,10 +13,10 @@
       "item": "minecraft:obsidian"
     },
     "R": {
-      "item": "rnf:redstone"
+      "item": "rnf:rune_block"
     }
   },
   "result": {
-    "item": "rnf:ritual_primer"
+    "item": "rnf:ritual_staff"
   }
 }

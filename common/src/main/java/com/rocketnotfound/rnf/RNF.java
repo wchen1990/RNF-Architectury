@@ -88,7 +88,7 @@ public class RNF {
             RitualFrameHelper.invalidateCache();
         });
 
-        // Sync Server Configs
+        // Sync Data
         PlayerEvent.PLAYER_JOIN.register(player -> {
             RNFNetwork.CHANNEL.sendToPlayer(player, new SyncConfigMessage(RNF.serverConfig()));
             RNFNetwork.CHANNEL.sendToPlayer(player, new SyncRitualManager(RitualManager.getInstance().values()));
