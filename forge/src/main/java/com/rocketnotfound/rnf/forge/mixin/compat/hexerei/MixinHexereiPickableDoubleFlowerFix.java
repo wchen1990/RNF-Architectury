@@ -12,8 +12,6 @@ import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -22,7 +20,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.registries.RegistryObject;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
@@ -70,6 +67,7 @@ public class MixinHexereiPickableDoubleFlowerFix extends Block {
                 && p_57287_.getBaseLightLevel(p_57288_.up(), 0) >= 9
                 && ForgeHooks.onCropsGrowPre(p_57287_, p_57288_, p_57286_, p_57289_.nextInt(10) == 0)
                 && p_57286_.contains(AGE)
+                && p_57287_.getBlockState(p_57288_).contains(AGE)
                 && p_57287_.getBlockState(p_57288_.up()).contains(AGE)
             ) {
                 p_57287_.setBlockState(p_57288_, (BlockState) p_57286_.with(AGE, i + 1), 2);
@@ -110,26 +108,29 @@ public class MixinHexereiPickableDoubleFlowerFix extends Block {
                 }
 
                 level.playSound((PlayerEntity) null, blockpos, SoundEvents.BLOCK_CAVE_VINES_PICK_BERRIES, SoundCategory.BLOCKS, 1.0F, 0.8F + level.random.nextFloat() * 0.4F);
-                BlockState blockState;
-                if (blockstate.get(HALF) == DoubleBlockHalf.LOWER) {
-                    level.setBlockState(blockpos, (BlockState) blockstate.with(AGE, 0), 2);
-                    blockState = level.getBlockState(blockpos.up());
-                    if (blockState.getBlock() == level.getBlockState(blockpos).getBlock()) {
-                        level.setBlockState(blockpos.up(), (BlockState) blockState.with(AGE, 0), 2);
-                    } else if (blockState.isAir()) {
-                        level.setBlockState(blockpos.up(), (BlockState) ((BlockState) level.getBlockState(blockpos).with(AGE, 0)).with(HALF, DoubleBlockHalf.UPPER), 2);
-                    }
-                } else {
-                    level.setBlockState(blockpos, (BlockState) blockstate.with(AGE, 0), 2);
-                    blockState = level.getBlockState(blockpos.down());
-                    if (blockState.getBlock() == level.getBlockState(blockpos).getBlock()) {
-                        level.setBlockState(blockpos.down(), (BlockState) blockState.with(AGE, 0), 2);
-                    } else if (blockState.isAir()) {
-                        level.setBlockState(blockpos.down(), (BlockState) ((BlockState) level.getBlockState(blockpos).with(AGE, 0)).with(HALF, DoubleBlockHalf.LOWER), 2);
-                    }
-                }
 
-                cir.setReturnValue(ActionResult.success(level.isClient));
+                BlockState blockState;
+                if (level.getBlockState(blockpos).getBlock() instanceof PickableDoubleFlower) {
+                    if (blockstate.get(HALF) == DoubleBlockHalf.LOWER) {
+                        level.setBlockState(blockpos, (BlockState) blockstate.with(AGE, 0), 2);
+                        blockState = level.getBlockState(blockpos.up());
+                        if (blockState.getBlock() == level.getBlockState(blockpos).getBlock()) {
+                            level.setBlockState(blockpos.up(), (BlockState) blockState.with(AGE, 0), 2);
+                        } else if (blockState.isAir()) {
+                            level.setBlockState(blockpos.up(), (BlockState) ((BlockState) level.getBlockState(blockpos).with(AGE, 0)).with(HALF, DoubleBlockHalf.UPPER), 3);
+                        }
+                    } else {
+                        level.setBlockState(blockpos, (BlockState) blockstate.with(AGE, 0), 2);
+                        blockState = level.getBlockState(blockpos.down());
+                        if (blockState.getBlock() == level.getBlockState(blockpos).getBlock()) {
+                            level.setBlockState(blockpos.down(), (BlockState) blockState.with(AGE, 0), 2);
+                        } else if (blockState.isAir()) {
+                            level.setBlockState(blockpos.down(), (BlockState) ((BlockState) level.getBlockState(blockpos).with(AGE, 0)).with(HALF, DoubleBlockHalf.LOWER), 3);
+                        }
+                    }
+
+                    cir.setReturnValue(ActionResult.success(level.isClient));
+                }
             } else {
                 cir.setReturnValue(super.onUse(blockstate, level, blockpos, player, hand, hit));
             }
@@ -152,16 +153,29 @@ public class MixinHexereiPickableDoubleFlowerFix extends Block {
         cancellable = true
     )
     public void growFix(ServerWorld level, Random random, BlockPos blockPos, BlockState blockState, CallbackInfo ci) {
-        if (blockState.contains(HALF) && blockState.contains(AGE)) {
+        if (
+            blockState.contains(HALF)
+            && blockState.contains(AGE)
+        ) {
             int i;
             if (blockState.get(HALF) == DoubleBlockHalf.LOWER) {
-                i = Math.min(3, (Integer) blockState.get(AGE) + 1);
-                level.setBlockState(blockPos, (BlockState) blockState.with(AGE, i), 2);
-                level.setBlockState(blockPos.up(), (BlockState) level.getBlockState(blockPos.up()).with(AGE, i), 2);
+                if(
+                    level.getBlockState(blockPos).getBlock() instanceof PickableDoubleFlower
+                    && level.getBlockState(blockPos.up()).getBlock() instanceof PickableDoubleFlower
+                ) {
+                    i = Math.min(3, (Integer) blockState.get(AGE) + 1);
+                    level.setBlockState(blockPos, (BlockState) blockState.with(AGE, i), 2);
+                    level.setBlockState(blockPos.up(), (BlockState) level.getBlockState(blockPos.up()).with(AGE, i), 2);
+                }
             } else {
-                i = Math.min(3, (Integer) level.getBlockState(blockPos.down()).get(AGE) + 1);
-                level.setBlockState(blockPos, (BlockState) blockState.with(AGE, i), 2);
-                level.setBlockState(blockPos.down(), (BlockState) level.getBlockState(blockPos.down()).with(AGE, i), 2);
+                if(
+                    level.getBlockState(blockPos).getBlock() instanceof PickableDoubleFlower
+                    && level.getBlockState(blockPos.down()).getBlock() instanceof PickableDoubleFlower
+                ) {
+                    i = Math.min(3, (Integer) level.getBlockState(blockPos.down()).get(AGE) + 1);
+                    level.setBlockState(blockPos, (BlockState) blockState.with(AGE, i), 2);
+                    level.setBlockState(blockPos.down(), (BlockState) level.getBlockState(blockPos.down()).with(AGE, i), 2);
+                }
             }
         }
         ci.cancel();
