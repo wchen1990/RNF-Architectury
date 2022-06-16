@@ -1,4 +1,4 @@
-package com.rocketnotfound.rnf.forge.mixin.client;
+package com.rocketnotfound.rnf.forge.mixin.compat.xaeros;
 
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
