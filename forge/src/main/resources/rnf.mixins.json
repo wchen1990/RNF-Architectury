@@ -5,9 +5,10 @@
   "compatibilityLevel": "JAVA_16",
   "client": [
     "client.MixinBackgroundRendererForFluids",
-    "client.MixinXaerosMinimapHeadPartsCheck"
+    "compat.xaeros.MixinXaerosMinimapHeadPartsCheck"
   ],
   "mixins": [
+    "compat.hexerei.MixinHexereiPickableDoubleFlowerFix"
   ],
   "injectors": {
     "defaultRequire": 1

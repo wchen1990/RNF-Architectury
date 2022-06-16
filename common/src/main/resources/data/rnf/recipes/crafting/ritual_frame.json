@@ -1,8 +1,8 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "A A",
-    "ARA",
+    "AGA",
+    "ALA",
     " O "
   ],
   "key": {
@@ -12,8 +12,11 @@
     "O": {
       "item": "minecraft:obsidian"
     },
-    "R": {
-      "item": "rnf:rune_block"
+    "L": {
+      "item": "rnf:luna"
+    },
+    "G": {
+      "item": "minecraft:glass"
     }
   },
   "result": {
