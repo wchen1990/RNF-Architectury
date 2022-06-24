@@ -4,8 +4,7 @@
   "package": "com.rocketnotfound.rnf.forge.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
-    "client.MixinBackgroundRendererForFluids",
-    "compat.xaeros.MixinXaerosMinimapHeadPartsCheck"
+    "client.MixinBackgroundRendererForFluids"
   ],
   "mixins": [
     "compat.hexerei.MixinHexereiPickableDoubleFlowerFix"
