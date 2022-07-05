@@ -130,13 +130,13 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                         infuseTarget = (BlockPos) iter.next();
                     } while (!infuseRec.testTarget(serverWorld, infuseTarget));
 
-                    if (infuseTarget != null && serverWorld.getBlockState(infuseTarget).isOf(RNFBlocks.DRAINED_RUNE_BLOCK.get())) {
+                    if (infuseTarget != null) {
                         blockEntity.miscPos = infuseTarget;
                     }
 
                     blockEntity.phaseTicks = 0;
                 }
-            } else if (serverWorld.getBlockState(blockEntity.miscPos).isOf(RNFBlocks.DRAINED_RUNE_BLOCK.get())) {
+            } else {
                 if (blockEntity.phaseTicks > RNF.serverConfig().INFUSE.ACTION_COMPLETION_TICKS) {
                     Optional<Recipe> rec = RitualFrameHelper.checkForInfusionRecipe(blockEntity, serverWorld);
                     if (rec.isEmpty() || !(rec.get() instanceof InfusionRitual infuseRec) || !infuseRec.isValid()) {
@@ -175,9 +175,6 @@ public class RitualFrameBlockEntity extends BaseBlockEntity implements IAnimatab
                         serverWorld.spawnParticles(ParticleTypes.END_ROD, blockEntity.miscPos.getX() + 0.5, blockEntity.miscPos.getY() + 0.5, blockEntity.miscPos.getZ() + 0.5, 3, 0, 0, 0, 0.1);
                     }
                 }
-            } else {
-                blockEntity.miscPos = null;
-                blockEntity.becomeDormant();
             }
         } else {
             blockEntity.phaseTicks++;
