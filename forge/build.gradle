@@ -61,7 +61,8 @@ dependencies {
     //modRuntimeOnly("curse.maven:unearthed-${unearthed_curse_maven_project_id}:${unearthed_curse_maven_forge_file_id}")
 
     // Hexerei
-    modImplementation("curse.maven:hexerei-548599:3785792")
+    //modImplementation("curse.maven:hexerei-548599:3906977")
+    modImplementation("generic:hexerei:0.2.2")
 
     // Shutup Experimental Settings
     modRuntimeOnly("curse.maven:shutup-407174:3759881")
