@@ -45,6 +45,10 @@ dependencies {
     // at runtime, use the full JEI jar
     modRuntimeOnly("mezz.jei:jei-${minecraft_version}:${jei_version}")
 
+    // Curios
+    modCompileOnlyApi("top.theillusivec4.curios:curios-forge:${curios_version}:api")
+    modRuntimeOnly("top.theillusivec4.curios:curios-forge:${curios_version}")
+
     // TOP
     //modRuntimeOnly("curse.maven:top-245211:3671753")
 
