@@ -1,0 +1,24 @@
+{
+  "type": "rnf:priming_spell",
+  "key": {
+    "D": "rnf:rune_block_d",
+    "I": "rnf:rune_block_i",
+    "S": "rnf:rune_block_s",
+    "R": "rnf:rune_block_r",
+    "O": "rnf:rune_block_o",
+    "B": "rnf:rune_block_b",
+    "A": "rnf:rune_block_a",
+    "L": "rnf:rune_block_l"
+  },
+  "pattern": {
+    "initial": "DISROBAL"
+  },
+  "effects": [
+    {
+      "type": "disrobal",
+      "variables": {
+        "value": 60
+      }
+    }
+  ]
+}

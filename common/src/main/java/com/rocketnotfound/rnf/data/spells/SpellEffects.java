@@ -10,6 +10,7 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.nbt.NbtCompound;
@@ -72,6 +73,17 @@ public class SpellEffects {
 
     public static final NonAffectedSpellRequires KILL = () -> (world, entity) -> {
         entity.damage(DamageSource.MAGIC, Float.MAX_VALUE);
+        return entity;
+    };
+
+    public static final FloatAffectedSpellRequires DISROBAL = (delay) -> (world, entity) -> {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ItemStack equipped = entity.getEquippedStack(slot);
+            if (!equipped.isEmpty()) {
+                entity.equipStack(slot, ItemStack.EMPTY);
+                ItemEntityHelper.spawnItem(world, entity.getPos(), equipped, Vec3d.ZERO, (int) delay);
+            }
+        }
         return entity;
     };
 
@@ -224,7 +236,7 @@ public class SpellEffects {
         return triggeringEntity;
     };
 
-        // Put in defined spell effects into our map
+    // Put in defined spell effects into our map
     // Should be able to add and remove effects from this easily
     static {
         TYPE_MAP.put("add_velocity", ADD_VELOCITY);
@@ -232,6 +244,7 @@ public class SpellEffects {
         TYPE_MAP.put("lightning", LIGHTNING);
         TYPE_MAP.put("damage", DAMAGE);
         TYPE_MAP.put("kill", KILL);
+        TYPE_MAP.put("disrobal", DISROBAL);
         TYPE_MAP.put("give_status", GIVE_STATUS);
         TYPE_MAP.put("warp", WARP);
         TYPE_MAP.put("warp_dim", WARP_DIM);
@@ -242,27 +255,27 @@ public class SpellEffects {
     }
 
     // Boilerplate interfaces that were defined so that we can _lazily_ define spell effects
-    interface SpellEffect {
+    public interface SpellEffect {
         LivingEntity cast(ServerWorld world, @Nullable LivingEntity entity);
     }
 
-    interface EntityRequirement {
+    public interface EntityRequirement {
         boolean requiresEntity();
     }
-    interface RequiresEntity extends EntityRequirement {
+    public interface RequiresEntity extends EntityRequirement {
         @Override
         default boolean requiresEntity() { return true; }
     }
-    interface DoesNotRequireEntity extends EntityRequirement {
+    public interface DoesNotRequireEntity extends EntityRequirement {
         @Override
         default boolean requiresEntity() { return false; }
     }
 
-    interface SpellEffectDeserialize extends EntityRequirement {
+    public interface SpellEffectDeserialize extends EntityRequirement {
         SpellEffect deserialize(NbtCompound nbt);
     }
 
-    interface NonAffectedSpell extends SpellEffectDeserialize {
+    public interface NonAffectedSpell extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             return create();
@@ -270,10 +283,10 @@ public class SpellEffects {
 
         SpellEffect create();
     }
-    interface NonAffectedSpellRequires extends NonAffectedSpell, RequiresEntity { }
-    interface NonAffectedSpellNoEntity extends NonAffectedSpell, DoesNotRequireEntity { }
+    public interface NonAffectedSpellRequires extends NonAffectedSpell, RequiresEntity { }
+    public interface NonAffectedSpellNoEntity extends NonAffectedSpell, DoesNotRequireEntity { }
 
-    interface FloatAffectedSpell extends SpellEffectDeserialize {
+    public interface FloatAffectedSpell extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             float f = nbt.getFloat("value");
@@ -282,10 +295,10 @@ public class SpellEffects {
 
         SpellEffect create(float f);
     }
-    interface FloatAffectedSpellRequires extends FloatAffectedSpell, RequiresEntity { }
-    interface FloatAffectedSpellNoEntity extends FloatAffectedSpell, DoesNotRequireEntity { }
+    public interface FloatAffectedSpellRequires extends FloatAffectedSpell, RequiresEntity { }
+    public interface FloatAffectedSpellNoEntity extends FloatAffectedSpell, DoesNotRequireEntity { }
 
-    interface StatusEffectSpell extends SpellEffectDeserialize, RequiresEntity {
+    public interface StatusEffectSpell extends SpellEffectDeserialize, RequiresEntity {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             StatusEffect effect = Registry.STATUS_EFFECT.get(new Identifier(nbt.getString("status")));
@@ -297,7 +310,7 @@ public class SpellEffects {
         SpellEffect create(StatusEffect statusEffect, float duration, float amplifier);
     }
 
-    interface BlockPosAffectedSpell extends SpellEffectDeserialize {
+    public interface BlockPosAffectedSpell extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             return create(NbtHelper.toBlockPos(nbt.getCompound("blockPos")));
@@ -305,10 +318,10 @@ public class SpellEffects {
 
         SpellEffect create(BlockPos pos);
     }
-    interface BlockPosAffectedSpellRequires extends BlockPosAffectedSpell, RequiresEntity {}
-    interface BlockPosAffectedSpellNoEntity extends BlockPosAffectedSpell, DoesNotRequireEntity {}
+    public interface BlockPosAffectedSpellRequires extends BlockPosAffectedSpell, RequiresEntity {}
+    public interface BlockPosAffectedSpellNoEntity extends BlockPosAffectedSpell, DoesNotRequireEntity {}
 
-    interface BlockPosAffectedSpellWith1F extends SpellEffectDeserialize {
+    public interface BlockPosAffectedSpellWith1F extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             float f = nbt.getFloat("value");
@@ -317,10 +330,10 @@ public class SpellEffects {
 
         SpellEffect create(BlockPos pos, float f);
     }
-    interface BlockPosAffectedSpellWith1FRequires extends BlockPosAffectedSpellWith1F, RequiresEntity {}
-    interface BlockPosAffectedSpellWith1FNoEntity extends BlockPosAffectedSpellWith1F, DoesNotRequireEntity {}
+    public interface BlockPosAffectedSpellWith1FRequires extends BlockPosAffectedSpellWith1F, RequiresEntity {}
+    public interface BlockPosAffectedSpellWith1FNoEntity extends BlockPosAffectedSpellWith1F, DoesNotRequireEntity {}
 
-    interface BlockPosAffectedSpellWithStringList extends SpellEffectDeserialize {
+    public interface BlockPosAffectedSpellWithStringList extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             return create(
@@ -333,10 +346,10 @@ public class SpellEffects {
 
         SpellEffect create(BlockPos pos, List<String> parameters);
     }
-    interface BlockPosAffectedSpellWithStringListRequires extends BlockPosAffectedSpellWithStringList, RequiresEntity {}
-    interface BlockPosAffectedSpellWithStringListNoEntity extends BlockPosAffectedSpellWithStringList, DoesNotRequireEntity {}
+    public interface BlockPosAffectedSpellWithStringListRequires extends BlockPosAffectedSpellWithStringList, RequiresEntity {}
+    public interface BlockPosAffectedSpellWithStringListNoEntity extends BlockPosAffectedSpellWithStringList, DoesNotRequireEntity {}
 
-    interface SummonBlockSpell extends SpellEffectDeserialize, RequiresEntity {
+    public interface SummonBlockSpell extends SpellEffectDeserialize, RequiresEntity {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             List<NbtCompound> additionalNbt = nbt.contains("additionalNbt") ? nbt.getList("additionalNbt", NbtElement.COMPOUND_TYPE).stream().map(
@@ -352,7 +365,7 @@ public class SpellEffects {
         SpellEffect create(BlockPos pos, String block, List<NbtCompound> additionalNbt);
     }
 
-    interface SummonEntitySpell extends SpellEffectDeserialize, DoesNotRequireEntity {
+    public interface SummonEntitySpell extends SpellEffectDeserialize, DoesNotRequireEntity {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             List<String> entities = nbt.contains("entities") ? nbt.getList("entities", NbtElement.STRING_TYPE).stream().map(
@@ -371,7 +384,7 @@ public class SpellEffects {
         SpellEffect create(BlockPos pos, List<String> entities, List<NbtCompound> additionalNbt);
     }
 
-    interface BlockPosAffectedSpellWithDim extends SpellEffectDeserialize {
+    public interface BlockPosAffectedSpellWithDim extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             String str = nbt.getString("dimension");
@@ -380,10 +393,10 @@ public class SpellEffects {
 
         SpellEffect create(BlockPos pos, String dimKey);
     }
-    interface BlockPosAffectedSpellWithDimRequires extends BlockPosAffectedSpellWithDim, RequiresEntity {}
-    interface BlockPosAffectedSpellWithDimNoEntity extends BlockPosAffectedSpellWithDim, DoesNotRequireEntity {}
+    public interface BlockPosAffectedSpellWithDimRequires extends BlockPosAffectedSpellWithDim, RequiresEntity {}
+    public interface BlockPosAffectedSpellWithDimNoEntity extends BlockPosAffectedSpellWithDim, DoesNotRequireEntity {}
 
-    interface VectorAffectedSpell extends SpellEffectDeserialize {
+    public interface VectorAffectedSpell extends SpellEffectDeserialize {
         @Override
         default SpellEffect deserialize(NbtCompound nbt) {
             return create(SpellHelper.vectorFromNbt(nbt.getCompound("vector")));
@@ -391,6 +404,6 @@ public class SpellEffects {
 
         SpellEffect create(Vec3d vec);
     }
-    interface VectorAffectedSpellRequires extends VectorAffectedSpell, RequiresEntity {}
-    interface VectorAffectedSpellNoEntity extends VectorAffectedSpell, DoesNotRequireEntity {}
+    public interface VectorAffectedSpellRequires extends VectorAffectedSpell, RequiresEntity {}
+    public interface VectorAffectedSpellNoEntity extends VectorAffectedSpell, DoesNotRequireEntity {}
 }

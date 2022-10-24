@@ -1,6 +1,7 @@
 package com.rocketnotfound.rnf.forge;
 
 import com.rocketnotfound.rnf.RNF;
+import com.rocketnotfound.rnf.compat.forge.curios.CuriosCompat;
 import com.rocketnotfound.rnf.compat.forge.unearthed.UECompat;
 import com.rocketnotfound.rnf.forge.item.ForgeRitualFrameItem;
 import com.rocketnotfound.rnf.forge.item.ForgeRitualPrimerItem;
@@ -46,6 +47,9 @@ public class RNForge {
         RNFFeatures.init();
         if (ModList.get().isLoaded("mores")) {
             RNFFeatures.initMores();
+        }
+        if (ModList.get().isLoaded("curios")) {
+            CuriosCompat.init();
         }
     }
 }

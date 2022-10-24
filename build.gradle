@@ -38,6 +38,7 @@ allprojects {
         // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
         // See https://docs.gradle.org/current/userguide/declaring_repositories.html
         // for more information about repositories.
+        maven { url "file:///${project.projectDir}/lib/" }
         maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
         maven {
             url "https://cursemaven.com"
@@ -45,7 +46,6 @@ allprojects {
                 includeGroup "curse.maven"
             }
         }
-
         maven {
             // location of the maven that hosts JEI files
             name = "Progwml6 maven"
@@ -55,6 +55,10 @@ allprojects {
             // location of a maven mirror for JEI files, as a fallback
             name = "ModMaven"
             url = "https://modmaven.dev"
+        }
+        maven {
+            // location of curios
+            url = "https://maven.theillusivec4.top/"
         }
     }
 

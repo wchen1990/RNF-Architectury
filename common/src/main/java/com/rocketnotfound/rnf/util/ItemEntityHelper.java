@@ -44,6 +44,11 @@ public class ItemEntityHelper {
         spawnItem(world, Vec3d.of(blockPos), itemStack, vec);
     }
     public static void spawnItem(ServerWorld world, Vec3d blockPos, ItemStack itemStack, Vec3d vec) {
-        world.spawnEntity(new ItemEntity(world, blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStack, vec.getX(), vec.getY(), vec.getZ()));
+        spawnItem(world, blockPos, itemStack, vec, 0);
+    }
+    public static void spawnItem(ServerWorld world, Vec3d blockPos, ItemStack itemStack, Vec3d vec, int pickupDelay) {
+        ItemEntity itemEntity = new ItemEntity(world, blockPos.getX(), blockPos.getY(), blockPos.getZ(), itemStack, vec.getX(), vec.getY(), vec.getZ());
+        itemEntity.setPickupDelay(pickupDelay);
+        world.spawnEntity(itemEntity);
     }
 }
